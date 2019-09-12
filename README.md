@@ -79,7 +79,7 @@ GoThingsSystem short description
 
 <br />
 
-* in [hlite-control](https://github.com/fpirri/hlite-control "github hlite-control")  you find the **GoThingsControlMenu** to manage the lifecycle of your containers
+* in [gothingscontrolmenu](https://github.com/fpirri/gothingscontrolmenu "github gothingscontrolmenu")  you find the **GoThingsControlMenu** to manage the lifecycle of your containers
 * in [hlite-apps](https://github.com/fpirri/hlite-apps "github hlite-apps")  you find templates that can be customized for specific purposes
  
 <br />  
@@ -207,9 +207,9 @@ You should verify equality of the locally calculated checksum with that reported
 NOTE :  
   There are means of verification other than md5 checksum.
   Here MD5 is choosed because it is already available in the raspbian OS
- Security will be eventually improved in a following version of fastinstall
+ Security will be eventually improved in a following version of 0 script
 
-#### 4- download fastinstall
+#### 4- download 0 script
 Exec the command:
 
         . boot.sh
@@ -218,15 +218,15 @@ please note: the command is a dot followed by a space, then the name of the scri
 The script will be immediately executed
 
 #### 5- Fastinstal
-Now you have a link to the fastinstall.sh script in your root dir
+Now you have a link to the 0 script in your root dir
 
-     - you can execute fastinstall by typing: './fastinstall'
+     - you can execute 0 script by typing: './0'
 
- Follow the procedure suggested by the fastinstall script, one section at a time.  
+ Follow the procedure suggested by the 0 script script, one section at a time.  
 It is advisable to exec the first step only once, it will take a few minutes.  
 You may execute the following sections multiple times, althought it should not be necessary.  
-Last section dowload the  [GoThingsControlMenu](https://github.com/fpirri/hlite-control "GoThingsSystem management menu") from github. It also allow you to exec the menu by typing './controlmenu' in the /home/pi/ directory.   
-Anyway, Control Menu is not executed by this action, you should verify it before execution.  
+Last section dowload the  [g menu](https://github.com/fpirri/gothings-installl "GoThingsControlMenu for things management") from github. It also allow you to exec the menu by typing './controlmenu' in the /home/pi/ directory.   
+Anyway, Control Menu is not executed by this action, you should first verify its checksum before execution.  
 
 #### 7- Execution time
 The execution time for each section is influenced by the raspberry board and by the speed of your internet connection.  
@@ -260,7 +260,7 @@ Time below are for a raspberry P1B+ directly connected via LAN to a fast ADSL pr
 2019-08-12
    - docker version 8.06.1~ce~3-0~raspbian  now ok
        - exact cause of misconfiguration was not found
-       - adjusting fastinstall.sh and a fresh restart from a clean raspbian corrected the problem
+       - adjusting 0 script.sh and a fresh restart from a clean raspbian corrected the problem
 
 2019-08-09
    - docker version 8.06.1~ce~3-0~raspbian  no more starts
