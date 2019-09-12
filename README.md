@@ -4,12 +4,12 @@ Script to install docker and running example on a Raspberry board
 <br />  
 
 ----
-[What GoThingsInstall does]()
-[What you get]()
-[What you need]()
-[GoThingsSystem short description]()
-[Pre-installation steps]()
-[GoThings installation]()
+[What GoThingsInstall does]()  
+[What you get]()  
+[What you need]()  
+[GoThingsSystem short description](https://github.com/fpirri/gothings-install#gothingssystem-short-description)  
+[Pre-installation steps]()  
+[GoThings installation]()  
 
 ----
 
@@ -18,17 +18,16 @@ Script to install docker and running example on a Raspberry board
 What GoThingsInstall does
 ----  
 
-* ***GoThingsInstall*** offers you a simple menu of actions to install the ***GoThingsSystem***
 * Lets you click/perform a sequence of actions to install docker on your raspberry pi board
 * *GoThingsInstall* allows you to set locales, get some data from github and initialize the *GoThingsSystem*
-* You can run a demo application
-* You can also intall and execute the ***GoThingsControlMenu*** on the board  
+* It runs a demo application
+* It also intall and execute the *GoThingsControlMenu* on the board  
   
+  
+ *GoThingsControlMenu* allows you to manage lifecycle of your containers
    
- ***GoThingsSystem*** is briefly described below  
+ ***GoThingsSystem*** is briefly described [below](https://github.com/fpirri/gothings-install#gothingssystem-short-description "GoThingsSystem short description")  
  
- ***GoThingsControlMenu*** is available on github at [GoThingsInstall](https://github.com/fpirri/gothingsinstall "GoThingsControlMenu") 
-
 <br />  
 
 What you get  
@@ -71,7 +70,7 @@ GoThingsSystem short description
 * each container does a specific function but all the ensemble is seen from the network as a single entity
     * each container may use a different language, i.e. javascript, python, PHP, ...
 * The *GoThingsSystem* is made up from two parts: 'base' & 'user'
-* The 'base' part gives to the GoThings system the capabilities common to most applications, such as network access and security  
+* The 'base' part gives to the GoThings System the capabilities common to most applications, such as network access and security  
 * The 'user' part is specific to a particular configuration
     * please note: this part allows users to run their own code
 * *GoThings* run in your Internet-of-Things, on the ARM achitecture boards such as the Raspberry Pi
@@ -79,7 +78,7 @@ GoThingsSystem short description
 
 <br />
 
-* in [gothingscontrolmenu](https://github.com/fpirri/gothingscontrolmenu "github gothingscontrolmenu")  you find the **GoThingsControlMenu** to manage the lifecycle of your containers
+* in [github](https://github.com/fpirri/gothings-install/g "github gothingscontrolmenu")  you find the **GoThingsControlMenu** to manage the lifecycle of your containers
 * in [hlite-apps](https://github.com/fpirri/hlite-apps "github hlite-apps")  you find templates that can be customized for specific purposes
  
 <br />  
@@ -178,98 +177,73 @@ Please be patient, I will do my best to include basic docs on github ASAP
 #### 1- Connection
 Connect to your board via ssh, commands below should be gived in the home directory /home/pi
 
-#### 2- Download boot.sh
+#### 2- Download the 'zero' script
 Exec the command:
 
-      wget -O ~/boot.sh https://raw.githubusercontent.com/fpirri/hlite-install/master/boot.sh
+      wget -O /home/pi/0 https://raw.githubusercontent.com/fpirri/gothings-install/master/0
 
-The boot.sh file is the primary bootstrap script.
+The 0 (number zero) is the primary bootstrap script.
      
 3-   To give yourself a minimum of security you should verify the integrity of the files you download from internet.  
-To this end you have to calculate the checksum of the downloaded boot.sh file:  
+To this end you have to calculate the checksum of the downloaded 0 file:  
 
-       md5sum /home/pi/boot.sh  <-- you thype this
-       54c6223a01420b9028720e9d5789adf3 /home/pi/boot.sh  <-- you see the locally calculated checksum
+       md5sum /home/pi/0  <-- you thype this
+       54c6223a01420b9028720e9d5789adf3 /home/pi/0  <-- you see the locally calculated checksum
 
 You should compare it with the file on github repository.
-Content of github boot.sh.md5 file is similar to:  
+Content of github 0.md5 file is similar to:  
     
         54c6223a01420b9028720e9d5789adf3  /home/pi/boot.sh
         ---
         To evaluate the checksum above you may use the following command:
-        md5sum /home/pi/boot.sh
+        md5sum /home/pi/0
         ---
-        boot.sh  version 0.0.3
+        0  version 0.0.3
         ---
-
+  
+  
+#### 3- Verify the 'zero' script
 You should verify equality of the locally calculated checksum with that reported on the github repository
 
 NOTE :  
   There are means of verification other than md5 checksum.
   Here MD5 is choosed because it is already available in the raspbian OS
- Security will be eventually improved in a following version of 0 script
+ Security will be eventually improved in the following
 
-#### 4- download 0 script
+#### 4- exec the 0 script
 Exec the command:
 
-        . boot.sh
+        . 0             <-- the command is:  'dot' 'space' 'number 0'
 
-please note: the command is a dot followed by a space, then the name of the script (boot.sh)  
-The script will be immediately executed
+please note: this immediately executes the script locally, without the need to mark it as executable
 
-#### 5- Fastinstal
-Now you have a link to the 0 script in your root dir
+#### 5- Install actions
 
-     - you can execute 0 script by typing: './0'
-
- Follow the procedure suggested by the 0 script script, one section at a time.  
-It is advisable to exec the first step only once, it will take a few minutes.  
+ Follow the procedure suggested by the 0 script, one action at a time.  
+It is advisable to exec the first action only once.  
 You may execute the following sections multiple times, althought it should not be necessary.  
-Last section dowload the  [g menu](https://github.com/fpirri/gothings-installl "GoThingsControlMenu for things management") from github. It also allow you to exec the menu by typing './controlmenu' in the /home/pi/ directory.   
-Anyway, Control Menu is not executed by this action, you should first verify its checksum before execution.  
+Last but one action dowload the  [g menu](https://github.com/fpirri/gothings-install "GoThingsControlMenu for things management") from github. It also allow you to exec the menu by typing './g' in the /home/pi/ directory.   
+Anyway, Control Menu is not executed by this action, you should first verify its checksum in the last step.  
 
-#### 7- Execution time
-The execution time for each section is influenced by the raspberry board and by the speed of your internet connection.  
-Time below are for a raspberry P1B+ directly connected via LAN to a fast ADSL provider.  
+#### 7- Execution times
+The execution time for each action is influenced by the raspberry board model and by the speed of your internet connection.  
+Times below are for a raspberry P1B+ directly connected via LAN to a fast ADSL provider.  
+Very similar times are obtained for the Raspberry PI 0W board.
 
-     A.1  First boot : 4 m, including reboot;  
-     A.2 Install utilities : 7 m;  
-     A.3 Setup user data : less than 1 m;  
-     A.4 Docker installation : 12 min;  
-     A.4 bis - Docker-conmpose installation via python PIP : 1h 15m;  
-     A.5 Demo example - docker images download : 32 m;  
-       --> note: images download is only executed first time;  
-       --> this action can be interrupted and re-executed  
-     A.5 bis - Run example : 2 m.  
- 
+     A.1 First boot          :  4 m, including reboot;  
+     A.2 Install utilities   : 7 m;  
+     A.3 Setup user data     : less than 1 m;  
+     A.4 Docker & docker-compose installation
+                     docker  : 12 min;  
+            compose  via PIP : 1h 15m;  
+     A.5 Demo example
+         images download : 32 m;   (first time only)
+             run example : 2 m.  
+         Note: this action can be interrupted and re-executed   
 ----------------------
 
 <br /><hr />
 
 # Enjoy docker !
 -----
-
-<br />
-
----
-### History
-
-2019-09-10
-   - documentation update
-
-2019-08-12
-   - docker version 8.06.1~ce~3-0~raspbian  now ok
-       - exact cause of misconfiguration was not found
-       - adjusting 0 script.sh and a fresh restart from a clean raspbian corrected the problem
-
-2019-08-09
-   - docker version 8.06.1~ce~3-0~raspbian  no more starts
-       - it used to run fine for a few weeks
-       - probably, an 'sudo apt upgrade' misconfigured something
-       - start searching for the cause of error
-
-2019-07-18
-   - hlite-install version 0.1 runs !
-      - raspbian version:  2018-11-13-raspbian-stretch-lite
-      - docker-ce version: 8.06.1~ce~3-0~raspbian
 
