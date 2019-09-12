@@ -4,7 +4,7 @@ Script to install docker and running example on a Raspberry board
 <br />  
 
 ----
-[What GoThingsInstall does]()  
+[What GoThingsInstall does](https://github.com/fpirri/gothings-install#what-gothingsinstall-does)  
 [What you get]()  
 [What you need]()  
 [GoThingsSystem short description](https://github.com/fpirri/gothings-install#gothingssystem-short-description)  
