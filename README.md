@@ -5,11 +5,11 @@ Script to install docker and running example on a Raspberry board
 
 ----
 [What GoThingsInstall does](https://github.com/fpirri/gothings-install#what-gothingsinstall-does)  
-[What you get]()  
-[What you need]()  
+[What you get](https://github.com/fpirri/gothings-install#what-you-get)  
+[What you need](https://github.com/fpirri/gothings-install#what-you-need)  
 [GoThingsSystem short description](https://github.com/fpirri/gothings-install#gothingssystem-short-description)  
-[Pre-installation steps]()  
-[GoThings installation]()  
+[Pre-installation steps](https://github.com/fpirri/gothings-install#pre-installation-steps)  
+[GoThings installation](https://github.com/fpirri/gothings-install#gothings-installation)  
 
 ----
 
@@ -184,7 +184,7 @@ Exec the command:
 
 The 0 (number zero) is the primary bootstrap script.
      
-3-   To give yourself a minimum of security you should verify the integrity of the files you download from internet.  
+ To give yourself a minimum of security you should verify the integrity of the files you download from internet.  
 To this end you have to calculate the checksum of the downloaded 0 file:  
 
        md5sum /home/pi/0  <-- you thype this
@@ -193,7 +193,7 @@ To this end you have to calculate the checksum of the downloaded 0 file:
 You should compare it with the file on github repository.
 Content of github 0.md5 file is similar to:  
     
-        54c6223a01420b9028720e9d5789adf3  /home/pi/boot.sh
+        54c6223a01420b9028720e9d5789adf3  /home/pi/0
         ---
         To evaluate the checksum above you may use the following command:
         md5sum /home/pi/0
@@ -225,10 +225,16 @@ You may execute the following sections multiple times, althought it should not b
 Last but one action dowload the  [g menu](https://github.com/fpirri/gothings-install "GoThingsControlMenu for things management") from github. It also allow you to exec the menu by typing './g' in the /home/pi/ directory.   
 Anyway, Control Menu is not executed by this action, you should first verify its checksum in the last step.  
 
+#### 6- Verify 0 script
+The last action verify downloaded files using both MD5 and RSA-2 checksum.  
+This is now possible, owing to the installed utilities in the second action of the 0 script.  
+This operation is quite secure, having you independently verified security of the 0 script in the the step 3- above
+
+
 #### 7- Execution times
 The execution time for each action is influenced by the raspberry board model and by the speed of your internet connection.  
 Times below are for a raspberry P1B+ directly connected via LAN to a fast ADSL provider.  
-Very similar times are obtained for the Raspberry PI 0W board.
+Very similar times are obtained for the Raspberry PI zeroW board.
 
      A.1 First boot          :  4 m, including reboot;  
      A.2 Install utilities   : 7 m;  
