@@ -1,0 +1,418 @@
+#!/bin/bash
+#                                                                    2019-07-16
+#  INSTALL menu script for HLITE system
+#                                                               version 0.00.05
+#  Menu per l'inizializzazione del sistema hlite
+#    <-- Install docker
+#    <-- Install hlite base
+#    <-- GoTo gestione framework hlite
+#
+# download:
+#   wget -O ~/sysstart/hliteboot/fastinstall.sh https://raw.githubusercontent.com/fpirri/hlite-install/master/fastinstall.sh
+#
+#------------------------------------------------------------------------------
+#    inspired by:
+#      https://bash.cyberciti.biz/guide/Menu_driven_scripts
+#
+#==============================================================================
+echo
+echo "========================================================= HLITE for raspi"
+echo "          Control loader for HLITE docker system."
+echo "========================================================================="
+echo
+sleep 2
+cd ~/sysstart/hliteboot
+#
+# ---  environment
+VERSION="0.1.4"  #--- dev 03: checksum is changing !
+#
+EDITOR=nano
+PASSWD=/etc/passwd
+RED='\033[0;41;30m'
+STD='\033[0;0;39m'
+ 
+pause(){
+#  continue or exit
+  echo "-------------------------------------------------------------- $1/"
+  read -rsp $'Press any key to continue or ^C to exit ...' -n 1 key
+}
+
+avanti(){
+#  continue or exit
+  read -rsp $'Press any key to continue or ^C to exit ...' -n 1 key
+}
+
+getfile(){
+  # call:    getfile $1 $2
+  #   $1:    "filename"
+  #   $2:    "github project branch"
+  # example:
+  #          getfile "hdirs.tar.gz" "hlite-install/master"
+  echo 
+  echo "get file: $1"
+  wget -O /home/pi/sysstart/hliteboot/$1 https://raw.githubusercontent.com/fpirri/$2/$1
+  echo 
+  echo "=================================================================="
+  echo "Downloaded file MD5 checksum calculation:"
+  md5sum /home/pi/sysstart/hliteboot/$1
+  echo "=================================================================="
+  echo "you can compare the above with the signature on the site"
+}
+
+init(){
+  # 1. expand filesystem
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 1:"
+  echo "Preliminary operations:"
+  echo " - set docker group"
+  echo " - expand filesystem"
+  echo
+  echo "Docker group will be useful later on .."
+  echo "Add docker group"
+  sudo groupadd docker
+  echo "Add user pi to docker group"
+  sudo gpasswd -a $USER docker
+  echo
+  sleep 5
+  echo
+  echo "EXPAND operation is needed ONLY ONCE"
+  echo "This allow you to utilize ALL of your sd card"
+  echo "Otherwise you will be limited to the ~2 GB size of the burned image"
+  echo
+  echo "Please note the raspy may need several minutes,"
+  echo "depending on the size of your card."
+  echo "At the end, please reboot the board."
+  echo 
+  sleep 5
+  avanti
+  echo
+  echo "Please, be patient !"
+  sudo raspi-config --expand-rootfs
+  echo "DONE"
+  echo 
+  echo "Your actual disk space:"
+  df -h
+  sleep 5
+  echo
+  echo "To reboot your board, please type the command:"
+  echo "   sudo reboot now"
+  echo "Reconnect after several seconds"
+  sleep 3
+  exit
+  #pause "1"
+}
+
+utils(){
+  # 2. Set base directories & data, INSTALL utilities for docker
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 2:"
+  echo "Set base directories & data, INSTALL utilities for docker"
+  echo 
+  sleep 2
+  # set locale
+  echo "Generate locales for hlite"
+  sudo sed -i '$a it_IT.UTF-8 UTF-8' /etc/locale.gen
+  sudo sed -i '$a en_US.UTF-8 UTF-8' /etc/locale.gen
+  ### en_GB non serve: e' gia' attivo
+  #sudo sed -i '$a en_GB.UTF-8 UTF-8' /etc/locale.gen
+  sudo locale-gen 
+  echo "Set default on en_US"
+  sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 
+  echo "Available locales now are:"
+  locale -a
+  echo
+  echo "Please note active locale will be updated at next login/reboot"
+  # install tree (altri programmi utili?)
+  echo "install utilities"
+  #sudo apt-get -y update && sudo apt-get -y upgrade && \
+  sudo apt-get -y update && sudo apt-get -o Dpkg::Options::=--force-confdef -y install tree
+  echo
+  echo "Create base dirs"
+  mkdir ~/sysarchive
+  mkdir ~/sysarchive/sysdata
+  mkdir ~/dockrepo
+  mkdir ~/dockrepo/sysdata
+  echo "Show dir tree:"
+  tree -d ~/
+  echo
+  sleep 3
+  echo
+  # setup dirs:  dockrepo & sysarchive
+  echo
+  echo "set dirs for HLITE - get content"
+  getfile "hdirs.tar.gz" "hlite-install/master"
+  avanti
+  echo 
+  echo "expand content"
+  tar xzvf ~/sysstart/hliteboot/hdirs.tar.gz -C ~/
+  echo
+  echo "HLITE user content copied"
+  sleep 5
+  echo 
+  echo "Add the Docker official repos"
+  curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | sudo apt-key add -
+  echo "deb [arch=armhf] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
+        $(lsb_release -cs) stable" | \
+        sudo tee /etc/apt/sources.list.d/docker.list
+  echo 
+  echo "Install docker package prerequisites"
+  sudo apt update
+  sudo apt install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg2 \
+    software-properties-common
+  echo
+  echo "Docker package prerequisites now installed"
+  sleep 3
+  echo
+  echo "HLITE dir tree:"
+  echo
+  tree -d ~/
+  sleep 5
+  pause "2"
+}
+
+dockinstall(){
+  # 3. INSTALL docker community edition
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 3:"
+  echo "INSTALL docker community edition"
+  echo 
+  echo "Docker version: 18.06.1~ce~3-0~raspbian"
+  sleep 3
+  cd /home/pi/
+  sudo apt update -y
+  sudo apt install -y docker-ce=18.06.1~ce~3-0~raspbian
+  echo
+  echo "Docker installed, verify docker version:"
+  sudo docker version
+  echo
+  echo
+  echo "Test the simple 'docker ps -a' function, it should not show errors"
+  sudo docker ps -a
+  echo "------------------"
+  sleep 3
+  echo
+  echo "Install compose and pip pre-requisites:"
+  echo
+  echo "Please note this section will take a long time!"
+  echo "It took more than an hour on my raspberry PI1 mod. B+"
+  sleep 5
+  sudo apt update
+  sudo apt install -y build-essential libssl-dev libffi-dev python
+  sudo apt install -y python-dev python-pip
+  echo
+  echo "Install docker-compose using python-pip"
+  sudo pip install docker-compose
+  echo
+  echo "docker-compose version:"
+  sudo docker-compose --version
+  sleep 5
+  pause "3"
+}
+
+testhlite(){
+  # 4. TEST use docker-compose for a simple configuration
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 4:"
+  echo
+  echo "TEST - use docker-compose for a simple configuration"
+  echo
+  echo "Some pre-built images to support hlite services are:"
+  echo "  BOXBASE   <-- contains several utilities to develop and debug hlite services"
+  echo "  NGINX     <-- http proxy to interface all network communication"
+  echo "  NODEBASE  <-- nodejs environment to support generic javascript applications"
+  echo "  VUEDEV    <-- node + vue environment to support reactive applications"
+  echo
+  echo "This test will use a couple of docker images:"
+  echo "  NGINX"
+  echo "  VUEDEV"
+  echo "Downloading these images may take a long time, please be patient"
+  echo "30 minutes over a standard ADSL connection is normal"
+  echo 
+  echo "Install hlite docker networks"
+  echo "Please note that the following will show 'already exists' errors"
+  echo "if this section is started multiple times"
+  echo "- hlitenet"
+  sudo docker network create -d bridge --subnet 172.29.196.0/24 --gateway 172.29.196.1 hlitenet  
+  echo "- servicenet"
+  sudo docker network create -d bridge --subnet 172.29.195.0/24 --gateway 172.29.195.1 servicenet
+  echo
+  echo "Start example using docker-compose"
+  echo "Please see 'bla bla page' for a detailed description of this example"
+  echo
+  echo "First time you run this section, you have to download two docker images"
+  echo "Total size can be 1 GB or more, so this can be a long process"
+  echo "Anyway, this only need to be done once."
+  echo
+  echo "At the end of download, containers should run in less than 60 seconds"
+  echo
+  echo "The process is starting now:"
+  sudo docker-compose -f /home/pi/dockrepo/dockimages/app-testvue.yml up -d
+  echo
+  echo "Containers should have started. I wait 20 seconds to allow for them"
+  echo "to stabilize"
+  echo "Then you should see the status of containers in your raspi"
+  sleep 10
+  sudo docker ps -a --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}"
+  echo "-------------------------"
+  echo "You find above the status of containers in your system"
+  echo "Hopefully, for each container you see something similar to:"
+  echo "  'up xx seconds'"
+  echo "-------------------------"
+  sleep 5
+  echo 
+  echo "Now, I try to read something using nginx container .."
+  echo "The instruction is:\n    curl 'localhost:6003/test.txt'"
+  echo
+  echo "-------------------------> text from nginx container:"
+  curl 'localhost:6003/test.txt'
+  echo "<------------------------- end of test from nginx"
+  echo
+  echo "The text above is coming from nginx container"
+  echo "It should confirm nginx is running"
+  echo "-------------------------"
+  sleep 7
+  echo 
+  echo "Last thing to be confirmed is testvue container running"
+  echo "The instruction is:\n    curl 'localhost:6001'"
+  echo
+  echo
+  echo "-------------------------> text from vuedev container:"
+  curl 'localhost:6001'
+  echo
+  echo "<------------------------- end of text from vuedev"
+  echo
+  echo "The text above is coming from testvue container"
+  echo "It should confirm testvue is running"
+  echo "-------------------------"
+  sleep 5
+  echo
+  echo "If all seems OK you can go to the hlite configuration from the main menu"
+  echo 
+  echo "Please visit the 'bla bla page' for further information on HLITE"
+  echo
+  sleep 4
+  pause "4"
+}
+
+gotoconf(){
+  # 5. GO to HLITE configuration menu
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 5:"
+  echo
+  echo "GO to HLITE configuration menu"
+  echo
+  echo "Download HLITE control menu"
+  getfile "controlmenu.sh" "hlite-control/master"
+  chmod +x /home/pi/sysstart/hliteboot/controlmenu.sh
+  ln -s /home/pi/sysstart/hliteboot/controlmenu.sh /home/pi/controlmenu
+  echo
+  echo "if you continue, I will exec control menu"
+  echo
+  avanti
+  echo
+  echo "exec control menu"
+  ~/sysstart/hliteboot/controlmenu.sh
+  break
+}
+
+checkfile(){
+  # call:    getfile $1 $2
+  #   $1:    "<filename>"
+  #   $2:    "<github project branch>"
+  # example:
+  #          getfile "boot.sh" "hlite-install/master/"
+  #
+  FILEMD5="/home/pi/sysstart/hliteboot/"$1".md5"
+  echo "file to get: $FILEMD5"
+  wget -O $FILEMD5 "https://raw.githubusercontent.com/fpirri/$2/"$FILEMD5
+  echo 
+  echo "=================================================================="
+  echo " $1 checksum calculation:"
+  md5sum /home/pi/sysstart/hliteboot/$1
+  cat $FILEMD5
+  echo "You should verify equility of the aboe checksums"
+  echo "=================================================================="
+  echo ""
+}
+
+#
+verify(){
+  # 6. Verify checksums
+  echo
+  echo "VERIFY  checksum"
+  echo
+  echo "  ***  Please, FOLLOW the instruction below !!!   ***"
+  echo
+  echo ""
+  echo ""
+  echo "To help you on this task, the hlite-install repository on"
+  echo "github contains MD5 checksum of boot.sh and fastinstal.sh"
+  echo "You have to visually verify checksum below"
+  echo "boot.sh "
+  echo "boot.sh will download fastinstall.sh and verify the"
+  echo "checksum in your behalf."
+  echo ""
+  echo ""
+  echo ""
+  echo
+  avanti
+  pause "6"
+}
+
+# function to display menus
+show_menus() {
+  clear
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "     H L I T E   B U I L D   MENU"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo
+  echo "1. EXPAND  filesystem, required ONCE (first power on only ! )"
+  echo "2. UTILS   install utilities & base data"
+  echo "3. DOCKER  download & install docker for HLITE"
+  echo "4. TEST    use docker-compose for a simple configuration"
+  echo "5. GO      to HLITE configuration menu"
+  echo "6. VERIFY  checksums"
+}
+# read input from the keyboard and take a action
+# invoke the function according to the entered number
+# invoke the two() when the user select 2 from the menu option.
+# Exit when user the user select 3 form the menu option.
+read_options(){
+	local choice
+#	read -p "Enter choice [ 1..3 or ^C to exit] " choice
+  read -rsp $'Enter choice [ 1..6 or ^C to exit ] ' -n 1 choice
+	case $choice in
+		1) init;;
+    2) utils;;
+		3) dockinstall;;
+		4) testhlite;;
+		5) gotoconf;;
+    6) verify;;
+		*) echo -e "${RED}Error...${STD}" && sleep 2
+	esac
+}
+ 
+# ----------------------------------------------
+# Step #3: Trap CTRL+C, CTRL+Z and quit singles
+# ----------------------------------------------
+trap '' SIGQUIT SIGTSTP
+#trap '' SIGINT SIGQUIT SIGTSTP
+ 
+# -----------------------------------
+# Step #4: Main logic - infinite loop
+# ------------------------------------
+
+while true
+do
+	show_menus
+	read_options
+done

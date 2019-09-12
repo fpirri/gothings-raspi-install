@@ -1,0 +1,9 @@
+8e547d96d10a77b0a41be7c4c47cb754  /home/pi/sysstart/hliteboot/fastinstall.sh
+---
+To evaluate the checksum above you may use the following command:
+  md5sum /home/pi/sysstart/hliteboot/fastinstall.sh
+---
+fastinstall.sh version 0.1.4-dev
+---
+Please note that an -dev version does not have stable checksum
+---
