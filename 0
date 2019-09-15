@@ -1,14 +1,14 @@
 #!/bin/bash
 #                                                                    2019-07-16
-#  INSTALL menu script for HLITE system
-#                                                               version 0.00.05
-#  Menu per l'inizializzazione del sistema hlite
+#  INSTALL menu script for GoThings System
+#                                                               version 0.00.06
+#  Menu for GoThings System installation
 #    <-- Install docker
-#    <-- Install hlite base
-#    <-- GoTo gestione framework hlite
+#    <-- Install GoThings base
+#    <-- GoTo GoThings framework control menu
 #
 # download:
-#   wget -O ~/sysstart/hliteboot/fastinstall.sh https://raw.githubusercontent.com/fpirri/hlite-install/master/fastinstall.sh
+#   wget -O /home/pi/0 https://raw.githubusercontent.com/fpirri/gothings-install/master/0
 #
 #------------------------------------------------------------------------------
 #    inspired by:
@@ -16,38 +16,103 @@
 #
 #==============================================================================
 echo
-echo "========================================================= HLITE for raspi"
-echo "          Control loader for HLITE docker system."
+echo "====================================================== GoThings for raspi"
+echo "          INSTALL loader for GoThings docker system."
 echo "========================================================================="
 echo
 sleep 2
-cd ~/sysstart/hliteboot
+cd /home/pi/
 #
 # ---  environment
-VERSION="0.1.4"  #--- dev 03: checksum is changing !
+VERSION="0.0.5"
 #
 EDITOR=nano
 PASSWD=/etc/passwd
 RED='\033[0;41;30m'
 STD='\033[0;0;39m'
- 
-pause(){
-#  continue or exit
-  echo "-------------------------------------------------------------- $1/"
-  read -rsp $'Press any key to continue or ^C to exit ...' -n 1 key
-}
 
-avanti(){
-#  continue or exit
-  read -rsp $'Press any key to continue or ^C to exit ...' -n 1 key
+DEBUGLOG=""     # utile nel debug
+ITEXISTS=0      #  1 : file esiste    0 : file assente
+
+#
+##########################################################################
+############################################# Functions for install script
+#
+##########################################################################
+pause(){
+  #
+  #  ask key before continuing (^C is active)
+  #    $key:  user input key
+  #
+  echo "-------------------------------------------------------------- $1/"
+  read -rsp $'Please press any key to continue ...' -n 1 key
 }
+#
+##########################################################################
+avanti(){
+#
+#  continue or exit
+#    $key:  user input key
+#
+  read -rsp $'Please press any key to continue or ^C to exit ...' -n 1 key
+}
+#
+##########################################################################
+getgitfile(){    # Lettura file da github
+  #
+  #  use globals:
+  #    DEBUGLOG=""     # utile nel debug
+  #    ITEXISTS=0      #  1 : file esiste    0 : file assente
+  #
+  #
+  #     <-- se esiste il file $1 ed ha lunghezza > 0 :
+  #         <-- si va avanti senza altre azioni
+  #     <-- altrimenti si prova a scaricare il file da github               AGGIUSTARE dopo ......
+  #     <-- si riprova il test di lunghezza
+  #         se non funziona si torna con ITEXISTS=0
+  #     
+  # call:    findnodeapp $1 $2 $3
+  #   $1:    "file"
+  #   $2:    "github project branch"
+  #   $3:    "raspi path after /home/pi/ "
+  # RETURN:
+  #           ITEXISTS = 1 se esiste, 0 altrimenti
+  #
+  # Verify file existence, get it from github if not
+  #
+  # example:
+  #          fileexists "hdirs.tar.gz" "gothings-install/master/" "dockrepo/sysarchive/"
+  #
+  #  bash:  -s file  True if file exists and has a size greater than zero
+  FILEGIT="/home/pi/$3$1"
+  DEBUGLOG="|| getgitfile() INFO | Il file cercato e': $FILEGIT"
+  if [ -s $FILEGIT ]
+  then
+    ITEXISTS=1    # file exists and length > 0
+    DEBUGLOG="$DEBUGLOG | $FILEGIT esiste |"
+  else            # si prova a scaricarlo
+    DEBUGLOG="$DEBUGLOG $FILEGIT does not exist |"
+    wget -O $FILEGIT https://raw.githubusercontent.com/fpirri/$2$1
+    if [ -s $FILEGIT ]
+    then
+      ITEXISTS=1    # file exists and length > 0
+      DEBUGLOG="$DEBUGLOG | $FILEGIT trovato |"    ########### Stampa sempre mentre sviluppo ...
+    else
+      ITEXISTS=0    # file introvabile !
+      DEBUGLOG="$DEBUGLOG | $FILEGIT introvabile |"
+      echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
+    fi
+  fi
+  return $ITEXISTS
+}
+#
 
 getfile(){
   # call:    getfile $1 $2
   #   $1:    "filename"
   #   $2:    "github project branch"
   # example:
-  #          getfile "hdirs.tar.gz" "hlite-install/master"
+  #          getfile "hdirs.tar.gz" "gothings-install/master"
   echo 
   echo "get file: $1"
   wget -O /home/pi/sysstart/hliteboot/$1 https://raw.githubusercontent.com/fpirri/$2/$1
@@ -61,14 +126,14 @@ getfile(){
 
 init(){
   # 1. expand filesystem
+  SECONDS=0
   echo 
   echo 
   echo "-------------------------------------------------------------- 1:"
   echo "Preliminary operations:"
   echo " - set docker group"
   echo " - expand filesystem"
-  echo
-  echo "Docker group will be useful later on .."
+  echo "   Note: Docker group will be useful later on .."
   echo "Add docker group"
   sudo groupadd docker
   echo "Add user pi to docker group"
@@ -93,6 +158,10 @@ init(){
   echo 
   echo "Your actual disk space:"
   df -h
+  ELAPSED=$SECONDS
+  echo
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s sec"
+  echo "--------------------------------------------------------------"
   sleep 5
   echo
   echo "To reboot your board, please type the command:"
@@ -105,6 +174,7 @@ init(){
 
 utils(){
   # 2. Set base directories & data, INSTALL utilities for docker
+  SECONDS=0
   echo 
   echo 
   echo "-------------------------------------------------------------- 2:"
@@ -130,23 +200,23 @@ utils(){
   sudo apt-get -y update && sudo apt-get -o Dpkg::Options::=--force-confdef -y install tree
   echo
   echo "Create base dirs"
-  mkdir ~/sysarchive
-  mkdir ~/sysarchive/sysdata
-  mkdir ~/dockrepo
-  mkdir ~/dockrepo/sysdata
+  mkdir /home/pi/dockrepo
+  mkdir /home/pi/dockrepo/sysdata
+  mkdir /home/pi/dockrepo/sysarchive
+  mkdir /home/pi/sysarchive/sysdata
   echo "Show dir tree:"
-  tree -d ~/
+  tree -d /home/pi/
   echo
   sleep 3
   echo
   # setup dirs:  dockrepo & sysarchive
   echo
   echo "set dirs for HLITE - get content"
-  getfile "hdirs.tar.gz" "hlite-install/master"
+  getfile "hdirs.tar.gz" "gothings-install/master"
   avanti
   echo 
   echo "expand content"
-  tar xzvf ~/sysstart/hliteboot/hdirs.tar.gz -C ~/
+  tar xzvf /home/pi/sysstart/hliteboot/hdirs.tar.gz -C /home/pi/
   echo
   echo "HLITE user content copied"
   sleep 5
@@ -171,13 +241,18 @@ utils(){
   echo
   echo "HLITE dir tree:"
   echo
-  tree -d ~/
+  tree -d /home/pi/
+  ELAPSED=$SECONDS
+  echo
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s sec"
+  echo "--------------------------------------------------------------"
   sleep 5
   pause "2"
 }
 
 dockinstall(){
   # 3. INSTALL docker community edition
+  SECONDS=0
   echo 
   echo 
   echo "-------------------------------------------------------------- 3:"
@@ -212,12 +287,17 @@ dockinstall(){
   echo
   echo "docker-compose version:"
   sudo docker-compose --version
+  ELAPSED=$SECONDS
+  echo
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s sec"
+  echo "--------------------------------------------------------------"
   sleep 5
   pause "3"
 }
 
 testhlite(){
   # 4. TEST use docker-compose for a simple configuration
+  SECONDS=0
   echo 
   echo 
   echo "-------------------------------------------------------------- 4:"
@@ -292,6 +372,10 @@ testhlite(){
   echo "The text above is coming from testvue container"
   echo "It should confirm testvue is running"
   echo "-------------------------"
+  ELAPSED=$SECONDS
+  echo
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s sec"
+  echo "--------------------------------------------------------------"
   sleep 5
   echo
   echo "If all seems OK you can go to the hlite configuration from the main menu"
@@ -303,6 +387,7 @@ testhlite(){
 }
 
 gotoconf(){
+  SECONDS=0
   # 5. GO to HLITE configuration menu
   echo 
   echo 
@@ -314,13 +399,12 @@ gotoconf(){
   getfile "controlmenu.sh" "hlite-control/master"
   chmod +x /home/pi/sysstart/hliteboot/controlmenu.sh
   ln -s /home/pi/sysstart/hliteboot/controlmenu.sh /home/pi/controlmenu
+  ELAPSED=$SECONDS
   echo
-  echo "if you continue, I will exec control menu"
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s sec"
+  echo "--------------------------------------------------------------"
   echo
   avanti
-  echo
-  echo "exec control menu"
-  ~/sysstart/hliteboot/controlmenu.sh
   break
 }
 
@@ -329,7 +413,7 @@ checkfile(){
   #   $1:    "<filename>"
   #   $2:    "<github project branch>"
   # example:
-  #          getfile "boot.sh" "hlite-install/master/"
+  #          getfile "boot.sh" "gothings-install/master/"
   #
   FILEMD5="/home/pi/sysstart/hliteboot/"$1".md5"
   echo "file to get: $FILEMD5"
@@ -346,7 +430,8 @@ checkfile(){
 
 #
 verify(){
-  # 6. Verify checksums
+  # 6. Verify checksums    *** DA AGGIUSTARE ***
+  SECONDS=0
   echo
   echo "VERIFY  checksum"
   echo
@@ -354,15 +439,15 @@ verify(){
   echo
   echo ""
   echo ""
-  echo "To help you on this task, the hlite-install repository on"
+  echo "To help you on this task, the gothings-install repository on"
   echo "github contains MD5 checksum of boot.sh and fastinstal.sh"
   echo "You have to visually verify checksum below"
   echo "boot.sh "
-  echo "boot.sh will download fastinstall.sh and verify the"
+  echo "boot.sh will download the 'zero' script and verify the"
   echo "checksum in your behalf."
   echo ""
   echo ""
-  echo ""
+  echo "  *** DA AGGIUSTARE ***"
   echo
   avanti
   pause "6"
