@@ -78,7 +78,7 @@ GoThingsSystem short description
 
 <br />
 
-* in [github](https://github.com/fpirri/gothings-install/g "github gothingscontrolmenu")  you find the **GoThingsControlMenu** to manage the lifecycle of your containers
+* in [github](https://github.com/fpirri/gothings-install "github gothingscontrolmenu")  you find the **GoThingsControlMenu** to manage the lifecycle of your containers
 * in [gothings-apps](https://github.com/fpirri/gothings-apps "github gothings-apps")  you find templates that can be customized for specific purposes
  
 <br />  
@@ -207,7 +207,7 @@ You should verify equality of the locally calculated checksum with that reported
 
 NOTE :  
   There are means of verification other than md5 checksum.
-  Here MD5 is choosed because it is already available in the raspbian OS
+  Here MD5 is choosed because it is already available in the raspbian OS.  
  Security will be eventually improved later on
 
 #### 4- exec the 0 script
