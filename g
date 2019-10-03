@@ -1,10 +1,10 @@
 #!/bin/bash
-#                                                                    2019-07-16
-#  Control menu script for HLITE system
+#                                                                    2019-07-19
+#  Control menu script for GOTHINGS system
 #                                                           version 0.00.01-dev
 #
-#  Menu per l'inizializzazione del sistema hlite
-#    inspired by:
+#  Menu per l'inizializzazione del sistema gothings
+#    Basic idea coming from:
 #      https://bash.cyberciti.biz/guide/Menu_driven_scripts
 #
 # download:
@@ -12,11 +12,10 @@
 #
 #==============================================================================
 echo
-echo "========================================================= HLITE for raspi"
-echo "          Control loader for HLITE docker system."
+echo "====================================================== GOTHINGS for raspi"
+echo "        Control loader for GOTHINGS docker system."
 echo "========================================================================="
 echo
-cd ~/sysstart/hliteboot
 #
 # ---  environment
 VERSION="0.0.1"  # dev active !
@@ -29,13 +28,18 @@ PASSWD=/etc/passwd
 RED='\033[0;41;30m'
 STD='\033[0;0;39m'
 
+HOMEDIR="/home/pi/"
 DEBUGLOG=""
-FILELEN=0   # Lunghezza del file in fileexists()  <-- da aggiornare
+###############################################FILELEN=0   # Lunghezza del file in fileexists()  <-- da aggiornare
 ITEXISTS=0  # 1 se il cercato esiste
 FILE=""     # Nome del file in fileexists()
+MENUTRAP=0  #  66 : exit menu
+
+
+cd ${HOMEDIR} #work on user 'pi' home
 
 # ----------------------------------
-# User defined function
+# User defined functions
 # ----------------------------------
 
 avanti(){
@@ -52,68 +56,56 @@ pause(){
   read -rsp $'Press any key to continue or ^C to exit ...' -n 1 key
 }
 
-getsysfile(){
-  # call:    getfile $1 $2 $3
-  #   $1:    "filename"
-  #   $2:    "github project branch"
-  #   $3:    "raspi directory"
-  # DA FARE: Mettere default per i dirs
+#
+##########################################################################
+getgitfile(){    # Lettura file da github
   #
-  # example:
-  #          getfile "hdirs.tar.gz" "/home/pi/hlite-install/master" "/home/pi"
-  #echo 
-  #echo "get file: $1, github path: $2"
-  wget -O $3/$1 https://raw.githubusercontent.com/fpirri/$2/$1
-}
-
-getbootscript(){
-  #   ==>    === get file + make executable
-  # call:    getbootscript $1 $2 $3
-  #   $1:    "filename"
+  #  use globals:
+  #    DEBUGLOG=""     # utile nel debug
+  #    ITEXISTS=0      #  1 : file esiste    0 : file assente
+  #
+  #
+  #     <-- se esiste il file $1 ed ha lunghezza > 0 :
+  #         <-- si va avanti senza altre azioni
+  #     <-- altrimenti si prova a scaricare il file da github               AGGIUSTARE dopo ......
+  #     <-- si riprova il test di lunghezza
+  #         se non funziona si torna con ITEXISTS=0
+  #     
+  # call:    findnodeapp $1 $2 $3
+  #   $1:    "file"
   #   $2:    "github project branch"
-  #   $3:    "raspi directory"
-  # example:
-  #          getfile "boot.sh" "hlite-install/master" "/home/pi"
-  echo 
-  echo "get file: $3$1"
-  echo "from:     $2/$1"
-  getsysfile "$1" "$2" "$3"
-  chmod +x $3/$1
-}
-
-
-fileexists(){
-  # call:    fileexists $1 $2 $3
-  #   $1:    "filename"
-  #   $2:    "github project branch"
-  #   $3:    "raspi directory"
+  #   $3:    "raspi path after /home/pi/ "
   # RETURN:
-  #           FILELEN = length of file
+  #           ITEXISTS = 1 se esiste, 0 altrimenti
   #
-  # Verify file existence, get it if not
-  #   --> detection not yet functioning
+  # Verify file existence, get it from github if not
   #
   # example:
-  #          fileexists "hlitebase.yml" "hlite-control/master" "/home/pi/dockrepo/dockimages/"
-
-  #  -s file  True if file exists and has a size greater than zero
-
-  FILE="$3$1"  
-  if [ -s $FILE ]
+  #          getgitfile "gotdirs.tar.gz" "gothings-install/master/" "dockrepo/sysarchive/"
+  #
+  #  bash:  -s file  True if file exists and has a size greater than zero
+  FILEGIT="/home/pi/$3$1"
+  DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $FILEGIT"
+  if [[ -s $FILEGIT ]]
   then
-    FILELEN=1
-  else 
-    echo "$FILE does not exist"
-    wget -O $3/$1 https://raw.githubusercontent.com/fpirri/$2/$1
-    if [ -s $FILE ];
+    ITEXISTS=1    # file exists and length > 0
+    DEBUGLOG="$DEBUGLOG | $FILEGIT esiste |"
+  else            # si prova a scaricarlo
+    DEBUGLOG="$DEBUGLOG | $FILEGIT does not exist |"
+    wget -O $FILEGIT https://raw.githubusercontent.com/fpirri/$2$1
+    if [[ -s $FILEGIT ]]
     then
-      FILELEN=1
+      ITEXISTS=1    # file exists and length > 0
+      DEBUGLOG="$DEBUGLOG | $FILEGIT trovato |"
     else
-      FILELEN=0
+      ITEXISTS=0    # file introvabile !
+      DEBUGLOG="$DEBUGLOG | $FILEGIT introvabile |"
+      echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
     fi
   fi
-  return $FILELEN
+  return $ITEXISTS
 }
+#
 #
 ##########################################################################
 showsubtitle(){
@@ -122,6 +114,7 @@ showsubtitle(){
   # call:    showsubtitle $1
   #    "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   # $1:"         Sub menu title"
+  #
   clear
   echo 
   echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -135,49 +128,115 @@ showsubtitle(){
 showcontainers(){
   # 1. SHOW containers status
   #               "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  #  showsubtitle "         sottotitolo piu' o meno centrato"
-  showsubtitle "      MANAGE:  SHOW all containers"
-  docker ps -a --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}"
-  sleep 2
-  echo
-  avanti "Any key to return to main menu"
+  RIPETI=1
+  until [[ $RIPETI -gt 3 ]]
+    do
+      # 1. SHOW containers status
+      #               "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      #  showsubtitle "         sottotitolo piu' o meno centrato"
+      showsubtitle "      MANAGE:  SHOW all containers"
+      docker ps -a --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}"
+      echo
+      echo "------------------------------------"
+      sleep 2
+      read -rsp "Do you like to read again containers status? [y/N] " -n 1 key
+      case "$key" in
+          [yY])
+            RIPETI=1
+            ;;
+          *)
+            RIPETI=4
+            ;;
+      esac
+   done
+}
+#
+#
+##########################################################################
+stopmenu(){
+  #  $1 :  nome del file non trovato
+  echo 
+  echo "------------------------------------------------------"
+  echo -e "${RED} ERROR on file: $1 - debug message: ${STD}"
+  echo $DEBUGLOG
+  echo $2
+  echo "------------------------------------------------------"
+  echo "Cannot continue."
+  echo 
+  MENUTRAP=66
+  return 66
 }
 #
 ##########################################################################
-hlitebase(){
+gothingsbase(){
+  # verifica esistenza files applicazione base
+  FILEBASEGZ="basedirs.tar.gz"           # deve esistere il file tar.gz in sysarchive
+  GITBR="gothings-install/master/"
+  PIDIRGZ="dockrepo/sysarchive/"
+  getgitfile ${FILEBASEGZ} $GITBR $PIDIRGZ
+  if [[ $ITEXISTS -ne 1 ]]
+  then                             # SI INTERROMPE TUTTO se basedirs.tar.gz non esiste
+    stopmenu "${FILEBASEGZ}"  "file ${FILEBASEGZ} is essential for control menu"
+    return 66                      # interrommpere il menu principale
+  else
+    # il file .tar.gz esiste, proseguiamo cercando il file "marcatore"
+    
+    FILEMARK="${HOMEDIR}dockrepo/dockimages/base/base.dirs"
+    if [[ ! -s $FILEMARK ]]
+    then                            # il marcatore NON esiste, espandiamo basedirs.tar.gz
+      echo
+      echo "File ${FILEMARK} does not exists, try to expand ${FILEBASEGZ} ..."
+      echo
+      tar -xzvf "${PIDIRGZ}${FILEBASEGZ}" -C $HOMEDIR
+      DUMMY=$?
+      if [[ ! $DUMMY -eq 0 ]]
+      then
+        echo "tar returned: $DUMMY"
+        echo
+        stopmenu "${PIDIRGZ}${FILEBASEGZ}"  "tar returned: $DUMMY : file expantion failed"
+        return 66                      # interrommpere il menu principale
+      fi
+      echo "done."
+      sleep 4
+    fi
+    # verifichiamo esistenza file .yml
+    FILEMARK="${HOMEDIR}dockrepo/sysdata/base/gothingsbase.yml"
+    if [[ ! -s $FILEMARK ]]
+    then                           # il marcatore NON esiste, SI INTERROMPE TUTTO
+      DEBUGLOG="|| BASE files check | Essential file missing ||"
+      stopmenu "${FILEMARK}" "file ${FILEMARK} is essential for control menu"
+    return 66                      # interrommpere il menu principale
+    fi
+  fi
+# esegui menu applicazione base  
   RIPETI=1
-  until [ $RIPETI -gt 3 ]
+  until [[ $RIPETI -gt 10 ]]
     do
-      showsubtitle "         MANAGE:  HLITE base container"
+      showsubtitle "         MANAGE:  GOTHINGS base container"
       echo "Please choose one of the options below:"
-      echo " 1) START    HLITE base containers"
-      echo " 2) PAUSE    HLITE base containers"
-      echo " 3) DESTROY  HLITE base containers"
-      echo " 4) RETURN   to main menu"
+      echo " 1) SHOW     all containers"
+      echo " 2) START    GOTHINGS base containers"
+      echo " 3) PAUSE    GOTHINGS base containers"
+      echo " 4) DESTROY  GOTHINGS base containers"
+      echo " 5) RETURN   to main menu"
       read -rsp $'Your choice: ' -n 1 key
       case $key in
-        1)  # START base subsystem
+        1)  # SHOW all containers
+            showcontainers
+            RIPETI=4
+            ;;
+        2)  # START base subsystem
             echo
             echo
             echo "---------------------------------------------------------"
             echo "Use docker-compose to START the base containers"
-            fileexists "hlitebase.yml" "hlite-control/master" "/home/pi/dockrepo/sysdata/appdata/"
-            echo "fileexist return: $FILELEN"
             echo
-            if [ $FILELEN -eq 0 ]
-            then
-              echo "Cannot find hlitebase.yml file on github"
-              echo "Operation stopped."
-              sleep 3
-            else
-              echo "Starting docker-compose ..."
-              docker-compose -f /home/pi/dockrepo/sysdata/appdata/hlitebase.yml up -d
-              echo "Done."
-              sleep 2
-            fi
-            RIPETI=1
+            echo "Starting docker-compose ..."
+            docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml up -d
+            echo "Done."
+            sleep 2
             ;;
-        2)  # PAUSE base subsystem
+        3)  # PAUSE base subsystem
             echo
             echo
             echo "---------------------------------------------------------"
@@ -189,32 +248,22 @@ hlitebase(){
             read -rsp "Do you like to STOP base containers? [y/N] " -n 1 key
             case "$key" in
                 [yY]) 
-                    echo
-                    fileexists "hlitebase.yml" "hlite-control/master" "/home/pi/dockrepo/sysdata/appdata/"
-                    echo "fileexist return: $FILELEN"
-                    echo
-                    if [ $FILELEN -le 0 ]
-                    then
-                      echo "Cannot find hlitebase.yml file on github"
-                      echo "Operation stopped."
-                      sleep 3
-                    else
-                      echo "Using docker-compose to stop base containers ..."
-                      docker-compose -f /home/pi/dockrepo/sysdata/appdata/hlitebase.yml stop
-                      echo
-                      echo "done."
-                    fi
-                    sleep 2
-                    ;;
+                  echo
+                  echo "Using docker-compose to stop base containers ..."
+                  docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml stop
+                  echo
+                  echo "done."
+                  sleep 2
+                  ;;
                 *)
-                    echo
-                    echo "Back to choice"
-                    sleep 2
-                    ;;
+                  echo
+                  echo "Back to choice"
+                  sleep 2
+                  ;;
             esac
             RIPETI=2
             ;;
-        3)  # DESTROY base subsystem
+        4)  # DESTROY base subsystem
             echo
             echo
             echo "---------------------------------------------------------"
@@ -227,34 +276,24 @@ hlitebase(){
             read -rsp "Do you like to STOP & DESTROY? [y/N] " -n 1 key
             case "$key" in
                 [yY]) 
-                    echo
-                    fileexists "hlitebase.yml" "hlite-control/master" "/home/pi/dockrepo/sysdata/appdata/"
-                    echo "fileexist return: $FILELEN"
-                    echo
-                    if [ $FILELEN -le 0 ]
-                    then
-                      echo "Cannot find hlitebase.yml file on github"
-                      echo "Operation stopped."
-                      sleep 3
-                    else
-                      echo "Using docker-compose to stop & destroy base containers ..."
-                      docker-compose -f /home/pi/dockrepo/sysdata/appdata/hlitebase.yml down
-                      echo
-                      echo "done."
-                    fi
-                    sleep 2
-                    ;;
+                  echo
+                  echo "Using docker-compose to stop base containers ..."
+                  docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml down
+                  echo
+                  echo "done."
+                  sleep 2
+                  ;;
                 *)
-                    echo
-                    echo "Back to choice"
-                    sleep 2
-                    ;;
+                  echo
+                  echo "Back to choice"
+                  sleep 2
+                  ;;
             esac
             RIPETI=3
             ;;
-        4)  # NON eseguito, si ritorna al controlmenu
+        5)  # NON eseguito, si ritorna al controlmenu
             echo "Ritorno ..."
-            RIPETI=4
+            RIPETI=99
             ;;
       esac
     done
@@ -286,20 +325,20 @@ findnodeapp(){
   # Verify file existence, get it from github if not
   #
   # example:
-  #          fileexists "hlitedev" "hlite-apps/master" "/home/pi/dockrepo/sysdata/nodedata/"
+  #          fileexists "gothingsdev" "gothings-apps/master" "/home/pi/dockrepo/sysdata/nodedata/"
   #
   #  -s file  True if file exists and has a size greater than zero
   DEBUGLOG=""
   FILEGZ="/home/pi/sysarchive/$1.tar.gz"
   DEBUGLOG="DEBUG INFO | Il file cercato e': $FILEGZ"
-  if [ -s $FILEGZ ]
+  if [[ -s $FILEGZ ]]
   then
     ITEXISTS=1
     DEBUGLOG="$DEBUGLOG | $FILEGZ esiste"
   else 
     DEBUGLOG="$DEBUGLOG | $FILEGZ does not exist"
     wget -O $FILEGZ https://raw.githubusercontent.com/fpirri/$2/$1.tar.gz
-    if [ -s $FILEGZ ];
+    if [[ -s $FILEGZ ]]
     then
       tar -xzvf $FILEGZ -C $3
       DEBUGLOG="$DEBUGLOG | $FILEGZ expanded in "
@@ -307,7 +346,7 @@ findnodeapp(){
   fi
   FILEJSON="$APPDIR$1/package.json"
   DEBUGLOG="$DEBUGLOG | verify $FILEJSON existence"
-  if [ -s $FILEJSON ];
+  if [[ -s $FILEJSON ]]
   then
     echo $DEBUGLOG
     ITEXISTS=1
@@ -323,15 +362,19 @@ findnodeapp(){
 #
 ######################################
 nodedev(){
-  # 1. MANAGE HLITE application - node development containers
+  # 1. MANAGE GOTHINGS application - node development containers
   #
   APPDIR="/home/pi/dockrepo/sysdata/nodedata/"
   HLAPP="nodedev"
   DEVREADY=0
+#====================================================> CONTROLLA che nodedata esista
+  MENUTRAP=66
+  return
+  #
   #        <--name of the managed  node application
   #
   RIPETI=1
-  until [ $RIPETI -gt 4 ]
+  until [[ $RIPETI -gt 4 ]]
     do
       showsubtitle "           MANAGE:  Node js app environment"
       echo "Please choose one of the options below:"
@@ -346,7 +389,7 @@ nodedev(){
       # VERIFY HLAPP.tar.gz source archive is really available
       # it should be in /home/pi/dockrepo/sysdata/nodedata/ directory
       echo
-      findnodeapp "${HLAPP}" "hlite-apps/master" "${APPDIR}"
+      findnodeapp "${HLAPP}" "gothings-apps/master" "${APPDIR}"
       if [[ $ITEXISTS -ne 1 ]]
       then
         echo "File missing for ${HLAPP} application"
@@ -452,7 +495,7 @@ nodedev(){
         4)  # CHOOSE Application
             echo
             echo "-----------------------------------------------------------------"
-            echo "  INIT hlite node application"
+            echo "  INIT gothings node application"
             echo "-----------------------------------------------------------------"
             echo            
             read -rp "Please enter application name: " app
@@ -534,7 +577,7 @@ userdir(){
   echo "        MANAGE:  user dirs content"
   RIPETI=1
   GZVersion=0
-  until [ $RIPETI -gt 3 ]
+  until [[ $RIPETI -gt 3 ]]
     do
       HDIRS="/home/pi/sysarchive/hdirs-${GZVersion}.tar.gz"
       menu
@@ -571,7 +614,7 @@ userdir(){
             echo
             echo "------------------------------------------------------------"
             echo "SAVE current user content in the archive : $GZVersion"
-            if [ $GZVersion -gt 0 ]
+            if [[ $GZVersion -gt 0 ]]
             then
               echo "Please note this operation will REPLACE current archive content"
               read -rsp "Do you like to replace? [y/N] " -n 1 key
@@ -638,31 +681,30 @@ userdir(){
     done
   #
 }
-
+#
 # function to display menus
 show_menus() {
   clear
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  echo "    H L I T E   C O N T R O L   MENU"
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "    G O T H I N G S   C O N T R O L   MENU"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   echo
   echo "1. SHOW      containers (docker ps -a)"
-  echo "2. BASE      MANAGE hlite base containers"
+  echo "2. BASE      MANAGE gothings base containers"
   echo "3. NODE      MANAGE node js development containers"
   echo "4. PYTHON    MANAGE python development containers"
   echo "5. ToDo      work-in-progress ..."
   echo "6. MANAGE    user data"
 }
+#
 # read input from the keyboard and take a action
 # invoke the function according to the entered number
-# invoke the two() when the user select 2 from the menu option.
-# Exit when user the user select 3 form the menu option.
 read_options(){
 	local choice
   read -rsp $'Enter choice [ 1..6 or ^C to exit ] ' -n 1 choice
 	case $choice in
 		1) showcontainers;;
-		2) hlitebase;;
+		2) gothingsbase;;
 		3) nodedev;;
 		4) boh;;
 		5) boh;;
@@ -683,8 +725,96 @@ trap '' SIGQUIT SIGTSTP
 
 while true
 do
+  # internal trap
+  if [[ ${MENUTRAP} -eq 66 ]]
+  then
+    break  #-- stop menu
+  fi
 	show_menus
 	read_options
 done
+echo "Shell terminated."
+echo
+#
+##########################################################################
+##################  Templates utili durante lo sviluppo  #################
+##########################################################################
+#
+xxx_template_per_git_file(){  ############################################
+  #### usare questo template se il file e' ESSENZIALE: se non esiste si ferma il MENU
+  echo
+  FILE="<nomefile>"
+  GITBR="gothings-install/master/"  # dir su github dove va preso il file
+  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
+  getgitfile "${FILE} $GITBR $PIDIR"
+  if [[ $ITEXISTS -ne 1 ]]
+  then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
+    stopmenu ${FILE} "File ${FILE} is essential for control menu"
+  else ########## DA FARE se il file esiste ...
+    echo 
+    echo "< CI SONO !! >"
+    ##
+    ##
+    echo
+    echo "<guarda cosa ho fatto!!>"
+    sleep 5
+  fi
+}
+################## end xxx_template_per_git_file   #######################
+#
+xxx_template_per_file_exists(){  #########################################
+    # verifichiamo esistenza file .yml
+    FILEMARK="${HOMEDIR}${<path-to-file>}"
+    if [[ -s $FILEMARK ]]
+    then                            # il marcatore esiste
+      ITEXISTS=1
+      # qui si esegue il caso positivo, dove il file ha lunghezza >0
+    else                            # il marcatore NON esiste, SI INTERROMPE TUTTO
+      ITEXISTS=0
+      # qui si esegue il caso negativo, dove il file non esiste oppure ha lunghezza 0
+    fi
+}
+################# end xxx_template_per_file_exists   #####################
+#
+xxx_template_per_stopmenu(){  ############################################
+  #  $1 :  nome del file non trovato
+  #  $2 :  riga di debug aggiuntiva
+  echo 
+  echo "------------------------------------------------------"
+  echo -e "${RED} ERROR on file: $1 - debug message: ${STD}"
+  echo $DEBUGLOG
+  echo $2
+  echo "------------------------------------------------------"
+  echo "Cannot continue."
+  echo 
+  MENUTRAP=66
+  return 66
+}
+################### end xxx_template_per_stopmenu   ######################
+#
+xxx_template_scelta_yn(){  ############################################
+# esegui menu applicazione base  
+  RIPETI=1
+  until [[ $RIPETI -gt 3 ]]
+    do
 
-exit
+            echo "Permanent user data will NOT be destroyed"
+            read -rsp "Do you like to STOP base containers? [y/N] " -n 1 key
+            case "$key" in
+                [yY]) 
+                  echo
+                  echo "Using docker-compose to stop base containers ..."
+                  docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml stop
+                  echo
+                  echo "done."
+                  sleep 2
+                  ;;
+                *)
+                  echo
+                  echo "Back to choice"
+                  sleep 2
+                  ;;
+            esac
+################# end xxx_template_per_file_exists   #####################
+
+
