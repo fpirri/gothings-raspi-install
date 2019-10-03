@@ -18,13 +18,13 @@ Script to install docker and running example on a Raspberry board
 What GoThingsInstall does
 ----  
 
-* Lets you click/perform a sequence of actions to install docker on your raspberry pi board
-* *GoThingsInstall* allows you to set locales, get some data from github and initialize the *GoThingsSystem*
+* Lets you click/perform a sequence of actions to install docker on your raspberry pi board*
+* ***GoThingsInstall*** allows you to set locales, get some data from github and initialize the ***GoThingsSystem***
 * It runs a demo application
-* It also intall and execute the *GoThingsControlMenu* on the board  
+* It also install and execute the ***GoThingsControlMenu*** on the board  
   
   
- *GoThingsControlMenu* allows you to manage lifecycle of your containers
+ ***GoThingsControlMenu*** allows you to manage lifecycle of your containers
    
  ***GoThingsSystem*** is briefly described [below](https://github.com/fpirri/gothings-install#gothingssystem-short-description "GoThingsSystem short description")  
  
@@ -41,9 +41,9 @@ What you get
 
 Through **GoThingsControlMenu** you manage the lifecycle of all containers and user data in the *GoThingsSystem*
 
-Please note the docker installation is a standard one. The *GoThingsSystem* configuration data is made up from a few files and you may delete them and use docker for any other purpose.
-
 After that you may write your programs using javascript, python or PHP languages. They will each run in its own container.  
+
+Please note the docker installation is a standard one. The *GoThingsSystem* configuration data is made up from a few files and you may delete them and use docker for any other purpose.
   
 <br />  
 
@@ -57,9 +57,9 @@ What you need
           https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip
           
 * an internet connection (you will download several big files)
-* you may have to follow the **PRE-INSTALLATION** procedure documented below to run the raspbian system on your raspberry board
+* you may have to follow the [PRE-INSTALLATION](https://github.com/fpirri/gothings-install#pre-installation-steps) procedure documented below to run the raspbian system on your raspberry board
  
- Finally, please follow the instructions in the **INSTALLATION **section below
+ Finally, please follow the instructions in the [INSTALLATION](https://github.com/fpirri/gothings-install#gothings-installation) section below
  
 <br />  
 
@@ -79,7 +79,7 @@ GoThingsSystem short description
 <br />
 
 * in [github](https://github.com/fpirri/gothings-install/g "github gothingscontrolmenu")  you find the **GoThingsControlMenu** to manage the lifecycle of your containers
-* in [hlite-apps](https://github.com/fpirri/hlite-apps "github hlite-apps")  you find templates that can be customized for specific purposes
+* in [gothings-apps](https://github.com/fpirri/gothings-apps "github gothings-apps")  you find templates that can be customized for specific purposes
  
 <br />  
 
@@ -101,12 +101,11 @@ PLEASE NOTE: this is WORK IN PROGRESS
 Please be patient, I will do my best to include basic docs on github ASAP
 
 
-- Status as August 12th, 2019:
+- Status as October 3rd, 2019:
 
-   - new tests on Raspberry P1-B+ & PI Zero W passed
+   - basic tests on Raspberry P1-B+ & PI Zero W passed
    - docker images available on dockerhub
-      - go to https://hub.docker.com/ and search 'hlite/nginx'
-
+      - go to https://hub.docker.com/ and search 'gothings'
 
    - building documentation on the dedicated 'bla bla site' (available ASAP)
 
@@ -119,7 +118,10 @@ Please be patient, I will do my best to include basic docs on github ASAP
 
 #### GoThings is a Docker Distributed Things Operating System (DDT-OS) running on a number of networked things.
 
-#### Hlite things will use nodejs, vuejs and python-flask technologies.
+#### GoThings uses nodejs, vuejs and python-flask technologies.
+
+#### GoThings networking is based on http protocol and exploits many of the nginx+lua+redis capabilities
+
 
 ------------------------------
 
@@ -150,9 +152,7 @@ Please be patient, I will do my best to include basic docs on github ASAP
         
       normally it automatically find the new board on LAN
       
-   -  If that don't function please try googling 'find your raspberry IP address'
-      
-        and connect via ssh from terminal:
+   -  If that don't function please try googling 'find your raspberry IP address'  and connect via ssh from terminal:
         
           ssh pi@<your IP address>
           
@@ -208,7 +208,7 @@ You should verify equality of the locally calculated checksum with that reported
 NOTE :  
   There are means of verification other than md5 checksum.
   Here MD5 is choosed because it is already available in the raspbian OS
- Security will be eventually improved in the following
+ Security will be eventually improved later on
 
 #### 4- exec the 0 script
 Exec the command:
@@ -220,18 +220,14 @@ please note: this immediately executes the script locally, without the need to m
 #### 5- Install actions
 
  Follow the procedure suggested by the 0 script, one action at a time.  
-It is advisable to exec the first action only once.  
+**It is advisable to exec the first action only once.**  
 You may execute the following sections multiple times, althought it should not be necessary.  
 Last but one action dowload the  [g menu](https://github.com/fpirri/gothings-install "GoThingsControlMenu for things management") from github. It also allow you to exec the menu by typing './g' in the /home/pi/ directory.   
-Anyway, Control Menu is not executed by this action, you should first verify its checksum in the last step.  
-
-#### 6- Verify 0 script
-The last action verify downloaded files using both MD5 and RSA-2 checksum.  
-This is now possible, owing to the installed utilities in the second action of the 0 script.  
-This operation is quite secure, having you independently verified security of the 0 script in the the step 3- above
+Anyway, Control Menu is not executed by this action, you should first verify its checksum after the download.  
+Then, you may execute it by typeing ./g at the console.  
 
 
-#### 7- Execution times
+#### 6- Execution times
 The execution time for each action is influenced by the raspberry board model and by the speed of your internet connection.  
 Times below are for a raspberry P1B+ directly connected via LAN to a fast ADSL provider.  
 Very similar times are obtained for the Raspberry PI zeroW board.
@@ -245,7 +241,7 @@ Very similar times are obtained for the Raspberry PI zeroW board.
      A.5 Demo example
          images download : 32 m;   (first time only)
              run example : 2 m.  
-         Note: this action can be interrupted and re-executed   
+         Note: this action can be safely interrupted and re-executed   
 ----------------------
 
 <br /><hr />
