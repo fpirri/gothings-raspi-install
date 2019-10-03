@@ -1,0 +1,9 @@
+b1abb9fafea00658a4f33cf2bd4b4d46  /home/pi/g
+---
+To evaluate the checksum above you may use the following command:
+  md5sum /home/pi/g
+---
+g version 0.00.01-dev
+---
+Please note that an -dev version does not have stable checksum
+---

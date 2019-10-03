@@ -1,7 +1,7 @@
 #!/bin/bash
 #                                                                    2019-07-19
 #  Control menu script for GOTHINGS system
-#                                                           version 0.00.01-dev
+#                                                           version 0.00.02-dev
 #
 #  Menu per l'inizializzazione del sistema gothings
 #    Basic idea coming from:
