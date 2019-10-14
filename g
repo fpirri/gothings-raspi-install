@@ -56,6 +56,18 @@ pause(){
   read -rsp $'Press any key to continue or ^C to exit ...' -n 1 key
 }
 
+boh(){
+  # BOH!  Funzione ancora DA FARE
+  echo 
+  echo
+  echo "-------------------------------------------------------------- ?:"
+  echo
+  echo "Qui ci sara' una funzione, quando sara' fatta ..."
+  echo
+  #exit
+  pause "?"
+}
+
 #
 ##########################################################################
 getgitfile(){    # Lettura file da github
@@ -168,6 +180,76 @@ stopmenu(){
 }
 #
 ##########################################################################
+##########################################################################
+gothingsinstall(){
+  # Initialize and install gothings base & applications
+# esegui menu applicazione base  
+  RIPETI=1
+  until [[ $RIPETI -gt 10 ]]
+    do
+      showsubtitle "         INSTALL:  GOTHINGS base & applications"
+      echo "Please choose one of the options below:"
+      echo " 1) BASE     install BASE nodejs modules"
+      echo " 2) VUE      install vue framework"
+      echo " 3) PYTHON   install python applications"
+      echo " 4) ?        to do"
+      echo " 5) RETURN   to main menu"
+      read -rsp $'Your choice: ' -n 1 key
+      case $key in
+        1)  # INSTALL base subsystem
+            echo
+            echo
+            echo "---------------------------------------------------------"
+            echo "Use docker-compose to install the BASE subsystem"
+            echo
+            echo "Starting docker-compose ..."
+            docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbaseinstall.yml up -d
+            echo "Compose: done."
+            echo
+            echo "Wait completion of install ..."
+            docker logs -f base
+            echo
+            echo "NPM INSTALL done."
+            sleep 4
+            RIPETI=1
+            ;;
+        2)  # ?
+            echo
+            echo
+            echo "---------------------------------------------------------"
+            echo "Use docker-compose to install VUEDEV app"
+            echo
+            echo "Starting docker-compose ..."
+            docker-compose -f /home/pi/dockrepo/sysdata/vuedev/gothings-build-vuedev.yml up -d
+            echo "Compose: done."
+            echo
+            echo "Wait completion of install ..."
+            docker logs -f vuedev
+            echo
+            echo "NPM INSTALL done."
+            sleep 4
+            RIPETI=2
+            ;;
+        3)  # ?
+            boh
+            RIPETI=1
+            ;;
+        4)  # ?
+            boh
+            RIPETI=1
+            ;;
+        5)  # NON eseguito, si ritorna al controlmenu
+            echo "Ritorno ..."
+            RIPETI=99
+            ;;
+      esac
+    done
+  #
+}
+#
+##########################################################################
+#
+##########################################################################
 gothingsbase(){
   # verifica esistenza files applicazione base
   FILEBASEGZ="basedirs.tar.gz"           # deve esistere il file tar.gz in sysarchive
@@ -223,7 +305,7 @@ gothingsbase(){
       case $key in
         1)  # SHOW all containers
             showcontainers
-            RIPETI=4
+            RIPETI=1
             ;;
         2)  # START base subsystem
             echo
@@ -235,6 +317,7 @@ gothingsbase(){
             docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml up -d
             echo "Done."
             sleep 2
+            RIPETI=2
             ;;
         3)  # PAUSE base subsystem
             echo
@@ -543,19 +626,7 @@ nodedev(){
     done
   #
 }
-
-boh(){
-  # BOH!  Da Fare
-  echo 
-  echo
-  echo "-------------------------------------------------------------- ?:"
-  echo
-  echo "Qui ci sara' una funzione, quando sara' fatta ..."
-  echo
-  #exit
-  pause "?"
-}
-
+#
 userdir(){
   # 1. MANAGE user dirs content
   menu(){
@@ -574,7 +645,7 @@ userdir(){
   echo 
   echo 
   echo "-----------------------------------------------------------------"
-  echo "        MANAGE:  user dirs content"
+  echo "           MANAGE:  user content"
   RIPETI=1
   GZVersion=0
   until [[ $RIPETI -gt 3 ]]
@@ -689,7 +760,7 @@ show_menus() {
   echo "    G O T H I N G S   C O N T R O L   MENU"
   echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   echo
-  echo "1. SHOW      containers (docker ps -a)"
+  echo "1. INSTALL   GOTHINGS software"
   echo "2. BASE      MANAGE gothings base containers"
   echo "3. NODE      MANAGE node js development containers"
   echo "4. PYTHON    MANAGE python development containers"
@@ -703,7 +774,7 @@ read_options(){
 	local choice
   read -rsp $'Enter choice [ 1..6 or ^C to exit ] ' -n 1 choice
 	case $choice in
-		1) showcontainers;;
+		1) gothingsinstall;;
 		2) gothingsbase;;
 		3) nodedev;;
 		4) boh;;
