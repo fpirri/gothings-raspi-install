@@ -1,5 +1,5 @@
 #!/bin/bash
-#                                                                    2019-07-16
+#                                                                    2019-09-13
 #  INSTALL menu script for GoThings System
 #                                                               version 0.00.06
 #  Menu for GoThings System installation
@@ -21,7 +21,6 @@ echo "          INSTALL loader for GoThings docker system."
 echo "========================================================================="
 echo
 sleep 2
-cd /home/pi/
 #
 # ---  environment
 VERSION="0.0.5"
@@ -33,6 +32,10 @@ STD='\033[0;0;39m'
 
 DEBUGLOG=""     # utile nel debug
 ITEXISTS=0      #  1 : file esiste    0 : file assente
+MENUTRAP=0      #  66 : exit menu
+
+HOMEDIR="/home/pi/"
+cd ${HOMEDIR} #work on user pi home
 
 #
 ##########################################################################
@@ -81,49 +84,48 @@ getgitfile(){    # Lettura file da github
   # Verify file existence, get it from github if not
   #
   # example:
-  #          fileexists "hdirs.tar.gz" "gothings-install/master/" "dockrepo/sysarchive/"
+  #          getgitfile "gotdirs.tar.gz" "gothings-install/master/" "dockrepo/sysarchive/"
   #
   #  bash:  -s file  True if file exists and has a size greater than zero
   FILEGIT="/home/pi/$3$1"
-  DEBUGLOG="|| getgitfile() INFO | Il file cercato e': $FILEGIT"
-  if [ -s $FILEGIT ]
+  DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $FILEGIT"
+  if [[ -s $FILEGIT ]]
   then
     ITEXISTS=1    # file exists and length > 0
     DEBUGLOG="$DEBUGLOG | $FILEGIT esiste |"
   else            # si prova a scaricarlo
-    DEBUGLOG="$DEBUGLOG $FILEGIT does not exist |"
+    DEBUGLOG="$DEBUGLOG | $FILEGIT does not exist |"
     wget -O $FILEGIT https://raw.githubusercontent.com/fpirri/$2$1
-    if [ -s $FILEGIT ]
+    if [[ -s $FILEGIT ]]
     then
       ITEXISTS=1    # file exists and length > 0
-      DEBUGLOG="$DEBUGLOG | $FILEGIT trovato |"    ########### Stampa sempre mentre sviluppo ...
+      DEBUGLOG="$DEBUGLOG | $FILEGIT trovato |"
     else
       ITEXISTS=0    # file introvabile !
       DEBUGLOG="$DEBUGLOG | $FILEGIT introvabile |"
-      echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
+      # echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
     fi
   fi
   return $ITEXISTS
 }
 #
-
-getfile(){
-  # call:    getfile $1 $2
-  #   $1:    "filename"
-  #   $2:    "github project branch"
-  # example:
-  #          getfile "hdirs.tar.gz" "gothings-install/master"
+##########################################################################
+stopmenu(){
+  #  $1 :  nome del file non trovato
+  #  $2 :  riga di debug aggiuntiva
   echo 
-  echo "get file: $1"
-  wget -O /home/pi/sysstart/hliteboot/$1 https://raw.githubusercontent.com/fpirri/$2/$1
+  echo "------------------------------------------------------"
+  echo -e "${RED} ERROR on file: $1 - debug message: ${STD}"
+  echo $DEBUGLOG
+  echo $2
+  echo "------------------------------------------------------"
+  echo "Cannot continue."
   echo 
-  echo "=================================================================="
-  echo "Downloaded file MD5 checksum calculation:"
-  md5sum /home/pi/sysstart/hliteboot/$1
-  echo "=================================================================="
-  echo "you can compare the above with the signature on the site"
+  MENUTRAP=66
+  return 66
 }
-
+#
+##########################################################################
 init(){
   # 1. expand filesystem
   SECONDS=0
@@ -171,7 +173,8 @@ init(){
   exit
   #pause "1"
 }
-
+#
+##########################################################################
 utils(){
   # 2. Set base directories & data, INSTALL utilities for docker
   SECONDS=0
@@ -182,7 +185,7 @@ utils(){
   echo 
   sleep 2
   # set locale
-  echo "Generate locales for hlite"
+  echo "Generate locales for gothings"
   sudo sed -i '$a it_IT.UTF-8 UTF-8' /etc/locale.gen
   sudo sed -i '$a en_US.UTF-8 UTF-8' /etc/locale.gen
   ### en_GB non serve: e' gia' attivo
@@ -203,7 +206,12 @@ utils(){
   mkdir /home/pi/dockrepo
   mkdir /home/pi/dockrepo/sysdata
   mkdir /home/pi/dockrepo/sysarchive
-  mkdir /home/pi/sysarchive/sysdata
+  mkdir /home/pi/dockrepo/sysdata/htdocs      # web data
+  mkdir /home/pi/dockrepo/sysdata/nginxdata   # network
+  mkdir /home/pi/dockrepo/sysdata/nodedata    # node applications
+  mkdir /home/pi/dockrepo/sysdata/pythondata  # python applications
+  mkdir /home/pi/dockrepo/sysdata/redisdata   # noSQL db
+  mkdir /home/pi/dockrepo/sysdata/vpndata     # private networking
   echo "Show dir tree:"
   tree -d /home/pi/
   echo
@@ -211,14 +219,31 @@ utils(){
   echo
   # setup dirs:  dockrepo & sysarchive
   echo
-  echo "set dirs for HLITE - get content"
-  getfile "hdirs.tar.gz" "gothings-install/master"
-  avanti
-  echo 
-  echo "expand content"
-  tar xzvf /home/pi/sysstart/hliteboot/hdirs.tar.gz -C /home/pi/
+  echo "set dirs for GOTHINGS: get content"
   echo
-  echo "HLITE user content copied"
+  FILE="gotdirs.tar.gz"             # $1
+  GITBR="gothings-install/master/"  # $2
+  PIDIR=""                          # $3
+  CALL="${FILE} $GITBR $PIDIR"
+  getgitfile ${CALL}
+  if [[ $ITEXISTS -ne 1 ]]
+  then
+    echo 
+    echo "------------------------------------------------------"
+    echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
+    echo $DEBUGLOG
+    echo "------------------------------------------------------"
+    echo "Cannot continue."
+    echo 
+    MENUTRAP=66
+    return 66
+  else
+    echo 
+    echo "expand content"
+    sudo tar xzvf "/home/pi/${FILE}" -C /home/pi/
+  fi
+  echo
+  echo "GOTHINGS user content copied"
   sleep 5
   echo 
   echo "Add the Docker official repos"
@@ -239,7 +264,7 @@ utils(){
   echo "Docker package prerequisites now installed"
   sleep 3
   echo
-  echo "HLITE dir tree:"
+  echo "GOTHINGS dir tree:"
   echo
   tree -d /home/pi/
   ELAPSED=$SECONDS
@@ -249,7 +274,8 @@ utils(){
   sleep 5
   pause "2"
 }
-
+#
+##########################################################################
 dockinstall(){
   # 3. INSTALL docker community edition
   SECONDS=0
@@ -260,7 +286,7 @@ dockinstall(){
   echo 
   echo "Docker version: 18.06.1~ce~3-0~raspbian"
   sleep 3
-  cd /home/pi/
+  cd ${HOMEDIR} #work on user pi home
   sudo apt update -y
   sudo apt install -y docker-ce=18.06.1~ce~3-0~raspbian
   echo
@@ -294,8 +320,9 @@ dockinstall(){
   sleep 5
   pause "3"
 }
-
-testhlite(){
+#
+##########################################################################
+testgothings(){
   # 4. TEST use docker-compose for a simple configuration
   SECONDS=0
   echo 
@@ -304,8 +331,8 @@ testhlite(){
   echo
   echo "TEST - use docker-compose for a simple configuration"
   echo
-  echo "Some pre-built images to support hlite services are:"
-  echo "  BOXBASE   <-- contains several utilities to develop and debug hlite services"
+  echo "Some pre-built images to support gothings services are:"
+  echo "  BOXBASE   <-- contains several utilities to develop and debug gothings services"
   echo "  NGINX     <-- http proxy to interface all network communication"
   echo "  NODEBASE  <-- nodejs environment to support generic javascript applications"
   echo "  VUEDEV    <-- node + vue environment to support reactive applications"
@@ -316,11 +343,11 @@ testhlite(){
   echo "Downloading these images may take a long time, please be patient"
   echo "30 minutes over a standard ADSL connection is normal"
   echo 
-  echo "Install hlite docker networks"
+  echo "Install gothings docker networks"
   echo "Please note that the following will show 'already exists' errors"
   echo "if this section is started multiple times"
-  echo "- hlitenet"
-  sudo docker network create -d bridge --subnet 172.29.196.0/24 --gateway 172.29.196.1 hlitenet  
+  echo "- gothingsnet"
+  sudo docker network create -d bridge --subnet 172.29.196.0/24 --gateway 172.29.196.1 gothingsnet  
   echo "- servicenet"
   sudo docker network create -d bridge --subnet 172.29.195.0/24 --gateway 172.29.195.1 servicenet
   echo
@@ -378,110 +405,100 @@ testhlite(){
   echo "--------------------------------------------------------------"
   sleep 5
   echo
-  echo "If all seems OK you can go to the hlite configuration from the main menu"
+  echo "If all seems OK you can go to the gothings configuration from the main menu"
   echo 
-  echo "Please visit the 'bla bla page' for further information on HLITE"
+  echo "Please visit the 'bla bla page' for further information on GOTHINGS"
   echo
   sleep 4
   pause "4"
 }
-
-gotoconf(){
+#
+##########################################################################
+gotocontrol(){
   SECONDS=0
-  # 5. GO to HLITE configuration menu
+  # 5. GO to GOTHINGS configuration menu
   echo 
   echo 
   echo "-------------------------------------------------------------- 5:"
   echo
-  echo "GO to HLITE configuration menu"
+    # verifichiamo esistenza file 'g'
+  FILEMARK="${HOMEDIR}g"
+  if [[ ! -s $FILEMARK ]]
+  then                            # il non e' buono, ferma tutto
+    stopmenu "${FILEMARK}" "File ${FILEMARK} is essential for control menu"
+    return 66                     # qui serve un ritorno in piu'
+  fi
+  chmod +x ${FILEMARK}
+  echo "Load & exec 'g' menu ..."
+  sleep 2
+  ./g
   echo
-  echo "Download HLITE control menu"
-  getfile "controlmenu.sh" "hlite-control/master"
-  chmod +x /home/pi/sysstart/hliteboot/controlmenu.sh
-  ln -s /home/pi/sysstart/hliteboot/controlmenu.sh /home/pi/controlmenu
-  ELAPSED=$SECONDS
-  echo
-  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s sec"
-  echo "--------------------------------------------------------------"
-  echo
-  avanti
-  break
-}
-
-checkfile(){
-  # call:    getfile $1 $2
-  #   $1:    "<filename>"
-  #   $2:    "<github project branch>"
-  # example:
-  #          getfile "boot.sh" "gothings-install/master/"
-  #
-  FILEMD5="/home/pi/sysstart/hliteboot/"$1".md5"
-  echo "file to get: $FILEMD5"
-  wget -O $FILEMD5 "https://raw.githubusercontent.com/fpirri/$2/"$FILEMD5
   echo 
-  echo "=================================================================="
-  echo " $1 checksum calculation:"
-  md5sum /home/pi/sysstart/hliteboot/$1
-  cat $FILEMD5
-  echo "You should verify equility of the aboe checksums"
-  echo "=================================================================="
-  echo ""
+  echo "------------------------------------------------------"
+  echo -e "${RED} ERROR on file: 'g'  ${STD}"
+  echo "Return to '0' menu"
+  echo "------------------------------------------------------"
+  echo 
+  sleep 10
 }
 
-#
-verify(){
-  # 6. Verify checksums    *** DA AGGIUSTARE ***
+
+gotocontrol2(){
   SECONDS=0
+  # 5. GO to GOTHINGS CONTROL MENU
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 6:"
+  echo "STOP & DESTROY all running containers ..."
   echo
-  echo "VERIFY  checksum"
+  echo "... stopping running containers"
+  docker stop $(docker ps -a -q -f status=running)
   echo
-  echo "  ***  Please, FOLLOW the instruction below !!!   ***"
+  echo "... removing all containers"
+  docker rm $(docker ps -a -q -f status=exited)
   echo
-  echo ""
-  echo ""
-  echo "To help you on this task, the gothings-install repository on"
-  echo "github contains MD5 checksum of boot.sh and fastinstal.sh"
-  echo "You have to visually verify checksum below"
-  echo "boot.sh "
-  echo "boot.sh will download the 'zero' script and verify the"
-  echo "checksum in your behalf."
-  echo ""
-  echo ""
-  echo "  *** DA AGGIUSTARE ***"
+  echo "Done."
+  echo
+  echo "READY to exec GOTHINGS CONTROL MENU"
+  echo "    NOTE: if you continue the GOTHINGS CONTROL MENU will be executed"
+  echo
+  echo -e "    ${RED}  ATTENTION !!  ${STD} "
+  echo "    continue will bring you to the GOTHINGS CONTROL MENU"
+  echo "    exit return back to the console prompt"
   echo
   avanti
-  pause "6"
+  ./g
+  echo "exit from 0 / fastinstall"
+  MENUTRAP=66
 }
-
+#
+###################################################################
+#
 # function to display menus
 show_menus() {
   clear
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  echo "     H L I T E   B U I L D   MENU"
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "      G O T H I N G S   B U I L D   MENU"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   echo
   echo "1. EXPAND  filesystem, required ONCE (first power on only ! )"
   echo "2. UTILS   install utilities & base data"
-  echo "3. DOCKER  download & install docker for HLITE"
+  echo "3. DOCKER  download & install docker for GOTHINGS"
   echo "4. TEST    use docker-compose for a simple configuration"
-  echo "5. GO      to HLITE configuration menu"
-  echo "6. VERIFY  checksums"
+  echo "5. GO      ready to exec GOTHINGS control menu"
 }
 # read input from the keyboard and take a action
 # invoke the function according to the entered number
-# invoke the two() when the user select 2 from the menu option.
-# Exit when user the user select 3 form the menu option.
 read_options(){
 	local choice
 #	read -p "Enter choice [ 1..3 or ^C to exit] " choice
-  read -rsp $'Enter choice [ 1..6 or ^C to exit ] ' -n 1 choice
+  read -rsp $'Enter choice [ 1..5 or ^C to exit ] ' -n 1 choice
 	case $choice in
 		1) init;;
     2) utils;;
 		3) dockinstall;;
-		4) testhlite;;
-		5) gotoconf;;
-    6) verify;;
+		4) testgothings;;
+    5) gotocontrol;;
 		*) echo -e "${RED}Error...${STD}" && sleep 2
 	esac
 }
@@ -498,6 +515,75 @@ trap '' SIGQUIT SIGTSTP
 
 while true
 do
+  # internal trap
+  if [[ ${MENUTRAP} -eq 66 ]]
+  then
+    return 66  #-- stop menu
+  fi
 	show_menus
 	read_options
 done
+echo "Shell terminated."
+echo
+#
+#
+##########################################################################
+##################  Templates utili durante lo sviluppo  #################
+##########################################################################
+#
+xxx_template_per_git_file(){  ############################################
+  #### usare questo template se il file e' ESSENZIALE: se non esiste si ferma il MENU
+  echo
+  FILE="<nomefile>"
+  GITBR="gothings-install/master/"  # dir su github dove va preso il file
+  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
+  getgitfile "${FILE} $GITBR $PIDIR"
+  if [[ $ITEXISTS -ne 1 ]]
+  then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
+    echo 
+    echo "------------------------------------------------------"
+    echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
+    echo $DEBUGLOG
+    echo "------------------------------------------------------"
+    echo "Cannot continue."
+    echo 
+    MENUTRAP=66
+    return 66
+  else ########## DA FARE se il file esiste ...
+    echo 
+    echo "< CI SONO !! >"
+    ##
+    ##
+    echo
+    echo "<guarda ccosa ho fatto!!>"
+    sleep 5
+  fi
+}
+################# end xxx_template_per_git_file   ########################
+#
+#
+xxx_template_per_file_exists(){  #########################################
+    # verifichiamo esistenza file FILEMARK
+    FILEMARK="${HOMEDIR}${<path-to-file>}"
+    if [[ -s $FILEMARK ]]
+    then                            # il marcatore esiste
+      ITEXISTS=1
+      # qui si esegue il caso positivo, dove il file ha lunghezza >0
+    else                            # il marcatore NON esiste, SI INTERROMPE TUTTO
+      ITEXISTS=0
+      # qui si esegue il caso negativo, dove il file non esiste oppure ha lunghezza 0
+    fi
+################# end xxx_template_per_file_exists   #####################
+#
+xxx_template_per_file_exists(){  #########################################
+    # verifichiamo esistenza file .yml
+    FILEMARK="${HOMEDIR}${<path-to-file>}"
+    if [[ -s $FILEMARK ]]
+    then                            # il marcatore esiste
+      ITEXISTS=1
+      # qui si esegue il caso positivo, dove il file ha lunghezza >0
+    else                            # il marcatore NON esiste, SI INTERROMPE TUTTO
+      ITEXISTS=0
+      # qui si esegue il caso negativo, dove il file non esiste oppure ha lunghezza 0
+    fi
+################### end xxx_template_per_debug   #########################
