@@ -74,7 +74,7 @@ getgitfile(){    # Lettura file da github
   #     <-- si riprova il test di lunghezza
   #         se non funziona si torna con ITEXISTS=0
   #     
-  # call:    findnodeapp $1 $2 $3
+  # call:    getgitfile $1 $2 $3
   #   $1:    "file"
   #   $2:    "github project branch"
   #   $3:    "raspi path after /home/pi/ "
@@ -88,7 +88,7 @@ getgitfile(){    # Lettura file da github
   #
   #  bash:  -s file  True if file exists and has a size greater than zero
   FILEGIT="/home/pi/$3$1"
-  DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $FILEGIT"
+  DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $FILEGIT |"
   if [[ -s $FILEGIT ]]
   then
     ITEXISTS=1    # file exists and length > 0
@@ -103,7 +103,7 @@ getgitfile(){    # Lettura file da github
     else
       ITEXISTS=0    # file introvabile !
       DEBUGLOG="$DEBUGLOG | $FILEGIT introvabile |"
-      # echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
+      echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
     fi
   fi
   return $ITEXISTS
@@ -126,8 +126,8 @@ stopmenu(){
 }
 #
 ##########################################################################
-init(){
-  # 1. expand filesystem
+utils(){
+  # 1. Set base directories & data, INSTALL utilities for docker
   SECONDS=0
   echo 
   echo 
@@ -142,50 +142,14 @@ init(){
   sudo gpasswd -a $USER docker
   echo
   sleep 5
-  echo
-  echo "EXPAND operation is needed ONLY ONCE"
-  echo "This allow you to utilize ALL of your sd card"
-  echo "Otherwise you will be limited to the ~2 GB size of the burned image"
-  echo
-  echo "Please note the raspy may need several minutes,"
-  echo "depending on the size of your card."
-  echo "At the end, please reboot the board."
   echo 
-  sleep 5
-  avanti
-  echo
-  echo "Please, be patient !"
-  sudo raspi-config --expand-rootfs
-  echo "DONE"
-  echo 
-  echo "Your actual disk space:"
-  df -h
-  ELAPSED=$SECONDS
-  echo
-  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s sec"
-  echo "--------------------------------------------------------------"
-  sleep 5
-  echo
-  echo "To reboot your board, please type the command:"
-  echo "   sudo reboot now"
-  echo "Reconnect after several seconds"
-  sleep 3
-  exit
-  #pause "1"
-}
-#
-##########################################################################
-utils(){
-  # 2. Set base directories & data, INSTALL utilities for docker
-  SECONDS=0
-  echo 
-  echo 
-  echo "-------------------------------------------------------------- 2:"
+  echo "----------------------------------------------------------------"
   echo "Set base directories & data, INSTALL utilities for docker"
   echo 
   sleep 2
   # set locale
   echo "Generate locales for gothings"
+  sudo cp /etc/locale.gen  /etc/locale.gen.bk
   sudo sed -i '$a it_IT.UTF-8 UTF-8' /etc/locale.gen
   sudo sed -i '$a en_US.UTF-8 UTF-8' /etc/locale.gen
   ### en_GB non serve: e' gia' attivo
@@ -193,6 +157,7 @@ utils(){
   sudo locale-gen 
   echo "Set default on en_US"
   sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 
+  sudo cp /etc/locale.gen.bk  /etc/locale.gen
   echo "Available locales now are:"
   locale -a
   echo
@@ -206,6 +171,7 @@ utils(){
   mkdir /home/pi/dockrepo
   mkdir /home/pi/dockrepo/sysdata
   mkdir /home/pi/dockrepo/sysarchive
+  mkdir /home/pi/dockrepo/sysarchive/sysdata
   mkdir /home/pi/dockrepo/sysdata/htdocs      # web data
   mkdir /home/pi/dockrepo/sysdata/nginxdata   # network
   mkdir /home/pi/dockrepo/sysdata/nodedata    # node applications
@@ -380,7 +346,7 @@ testgothings(){
   echo
   echo "-------------------------> text from nginx container:"
   curl 'localhost:6003/test.txt'
-  echo "<------------------------- end of test from nginx"
+  echo "<------------------------- end of text from nginx"
   echo
   echo "The text above is coming from nginx container"
   echo "It should confirm nginx is running"
@@ -388,7 +354,7 @@ testgothings(){
   sleep 7
   echo 
   echo "Last thing to be confirmed is testvue container running"
-  echo "The instruction is:\n    curl 'localhost:6001'"
+  echo -e "The instruction is:\n    curl 'localhost:6001'"
   echo
   echo
   echo "-------------------------> text from vuedev container:"
@@ -416,50 +382,41 @@ testgothings(){
 ##########################################################################
 gotocontrol(){
   SECONDS=0
-  # 5. GO to GOTHINGS configuration menu
-  echo 
-  echo 
-  echo "-------------------------------------------------------------- 5:"
-  echo
-    # verifichiamo esistenza file 'g'
-  FILEMARK="${HOMEDIR}g"
-  if [[ ! -s $FILEMARK ]]
-  then                            # il non e' buono, ferma tutto
-    stopmenu "${FILEMARK}" "File ${FILEMARK} is essential for control menu"
-    return 66                     # qui serve un ritorno in piu'
-  fi
-  chmod +x ${FILEMARK}
-  echo "Load & exec 'g' menu ..."
-  sleep 2
-  ./g
-  echo
-  echo 
-  echo "------------------------------------------------------"
-  echo -e "${RED} ERROR on file: 'g'  ${STD}"
-  echo "Return to '0' menu"
-  echo "------------------------------------------------------"
-  echo 
-  sleep 10
-}
-
-
-gotocontrol2(){
-  SECONDS=0
   # 5. GO to GOTHINGS CONTROL MENU
   echo 
   echo 
-  echo "-------------------------------------------------------------- 6:"
+  echo "-------------------------------------------------------------- 5:"
+  echo "Preparing for GOTHINGS CONTROL MENU"
+  echo
   echo "STOP & DESTROY all running containers ..."
   echo
   echo "... stopping running containers"
-  docker stop $(docker ps -a -q -f status=running)
+  sudo docker stop $(docker ps -a -q -f status=running)
   echo
   echo "... removing all containers"
-  docker rm $(docker ps -a -q -f status=exited)
+  sudo docker rm $(docker ps -a -q -f status=exited)
   echo
   echo "Done."
   echo
-  echo "READY to exec GOTHINGS CONTROL MENU"
+  FILE="g"
+  GITBR="gothings-install/master/"  # dir su github dove va preso il file
+  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
+  CALL="${FILE} $GITBR $PIDIR"
+  getgitfile ${CALL}
+  if [[ $ITEXISTS -ne 1 ]]
+  then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
+    echo 
+    echo "------------------------------------------------------"
+    echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
+    echo $DEBUGLOG
+    echo "------------------------------------------------------"
+    echo "Cannot continue."
+    echo 
+    MENUTRAP=66
+    return 66
+  fi ########## Si va avanti se il file esiste ...
+  echo
+  echo "Now ready to exec GOTHINGS CONTROL MENU"
   echo "    NOTE: if you continue the GOTHINGS CONTROL MENU will be executed"
   echo
   echo -e "    ${RED}  ATTENTION !!  ${STD} "
@@ -467,8 +424,9 @@ gotocontrol2(){
   echo "    exit return back to the console prompt"
   echo
   avanti
+  chmod +x /home/pi/g
   ./g
-  echo "exit from 0 / fastinstall"
+  echo "exit from 0 / boot install"
   MENUTRAP=66
 }
 #
@@ -481,11 +439,10 @@ show_menus() {
   echo "      G O T H I N G S   B U I L D   MENU"
   echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   echo
-  echo "1. EXPAND  filesystem, required ONCE (first power on only ! )"
-  echo "2. UTILS   install utilities & base data"
-  echo "3. DOCKER  download & install docker for GOTHINGS"
-  echo "4. TEST    use docker-compose for a simple configuration"
-  echo "5. GO      ready to exec GOTHINGS control menu"
+  echo "1. UTILS   install utilities & base data"
+  echo "2. DOCKER  download & install docker for GOTHINGS"
+  echo "3. TEST    use docker-compose for a simple configuration"
+  echo "4. GO      download GOTHINGS control menu"
 }
 # read input from the keyboard and take a action
 # invoke the function according to the entered number
@@ -494,11 +451,10 @@ read_options(){
 #	read -p "Enter choice [ 1..3 or ^C to exit] " choice
   read -rsp $'Enter choice [ 1..5 or ^C to exit ] ' -n 1 choice
 	case $choice in
-		1) init;;
-    2) utils;;
-		3) dockinstall;;
-		4) testgothings;;
-    5) gotocontrol;;
+    1) utils;;
+		2) dockinstall;;
+		3) testgothings;;
+    4) gotocontrol;;
 		*) echo -e "${RED}Error...${STD}" && sleep 2
 	esac
 }
@@ -525,65 +481,3 @@ do
 done
 echo "Shell terminated."
 echo
-#
-#
-##########################################################################
-##################  Templates utili durante lo sviluppo  #################
-##########################################################################
-#
-xxx_template_per_git_file(){  ############################################
-  #### usare questo template se il file e' ESSENZIALE: se non esiste si ferma il MENU
-  echo
-  FILE="<nomefile>"
-  GITBR="gothings-install/master/"  # dir su github dove va preso il file
-  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
-  getgitfile "${FILE} $GITBR $PIDIR"
-  if [[ $ITEXISTS -ne 1 ]]
-  then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
-    echo 
-    echo "------------------------------------------------------"
-    echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
-    echo $DEBUGLOG
-    echo "------------------------------------------------------"
-    echo "Cannot continue."
-    echo 
-    MENUTRAP=66
-    return 66
-  else ########## DA FARE se il file esiste ...
-    echo 
-    echo "< CI SONO !! >"
-    ##
-    ##
-    echo
-    echo "<guarda ccosa ho fatto!!>"
-    sleep 5
-  fi
-}
-################# end xxx_template_per_git_file   ########################
-#
-#
-xxx_template_per_file_exists(){  #########################################
-    # verifichiamo esistenza file FILEMARK
-    FILEMARK="${HOMEDIR}${<path-to-file>}"
-    if [[ -s $FILEMARK ]]
-    then                            # il marcatore esiste
-      ITEXISTS=1
-      # qui si esegue il caso positivo, dove il file ha lunghezza >0
-    else                            # il marcatore NON esiste, SI INTERROMPE TUTTO
-      ITEXISTS=0
-      # qui si esegue il caso negativo, dove il file non esiste oppure ha lunghezza 0
-    fi
-################# end xxx_template_per_file_exists   #####################
-#
-xxx_template_per_file_exists(){  #########################################
-    # verifichiamo esistenza file .yml
-    FILEMARK="${HOMEDIR}${<path-to-file>}"
-    if [[ -s $FILEMARK ]]
-    then                            # il marcatore esiste
-      ITEXISTS=1
-      # qui si esegue il caso positivo, dove il file ha lunghezza >0
-    else                            # il marcatore NON esiste, SI INTERROMPE TUTTO
-      ITEXISTS=0
-      # qui si esegue il caso negativo, dove il file non esiste oppure ha lunghezza 0
-    fi
-################### end xxx_template_per_debug   #########################
