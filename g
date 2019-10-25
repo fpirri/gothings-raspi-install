@@ -167,11 +167,12 @@ showcontainers(){
 ##########################################################################
 stopmenu(){
   #  $1 :  nome del file non trovato
+  #  $2 :  avviso all'utente, come '... il file xxx e' essenziale ...'
   echo 
   echo "------------------------------------------------------"
   echo -e "${RED} ERROR on file: $1 - debug message: ${STD}"
   echo $DEBUGLOG
-  echo $2
+  echo -e "$2"
   echo "------------------------------------------------------"
   echo "Cannot continue."
   echo 
@@ -180,10 +181,54 @@ stopmenu(){
 }
 #
 ##########################################################################
+verifybase() {
+  # verifica esistenza files applicazione base
+  FILEBASEGZ="basedirs.tar.gz"           # deve esistere il file tar.gz in sysarchive
+  GITBR="gothings-base/master/dockrepo/sysarchive/"
+  PIDIRGZ="dockrepo/sysarchive/"
+  getgitfile ${FILEBASEGZ} $GITBR $PIDIRGZ
+  if [[ $ITEXISTS -ne 1 ]]
+  then                             # SI INTERROMPE TUTTO se basedirs.tar.gz non esiste
+    stopmenu "${FILEBASEGZ}"  "file ${FILEBASEGZ} is essential for control menu"
+    return 66                      # interrommpere il menu principale
+  else
+    # il file .tar.gz esiste, proseguiamo cercando il file "marcatore"
+    
+    FILEMARK="${HOMEDIR}dockrepo/dockimages/base/base.dirs"
+    if [[ ! -s $FILEMARK ]]
+    then                            # il marcatore NON esiste, espandiamo basedirs.tar.gz
+      echo
+      echo "File ${FILEMARK} does not exists, try to expand ${FILEBASEGZ} ..."
+      echo
+      tar -xzvf "${PIDIRGZ}${FILEBASEGZ}" -C $HOMEDIR
+      DUMMY=$?
+      if [[ ! $DUMMY -eq 0 ]]
+      then
+        echo "tar returned: $DUMMY"
+        echo
+        stopmenu "${PIDIRGZ}${FILEBASEGZ}"  "tar returned: $DUMMY : file expantion failed"
+        return 66                      # interrommpere il menu principale
+      fi
+      echo "done."
+      sleep 4
+    fi
+    # verifichiamo esistenza file .yml
+    FILEMARK="${HOMEDIR}dockrepo/sysdata/base/gothingsbase.yml"
+    if [[ ! -s $FILEMARK ]]
+    then                           # il marcatore NON esiste, SI INTERROMPE TUTTO
+      DEBUGLOG="|| BASE files check | Essential file missing ||"
+      stopmenu "${FILEMARK}" "file ${FILEMARK} is essential for control menu"
+    return 66                      # interrommpere il menu principale
+    fi
+  fi
+  # se si arriva qui significa che i file 'base' sono installati
+}
+#
 ##########################################################################
 gothingsinstall(){
   # Initialize and install gothings base & applications
-# esegui menu applicazione base  
+  verifybase
+  # esegui menu applicazione base  
   RIPETI=1
   until [[ $RIPETI -gt 10 ]]
     do
@@ -251,46 +296,9 @@ gothingsinstall(){
 #
 ##########################################################################
 gothingsbase(){
-  # verifica esistenza files applicazione base
-  FILEBASEGZ="basedirs.tar.gz"           # deve esistere il file tar.gz in sysarchive
-  GITBR="gothings-install/master/"
-  PIDIRGZ="dockrepo/sysarchive/"
-  getgitfile ${FILEBASEGZ} $GITBR $PIDIRGZ
-  if [[ $ITEXISTS -ne 1 ]]
-  then                             # SI INTERROMPE TUTTO se basedirs.tar.gz non esiste
-    stopmenu "${FILEBASEGZ}"  "file ${FILEBASEGZ} is essential for control menu"
-    return 66                      # interrommpere il menu principale
-  else
-    # il file .tar.gz esiste, proseguiamo cercando il file "marcatore"
-    
-    FILEMARK="${HOMEDIR}dockrepo/dockimages/base/base.dirs"
-    if [[ ! -s $FILEMARK ]]
-    then                            # il marcatore NON esiste, espandiamo basedirs.tar.gz
-      echo
-      echo "File ${FILEMARK} does not exists, try to expand ${FILEBASEGZ} ..."
-      echo
-      tar -xzvf "${PIDIRGZ}${FILEBASEGZ}" -C $HOMEDIR
-      DUMMY=$?
-      if [[ ! $DUMMY -eq 0 ]]
-      then
-        echo "tar returned: $DUMMY"
-        echo
-        stopmenu "${PIDIRGZ}${FILEBASEGZ}"  "tar returned: $DUMMY : file expantion failed"
-        return 66                      # interrommpere il menu principale
-      fi
-      echo "done."
-      sleep 4
-    fi
-    # verifichiamo esistenza file .yml
-    FILEMARK="${HOMEDIR}dockrepo/sysdata/base/gothingsbase.yml"
-    if [[ ! -s $FILEMARK ]]
-    then                           # il marcatore NON esiste, SI INTERROMPE TUTTO
-      DEBUGLOG="|| BASE files check | Essential file missing ||"
-      stopmenu "${FILEMARK}" "file ${FILEMARK} is essential for control menu"
-    return 66                      # interrommpere il menu principale
-    fi
-  fi
-# esegui menu applicazione base  
+  # Initialize and install gothings base & applications
+  verifybase
+  # esegui menu applicazione base  
   RIPETI=1
   until [[ $RIPETI -gt 10 ]]
     do
@@ -316,7 +324,7 @@ gothingsbase(){
             echo "Starting docker-compose ..."
             docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml up -d
             echo "Done."
-            sleep 2
+            sleep 5
             RIPETI=2
             ;;
         3)  # PAUSE base subsystem
@@ -336,7 +344,7 @@ gothingsbase(){
                   docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml stop
                   echo
                   echo "done."
-                  sleep 2
+                  sleep 5
                   ;;
                 *)
                   echo
@@ -364,7 +372,7 @@ gothingsbase(){
                   docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml down
                   echo
                   echo "done."
-                  sleep 2
+                  sleep 5
                   ;;
                 *)
                   echo
@@ -799,6 +807,10 @@ do
   # internal trap
   if [[ ${MENUTRAP} -eq 66 ]]
   then
+    echo "Are you sure that all necessary software was loaded"
+    echo "in the INSTALL step of the control menu?"
+    echo "------------------------------------------------------"
+    echo
     break  #-- stop menu
   fi
 	show_menus
@@ -807,85 +819,3 @@ done
 echo "Shell terminated."
 echo
 #
-##########################################################################
-##################  Templates utili durante lo sviluppo  #################
-##########################################################################
-#
-xxx_template_per_git_file(){  ############################################
-  #### usare questo template se il file e' ESSENZIALE: se non esiste si ferma il MENU
-  echo
-  FILE="<nomefile>"
-  GITBR="gothings-install/master/"  # dir su github dove va preso il file
-  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
-  getgitfile "${FILE} $GITBR $PIDIR"
-  if [[ $ITEXISTS -ne 1 ]]
-  then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
-    stopmenu ${FILE} "File ${FILE} is essential for control menu"
-  else ########## DA FARE se il file esiste ...
-    echo 
-    echo "< CI SONO !! >"
-    ##
-    ##
-    echo
-    echo "<guarda cosa ho fatto!!>"
-    sleep 5
-  fi
-}
-################## end xxx_template_per_git_file   #######################
-#
-xxx_template_per_file_exists(){  #########################################
-    # verifichiamo esistenza file .yml
-    FILEMARK="${HOMEDIR}${<path-to-file>}"
-    if [[ -s $FILEMARK ]]
-    then                            # il marcatore esiste
-      ITEXISTS=1
-      # qui si esegue il caso positivo, dove il file ha lunghezza >0
-    else                            # il marcatore NON esiste, SI INTERROMPE TUTTO
-      ITEXISTS=0
-      # qui si esegue il caso negativo, dove il file non esiste oppure ha lunghezza 0
-    fi
-}
-################# end xxx_template_per_file_exists   #####################
-#
-xxx_template_per_stopmenu(){  ############################################
-  #  $1 :  nome del file non trovato
-  #  $2 :  riga di debug aggiuntiva
-  echo 
-  echo "------------------------------------------------------"
-  echo -e "${RED} ERROR on file: $1 - debug message: ${STD}"
-  echo $DEBUGLOG
-  echo $2
-  echo "------------------------------------------------------"
-  echo "Cannot continue."
-  echo 
-  MENUTRAP=66
-  return 66
-}
-################### end xxx_template_per_stopmenu   ######################
-#
-xxx_template_scelta_yn(){  ############################################
-# esegui menu applicazione base  
-  RIPETI=1
-  until [[ $RIPETI -gt 3 ]]
-    do
-
-            echo "Permanent user data will NOT be destroyed"
-            read -rsp "Do you like to STOP base containers? [y/N] " -n 1 key
-            case "$key" in
-                [yY]) 
-                  echo
-                  echo "Using docker-compose to stop base containers ..."
-                  docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml stop
-                  echo
-                  echo "done."
-                  sleep 2
-                  ;;
-                *)
-                  echo
-                  echo "Back to choice"
-                  sleep 2
-                  ;;
-            esac
-################# end xxx_template_per_file_exists   #####################
-
-
