@@ -200,7 +200,9 @@ verifybase() {
       echo
       echo "File ${FILEMARK} does not exists, try to expand ${FILEBASEGZ} ..."
       echo
-      tar -xzvf "${PIDIRGZ}${FILEBASEGZ}" -C $HOMEDIR
+      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
+      sudo tar xpf "${PIDIRGZ}${FILEBASEGZ}" -C $HOMEDIR
+      #  tar -xzvf "${PIDIRGZ}${FILEBASEGZ}" -C $HOMEDIR
       DUMMY=$?
       if [[ ! $DUMMY -eq 0 ]]
       then
@@ -246,6 +248,17 @@ gothingsinstall(){
             echo
             echo "---------------------------------------------------------"
             echo "Use docker-compose to install the BASE subsystem"
+            echo
+            echo 
+            echo "Install gothings docker networks"
+            echo "Please note that the following will show 'already exists' errors"
+            echo "if the network was already installed"
+            echo 
+            echo "- gothingsnet"
+            docker network create -d bridge --subnet 172.29.196.0/24 --gateway 172.29.196.1 gothingsnet  
+            echo "- servicenet"
+            docker network create -d bridge --subnet 172.29.195.0/24 --gateway 172.29.195.1 servicenet
+            echo
             echo
             echo "Starting docker-compose ..."
             docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbaseinstall.yml up -d
@@ -431,6 +444,7 @@ findnodeapp(){
     wget -O $FILEGZ https://raw.githubusercontent.com/fpirri/$2/$1.tar.gz
     if [[ -s $FILEGZ ]]
     then
+      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
       tar -xzvf $FILEGZ -C $3
       DEBUGLOG="$DEBUGLOG | $FILEGZ expanded in "
     fi
@@ -611,6 +625,7 @@ nodedev(){
                 FILEGZ="/home/pi/sysarchive/$app.tar.gz"
                 APPDIR="/home/pi/dockrepo/sysdata/nodedata/"
                 echo "FILEGZ: $FILEGZ - APPDIR: $APPDIR"
+      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
                 tar -xzvf $FILEGZ -C $APPDIR
                 echo
                 echo "done."
@@ -678,6 +693,7 @@ userdir(){
                     echo
                     echo "Replacing user content from archive number $GZVersion"
                     sleep 3
+      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
                     sudo tar -xzvf ${HDIRS} -C /
                     echo "done."
                     ;;
@@ -702,6 +718,7 @@ userdir(){
                       echo
                       echo "Store user's content into archive ..."
                       sleep 2
+      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
                       sudo tar -zcvf ${HDIRS} /home/pi/dockrepo/sysdata
                       echo "done."
                       sleep 3
