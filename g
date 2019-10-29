@@ -1,7 +1,7 @@
 #!/bin/bash
 #                                                                    2019-07-19
 #  Control menu script for GOTHINGS system
-#                                                           version 0.00.03-dev
+#                                                               version 0.00.04
 #
 #  Menu per l'inizializzazione del sistema gothings
 #    Basic idea coming from:
@@ -239,7 +239,7 @@ gothingsinstall(){
       echo " 1) BASE     install BASE nodejs modules"
       echo " 2) VUE      install vue framework"
       echo " 3) PYTHON   install python applications"
-      echo " 4) ?        to do"
+      echo " 4) UPDATE   GOTHINGS Control Menu"
       echo " 5) RETURN   to main menu"
       read -rsp $'Your choice: ' -n 1 key
       case $key in
@@ -289,8 +289,61 @@ gothingsinstall(){
             RIPETI=2
             ;;
         3)  # ?
-            boh
-            RIPETI=1
+            echo
+            echo
+            echo "---------------------------------------------------------"
+            echo "UPDATE Gothings Control Menu  (this application)"
+            echo
+            echo "This operation downloads the last version from GITHUB"
+            echo
+            echo "This menu will be overwritten and re-executed"
+            echo "Please note you need a working internet connection to go"
+            echo
+            read -rsp "Do you like to download last version of this menu? [y/N] " -n 1 key
+            case "$key" in
+              [yY]) 
+                echo
+                echo "... download 'g'"
+                echo
+                FILE="g"
+                GITBR="gothings-install/master/"  # dir su github dove va preso il file
+                PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
+                CALL="${FILE} $GITBR $PIDIR"
+                getgitfile ${CALL}
+                if [[ $ITEXISTS -ne 1 ]]
+                then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
+                  echo 
+                  echo "------------------------------------------------------"
+                  echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
+                  echo $DEBUGLOG
+                  echo "------------------------------------------------------"
+                  echo "Cannot continue."
+                  echo 
+                  MENUTRAP=66
+                  return 66
+                fi ########## Si va avanti se il file esiste ...
+                echo
+                echo "Now ready to exec GOTHINGS CONTROL MENU"
+                echo "    NOTE: if you continue the GOTHINGS CONTROL MENU will be executed"
+                echo
+                echo -e "    ${RED}  ATTENTION !!  ${STD} "
+                echo "    continue will bring you to the GOTHINGS CONTROL MENU"
+                echo "    exit return back to the console prompt"
+                echo
+                avanti
+                chmod +x /home/pi/g
+                ./g
+                echo "exit from 0 / boot install"
+                MENUTRAP=66
+                ;;
+              *)
+                echo
+                echo "Back to choice"
+                sleep 2
+                ;;
+            esac
+            sleep 4
+            RIPETI=2
             ;;
         4)  # ?
             boh
@@ -781,7 +834,7 @@ userdir(){
 # function to display menus
 show_menus() {
   clear
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 0.00.03-dev"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 0.00.04"
   echo
   echo "    G O T H I N G S   C O N T R O L   MENU"
   echo
