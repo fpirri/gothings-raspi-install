@@ -289,13 +289,16 @@ gothingsinstall(){
             RIPETI=2
             ;;
         3)  # ?
+            boh
+            RIPETI=3
+            ;;
+        4)  # ?
             echo
             echo
             echo "---------------------------------------------------------"
             echo "UPDATE Gothings Control Menu  (this application)"
             echo
             echo "This operation downloads the last version from GITHUB"
-            echo
             echo "This menu will be overwritten and re-executed"
             echo "Please note you need a working internet connection to go"
             echo
@@ -322,32 +325,20 @@ gothingsinstall(){
                   MENUTRAP=66
                   return 66
                 fi ########## Si va avanti se il file esiste ...
-                echo
-                echo "Now ready to exec GOTHINGS CONTROL MENU"
-                echo "    NOTE: if you continue the GOTHINGS CONTROL MENU will be executed"
-                echo
-                echo -e "    ${RED}  ATTENTION !!  ${STD} "
-                echo "    continue will bring you to the GOTHINGS CONTROL MENU"
-                echo "    exit return back to the console prompt"
-                echo
-                avanti
                 chmod +x /home/pi/g
+                echo
+                echo "GOTHINGS CONTROL MENU is now updated"
                 ./g
-                echo "exit from 0 / boot install"
-                MENUTRAP=66
+                echo "exit from g download"
+                MENUTRAP=67
                 ;;
               *)
                 echo
                 echo "Back to choice"
-                sleep 2
                 ;;
             esac
             sleep 4
-            RIPETI=2
-            ;;
-        4)  # ?
-            boh
-            RIPETI=1
+            RIPETI=4
             ;;
         5)  # NON eseguito, si ritorna al controlmenu
             echo "Ritorno ..."
@@ -834,7 +825,7 @@ userdir(){
 # function to display menus
 show_menus() {
   clear
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 0.00.04"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 0.00.04-dev"
   echo
   echo "    G O T H I N G S   C O N T R O L   MENU"
   echo
@@ -877,6 +868,15 @@ trap '' SIGQUIT SIGTSTP
 while true
 do
   # internal trap
+  if [[ ${MENUTRAP} -eq 67 ]]
+  then
+    echo "------------------------------------------------------"
+    echo "GOTHINGS Control Menu was downloaded from github,"
+    echo "You can re-execute it by typing './g' at the console"
+    echo "------------------------------------------------------"
+    echo
+    break  #-- stop menu
+  fi
   if [[ ${MENUTRAP} -eq 66 ]]
   then
     echo "Are you sure that all necessary software was loaded"
