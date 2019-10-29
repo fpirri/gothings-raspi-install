@@ -1,7 +1,7 @@
 #!/bin/bash
 #                                                                    2019-07-19
 #  Control menu script for GOTHINGS system
-#                                                               version 0.00.04
+#                                                               version 0.00.05
 #
 #  Menu per l'inizializzazione del sistema gothings
 #    Basic idea coming from:
@@ -826,7 +826,7 @@ userdir(){
 # function to display menus
 show_menus() {
   clear
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 0.00.04-dev"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 0.00.05"
   echo
   echo "    G O T H I N G S   C O N T R O L   MENU"
   echo
