@@ -328,6 +328,7 @@ gothingsinstall(){
                 chmod +x /home/pi/g
                 echo
                 echo "GOTHINGS CONTROL MENU is now updated"
+                sleep 4
                 ./g
                 echo "exit from g download"
                 MENUTRAP=67
