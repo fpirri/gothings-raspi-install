@@ -1,0 +1,303 @@
+#!/bin/bash
+#                                                                    2019-10-31
+#  Control menu script for GOTHINGS system - manage VUEDEV
+#
+#                               please go to Define variables below <-- version
+#
+#  Menu per l'inizializzazione di app basate su vue
+#
+#
+#    Called from the 'g' - Gothings Control Menu
+#
+#==============================================================================
+echo
+echo "====================================================== GOTHINGS for raspi"
+echo "        Control loader for VUEDEV applications."
+echo "========================================================================="
+echo
+#
+# ----------------------------------
+# Define variables
+# ----------------------------------
+VERSION='0.00.01'
+EDITOR=nano
+PASSWD=/etc/passwd
+RED='\033[0;41;30m'
+STD='\033[0;0;39m'
+
+HOMEDIR="/home/pi/"
+DEBUGLOG=""
+ITEXISTS=0  # 1 se il cercato esiste
+FILE=""     # Nome del file in fileexists()
+MENUTRAP=0  #  66 : exit menu
+SUBRESULT=0 #  Uscita da questo sottomenu
+
+cd ${HOMEDIR} #work on user 'pi' home
+
+# ----------------------------------
+# User defined functions
+# ----------------------------------
+
+avanti(){
+  # call:    avanti $1
+  #   $1:    "<string>"
+  echo "----------------------------------------------------------------"
+  read -rsp "$1" -n 1 key
+  echo
+}
+
+pause(){
+#  continue or exit
+  echo "----------------------------------------------------------------/"
+  read -rsp $'Press any key to continue or ^C to exit ...' -n 1 key
+}
+
+boh(){
+  # BOH!  Funzione ancora DA FARE
+  echo 
+  echo
+  echo "-------------------------------------------------------------- ?:"
+  echo
+  echo "Qui ci sara' una funzione, quando sara' fatta ..."
+  echo
+  #exit
+  pause "?"
+}
+#
+##########################################################################
+showcontainers(){
+  # 1. SHOW containers status
+  #               "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  RIPETI=1
+  until [[ $RIPETI -gt 3 ]]
+    do
+      # 1. SHOW containers status
+      #               "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+      #  showsubtitle "         sottotitolo piu' o meno centrato"
+      showsubtitle "      MANAGE:  SHOW all containers"
+      docker ps -a --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}"
+      echo
+      echo "------------------------------------"
+      sleep 2
+      read -rsp "Do you like to read again containers status? [y/N] " -n 1 key
+      case "$key" in
+          [yY])
+            RIPETI=1
+            ;;
+          *)
+            RIPETI=4
+            ;;
+      esac
+   done
+}
+#
+##########################################################################
+getgitfile(){    # Lettura file da github
+  #
+  #  use globals:
+  #    DEBUGLOG=""     # utile nel debug
+  #    ITEXISTS=0      #  1 : file esiste    0 : file assente
+  #
+  #
+  #     <-- se esiste il file $1 ed ha lunghezza > 0 :
+  #         <-- si va avanti senza altre azioni
+  #     <-- altrimenti si prova a scaricare il file da github               AGGIUSTARE dopo ......
+  #     <-- si riprova il test di lunghezza
+  #         se non funziona si torna con ITEXISTS=0
+  #     
+  # call:    findnodeapp $1 $2 $3
+  #   $1:    "file"
+  #   $2:    "github project branch"
+  #   $3:    "raspi path after /home/pi/ "
+  # RETURN:
+  #           ITEXISTS = 1 se esiste, 0 altrimenti
+  #
+  # Verify file existence, get it from github if not
+  #
+  # example:
+  #          getgitfile "gotdirs.tar.gz" "gothings-install/master/" "dockrepo/sysarchive/"
+  #
+  #  bash:  -s file  True if file exists and has a size greater than zero
+  FILEGIT="/home/pi/$3$1"
+  DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $FILEGIT"
+  if [[ -s $FILEGIT ]]
+  then
+    ITEXISTS=1    # file exists and length > 0
+    DEBUGLOG="$DEBUGLOG | $FILEGIT esiste |"
+  else            # si prova a scaricarlo
+    DEBUGLOG="$DEBUGLOG | $FILEGIT does not exist |"
+    wget -O $FILEGIT https://raw.githubusercontent.com/fpirri/$2$1
+    if [[ -s $FILEGIT ]]
+    then
+      ITEXISTS=1    # file exists and length > 0
+      DEBUGLOG="$DEBUGLOG | $FILEGIT trovato |"
+    else
+      ITEXISTS=0    # file introvabile !
+      DEBUGLOG="$DEBUGLOG | $FILEGIT introvabile |"
+      echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
+    fi
+  fi
+  return $ITEXISTS
+}
+#
+##########################################################################
+showsubtitle(){
+  # 1. SHOW submenu header
+  #
+  # call:    showsubtitle $1
+  #    "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  # $1:"         Sub menu title"
+  #
+  clear
+  echo 
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo "$1"
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo 
+}
+#
+##########################################################################
+
+
+
+
+
+
+
+
+
+#
+##########################################################################
+ret_to_g() {
+  MENUTRAP=42
+  echo "sto tornando ..."
+}
+##########################################################################
+
+#
+##########################################################################
+red_error_message(){
+  #  $1 :  nome del file non trovato
+  #  $2 :  avviso all'utente, come '... il file xxx e' essenziale ...'
+  echo 
+  echo "------------------------------------------------------"
+  echo -e "${RED} ERROR on file: $1 - debug message: ${STD}"
+  echo $DEBUGLOG
+  echo -e "$2"
+  echo "------------------------------------------------------"
+  echo "Cannot continue."
+  echo 
+}
+#
+##########################################################################
+expandvuedev() {
+  # Espandi  dockrepo/dockimages/vuedev/vuedev.tar.gz o ritorna errore
+  # verifichiamo esistenza file
+  FILEMARK="${HOMEDIR}dockrepo/dockimages/vuedev/vuedev.tar.gz"
+  if [[ ! -s $FILEMARK ]]
+  then                           # il marcatore NON esiste, SI INTERROMPE TUTTO
+    DEBUGLOG="|| BASE files check | Essential file missing ||"
+    red_error_message "${FILEMARK}" "file ${FILEMARK} is essential for control menu"
+  return 54                      # interrommpere il menu principale
+  fi
+  # se si arriva qui, il file $FILEMARK esiste ..."
+  echo "il file  $FILEMARK ci sarebbe ...."
+  sleep 5
+}
+
+##########################################################################
+#
+#
+show_menus() {
+  clear
+  MENUTRAP=0 # per rompere il ciclo - vedi in fondo ...
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ${VERSION}"
+  echo
+  echo "    GOTHINGS :  MANAGE  VUEDEV Applications"
+  echo
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo
+  echo "1. SHOW      all containers"
+  echo "2. EXPAND    source from 'vuedev.tar.gz' archive"
+  echo "3. INSTALL   VUEDEV application"
+  echo "4. START     vuedev application"
+  echo "5. STOP      vuedev application"
+  echo "6. DESTROY   vuedev application"
+  echo "7. ERASE     source of VUEDEV applications"
+  echo "8. EXIT      from this menu"
+}
+#
+# read input from the keyboard and take a action
+# invoke the function according to the entered number
+read_options(){
+	local choice
+  read -rsp $'Enter choice [ 1..6 or ^C to exit ] ' -n 1 choice
+	case $choice in
+		1) showcontainers;;
+		2) expandvuedev;;
+		3) boh;;
+		4) boh;;
+		5) boh;;
+		5) boh;;
+		6) boh;;
+		7) boh;;
+		8) ret_to_g;;
+		*) echo -e "${RED}Error...${STD}" && sleep 2
+	esac
+}
+ 
+# ----------------------------------------------
+# Step #3: Trap CTRL+C, CTRL+Z and quit singles
+# ----------------------------------------------
+trap '' SIGQUIT SIGTSTP
+#trap '' SIGINT SIGQUIT SIGTSTP
+ 
+# -----------------------------------
+# Step #4: Main logic - infinite loop
+# ------------------------------------
+
+while true
+do
+  # internal traps
+  if [[ ${MENUTRAP} -eq 42 ]]
+  then
+    echo
+    echo "User choose to return"
+    echo "------------------------------------------------------"
+    echo
+    break  #-- stop menu
+  fi
+  if [[ ${MENUTRAP} -eq 53 ]]
+  then
+    
+    echo "Something happened !!"
+    echo "I'm sorry, I cannot go on "
+    echo "------------------------------------------------------"
+    echo
+    break  #-- stop menu
+  fi
+	show_menus
+	read_options
+done
+echo "Shell terminated."
+echo
+exit ${MENUTRAP}
+
+
+        2)  # ?
+            echo
+            echo
+            echo "---------------------------------------------------------"
+            echo "Use docker-compose to install VUEDEV app"
+            echo
+            echo "Starting docker-compose ..."
+            docker-compose -f /home/pi/dockrepo/sysdata/vuedev/gothings-build-vuedev.yml up -d
+            echo "Compose: done."
+            echo
+            echo "Wait completion of install ..."
+            docker logs -f vuedev
+            echo
+            echo "NPM INSTALL done."
+            sleep 4
+            RIPETI=2
+            ;;
