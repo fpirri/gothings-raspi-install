@@ -1,7 +1,7 @@
 #!/bin/bash
 #                                                                    2019-07-19
 #  Verifica inizializzazione GOTHINGS
-                                                               VERSION="0.01.01 dev"
+                                                               VERSION="0.01.03"
 #
 #  Menu per la gestione dello stato iniziale del sistema gothings
 #    - e' chiamato da ./g
@@ -19,8 +19,8 @@
 ###########
 #
 #  Verifica la correttezza dell'installazione delle varie parti di gothings:
-#    BASE         la verifica eseguita anche per conto di ./g                         SI
-#    VUEDEV       Verifica presenza vuedev                                            SI
+#    BASE         verifica eseguita anche per conto di ./g                                    SI
+#    VUEDEV       verifica presenza vuedev_g                                                  SI
 #    NODE         manage node js development containers
 #    PYTHON       manage python/flask development containers
 #    USER         manage user containers
@@ -41,10 +41,10 @@ EDITOR=nano
 PASSWD=/etc/passwd
 RED='\033[0;41;30m'
 STD='\033[0;0;39m'
-
 HOMEDIR="/home/pi/"
-DEBUGLOG=""
+GITREPOBASE="https://raw.githubusercontent.com/fpirri/gothings-base/master/"
 
+DEBUGLOG=""
 RETLEVEL=0  # 0 : tutto OK; 1+ : situazione non valida ...
 ITEXISTS=0  # 1 se il cercato esiste, 0 altrimenti
 FILE=""     # Nome del file in fileexists()
@@ -56,16 +56,16 @@ cd ${HOMEDIR} #work on user 'pi' home
 
 ##########################################################################
 # Verifica parametri di chiamata
-if [ "$FTYPE" == "E" ]  # semplice verifica di esistenza, ritorna subito
-then
+if [ "$FTYPE" == "E" ]; then  # semplice verifica di esistenza, ritorna subito
   exit 0
 fi
 # altrimenti vai avanti
+#
 # NOTA: NON si riconoscono gli altri valori previsti
 #
 echo
 echo "====================================================== GOTHINGS for raspi"
-echo "  Verifica installazione"
+echo "  GINIT - Verifica installazione"
 echo
 #
 ##########################################################################
@@ -117,7 +117,7 @@ toupdate(){
 }
 #
 ##########################################################################
-stopmenu(){
+errmessage(){
   #  $1 :  nome del file non trovato
   #  $2 :  avviso all'utente, come '... il file xxx e' essenziale ...'
   echo 
@@ -126,6 +126,14 @@ stopmenu(){
   echo $DEBUGLOG
   echo -e "$2"
   echo "------------------------------------------------------"
+  echo 
+}
+#
+##########################################################################
+stopmenu(){
+  #  $1 :  nome del file non trovato
+  #  $2 :  avviso all'utente, come '... il file xxx e' essenziale ...'
+  errmessage "$1" "$2"
   echo "Cannot continue."
   echo 
   MENUTRAP=66
@@ -150,12 +158,11 @@ showsubtitle(){
 }
 #
 ##########################################################################
-#
 showcontainers(){
   # 1. SHOW containers status
   #               "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   RIPETI=1
-  until [[ $RIPETI -gt 3 ]]
+  until [[ $RIPETI -gt 10 ]]
     do
       # 1. SHOW containers status
       #               "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
@@ -171,7 +178,7 @@ showcontainers(){
             RIPETI=1
             ;;
           *)
-            RIPETI=4
+            RIPETI=99
             ;;
       esac
    done
@@ -204,829 +211,383 @@ getgitfile(){    # Lettura file da github
   #          getgitfile "gotdirs.tar.gz" "gothings-install/master/" "dockrepo/sysarchive/"
   #
   #  bash:  -s file  True if file exists and has a size greater than zero
-  FILEGIT="/home/pi/$3$1"
-  DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $FILEGIT"
-  if [[ -s $FILEGIT ]]
-  then
+  local Filegit Githubfile
+  Filegit="/home/pi/$3$1"
+  DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $Filegit"
+  if [ -s $Filegit ]; then
     ITEXISTS=1    # file exists and length > 0
-    DEBUGLOG="$DEBUGLOG | $FILEGIT esiste |"
+    DEBUGLOG="$DEBUGLOG | $Filegit esiste |"
   else            # si prova a scaricarlo
-    DEBUGLOG="$DEBUGLOG | $FILEGIT does not exist |"
-    wget -O $FILEGIT https://raw.githubusercontent.com/fpirri/$2$1
-    if [[ -s $FILEGIT ]]
-    then
+    Githubfile="https://raw.githubusercontent.com/fpirri/$2$1"
+    DEBUGLOG="$DEBUGLOG | $Filegit does not exist | Get file from github: ${Githubfile}"
+    wget -O "$Filegit" "$Githubfile"
+    if [ -s $Filegit ]; then
       ITEXISTS=1    # file exists and length > 0
-      DEBUGLOG="$DEBUGLOG | $FILEGIT trovato |"
+      DEBUGLOG="$DEBUGLOG | $Filegit trovato |"
     else
       ITEXISTS=0    # file introvabile !
-      DEBUGLOG="$DEBUGLOG | $FILEGIT introvabile |"
+      DEBUGLOG="$DEBUGLOG | $Filegit introvabile |"
       echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
     fi
   fi
   return $ITEXISTS
 }
 #
-##########################################################################
-verifybase() {
-  # verifica esistenza files applicazione base
-  # eventuale espansione da file archivio
-  # 
-  RETLEVEL=0 #-- si parte con 'tutto bene'
-  FILEBASEGZ="basedirs.tar.gz"           # deve esistere il file tar.gz in sysarchive
-  GITBR="gothings-base/master/dockrepo/sysarchive/"
-  PIDIRGZ="dockrepo/sysarchive/"
-  getgitfile ${FILEBASEGZ} $GITBR $PIDIRGZ
-  if [[ $ITEXISTS -ne 1 ]]
-  then                             # SI INTERROMPE TUTTO se basedirs.tar.gz non esiste
-    stopmenu "${FILEBASEGZ}"  "file ${FILEBASEGZ} is essential for control menu"
-    return 66                      # interrommpere il menu principale
-  else
-    # il file .tar.gz esiste, proseguiamo cercando il file "marcatore"
-    
-    FILEMARK="${HOMEDIR}dockrepo/dockimages/base/base.dirs"
-    if [[ ! -s $FILEMARK ]]
-    then                            # il marcatore NON esiste, espandiamo basedirs.tar.gz
-      echo
-      echo "File ${FILEMARK} does not exists, try to expand ${FILEBASEGZ} ..."
-      echo
-      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
-      sudo tar xpf "${PIDIRGZ}${FILEBASEGZ}" -C $HOMEDIR
-      #  tar -xzvf "${PIDIRGZ}${FILEBASEGZ}" -C $HOMEDIR
-      DUMMY=$?
-      if [[ ! $DUMMY -eq 0 ]]
-      then
-        echo "tar returned: $DUMMY"
-        echo
-        stopmenu "${PIDIRGZ}${FILEBASEGZ}"  "tar returned: $DUMMY : file expantion failed"
-        return 66                      # interrommpere il menu principale
-      fi
-      echo "done."
-      sleep 4
-    fi
-    # verifichiamo esistenza file .yml
-    FILEMARK="${HOMEDIR}dockrepo/sysdata/base/gothingsbase.yml"
-    if [[ ! -s $FILEMARK ]]
-    then                           # il marcatore NON esiste, SI INTERROMPE TUTTO
-      DEBUGLOG="|| BASE files check | Essential file missing ||"
-      stopmenu "${FILEMARK}" "file ${FILEMARK} is essential for control menu"
-    return 66                      # interrommpere il menu principale
-    fi
-  fi
-  # se si arriva qui significa che i file 'base' sono installati
-  RETLEVEL=0
-  return ${RETLEVEL}
+##########################################################################                          ** IN SOSTITUZIONE **
+json2string() {
+  # Trasforma valori json da stringa in stringa nulla
+  #   $1    nome variabile da verificare
+  typeset -n ref1=$1 #                    ref1 punta alla variabile json
+  case "$ref1" in #                       check valori anomali --> stringa ""
+    null|true|false)
+      ref1=""
+      echo "null value"
+      return 0
+      ;;
+    *)
+      echo "value: $ref1"
+      return 1
+  esac
 }
 #
 ##########################################################################
+bugmessage(){
+  # stampa $debuglog ed un avviso di errore
+  #
+  #  $1 :  ERROR oppure WARNING
+  #  $2 :  codice di errore
+  #  stampa piccola storia  <-- debuglog
+  #  $3 :  avviso all'utente, come '... il file xxx e' essenziale ...'
+  echo 
+  echo "------------------------------------------------------"
+  echo -e "${RED} $1 $2 - debug message: ${STD}"
+  echo ${debuglog}
+  echo -e "$3"
+  echo "------------------------------------------------------"
+  echo 
+}
+#
+##########################################################################       versione 2019-11-20
+verifybaseexpand() {
+  #  si verifica baseexpand.json per vedere se l'espansione e' da fare,
+  #  ovvero se e' gia' fatta o non e' comunque necessaria:
+  #
+  #  ritorna 0 se l'operazione non ha prodotto errori
+  #          1 se ci sono stati errori ...
+  #
+  #  error details in:  .../github-gothings/README.github.gothings
+  #
+  #  il dir .../dockimages/base DEVE contenere il file di configurazione baseexpand.json
+  #  opzionalmente , l'utente puo' mettere anche i files baseexpand.sh e .tar.gz
+  #  TUTTE le info necessarie sono nel .json
+  #
+  local filejson status filetargz githubgzfile script temp debuglog nvar
+  filejson="${HOMEDIR}dockrepo/dockimages/base/baseexpand.json"
+  #
+  echo "    <-- configuration data read from ${filejson}"
+  temp=($(cat "${filejson}" | jq -r '.status,.filetargz,.githubgzfile,.script'))
+  # verifica che sono tornateb effettivamente 4 variabili  <-- SBAGLIATO, da vedere se ci sono null!!
+  echo "    <--       status: ${temp[0]}"
+  echo "    <--   filetar.gz: ${temp[1]}"
+  echo "    <-- githubgzfile: ${temp[2]}"
+  echo "    <--       script: ${temp[3]}"
+  # aggiusta le variabili, se necessario
+  nvar=0
+  status=${temp[0]}
+  json2string status
+  (( nvar += $? ))
+  filetargz=${temp[1]}
+  json2string filetargz
+  (( nvar += $? ))
+  githubgzfile=${temp[2]}
+  json2string githubgzfile
+  (( nvar += $? ))
+  if [[ "${nvar}" -ne 3 ]]; then
+    debuglog="ERROR 1 - JSON file ${filejson} returned some null values"
+    bugmessage ERROR 1 "    JSON returned invalid values"
+    return 1 #                                                                 ERROR 1: Invalid JSON
+  fi
+  echo "    <-- non-null variables: ${nvar}"
+  # verifica stringhe nulle
+  temp=$((${#temp} * ${#status} * ${#filetargz} * ${#githubgzfile}))
+  if [[ "${temp}" -eq 0 ]]; then
+    debuglog="ERROR 2 - JSON returned empty string"
+    bugmessage ERROR 2 "    JSON file ${filejson} returned empty string"
+    return 2 #                                                                 ERROR 2: Invalid JSON
+  fi
+  # valori apparentemente accettabili, andiamo avanti
+  echo "    <-- variable types OK"
+  filetargz="${HOMEDIR}${filetargz}"
+  echo "    <-- sysdata for BASE environment read from ${filetargz}"
+  debuglog="|| verify expand |"
+  case "${status}" in
+    todo) #                                      expand archive .tar.gz
+      echo "    <--  expand to be done"
+      if [[ -s "${filetargz}" ]]; then # file exists and length > 0
+        debuglog="${debuglog}| ${filetargz} esiste |"
+      else #                             il file non esiste, proviamo a scaricarlo
+        debuglog="${debuglog}| ${filetargz} does not exist | download githubgzfile: ${githubgzfile} |"
+        wget -O "${filetargz}" "${githubgzfile}"
+        if [[ -s "${filetargz}" ]]; then
+          debuglog="${debuglog}| ${filetargz} trovato |" #  il file e' stato trovato e verra' espanso
+          echo "    <--  archive file exists"
+        else
+          debuglog="{$debuglog}| ${filetargz} introvabile |"
+          bugmessage ERROR 66 "    file not found"
+          return 66
+        fi
+      fi
+      echo "    <--  expand archive file"
+      sudo tar xpf "${filetargz}" -C "$HOMEDIR" #   si espande l'archivio
+      temp=$?
+      if [[ ! $temp -eq 0 ]]; then
+        debuglog="{$debuglog}| ${filetargz} expansion failed! - return: ${temp} | ERROR 66"
+        bugmessage ERROR 66 "    archive expansion failed"
+        return 66
+      fi
+      # espansione effettuata:  aggiorna il .json
+      echo
+      echo "    <-- expand OK, change .json status from 'todo' to 'done'"
+      echo "$(cat "${filejson}" | jq -r '.status |= "done"')" > "${filejson}.new"
+      temp=$?
+      echo "    <-- save existing file into 'old'"
+      cp -r "${filejson}"  "${filejson}.old"
+      echo "    <-- copy 'new' file onto baseexpand.json"
+      cp -r "${filejson}.new"  "${filejson}"
+      echo -n "    <-- verify baseexpand.json status :"
+      temp=($(cat ${filejson} | jq -r '.status'))
+      echo ${temp}
+      if [ "${temp}" != "done" ]; then
+        bugmessage WARNING 5 "    ERROR : can't update ${filejson} file"
+        return 5
+      fi
+      echo "    <-- .json status update OK"
+      echo "    ------------------------------"
+      ;;
+    done)
+      echo "    <-- expand not needed"
+      ;;
+    *)
+      bugmessage WARNING 3 "    ERROR 3 - JSON status value is invalid"
+      return 3
+      ;;
+  esac
+  return 0
+}
+#
+##########################################################################   versione 2019-11-??    ** IN CORSO **
+verifybaseinstall() {
+  #  si verifica baseinstall.json per vedere se l'installazione e' da fare,
+  #  ovvero se e' gia' fatta o non e' comunque necessaria
+  #
+  #  ritorna:    0  se l'operazione non ha prodotto errori
+  #          -ne 0  se ci sono stati errori ...
+  #
+  #  il dir .../dockimages/base DEVE contenere il file di configurazione baseinstall.json
+  #  il .json mantiene lo stus dell'installazione ( todo / done )
+  #
+  local filejson status script temp nvar
+  filejson="${HOMEDIR}dockrepo/dockimages/base/baseinstall.json"
+  script="${HOMEDIR}dockrepo/sysdata/base/baseinstall.sh"
+  #
+  temp=($(cat "${filejson}" | jq -r '.status'))
+  # verifica la variabile status
+  echo "    <-- read status from json file ${filejson}"
+  status=${temp[0]}
+  json2string status
+  nvar=$?
+  if [[ "${nvar}" -ne 1 ]]; then
+    debuglog="ERROR 1 - JSON returned status null"
+    bugmessage ERROR 1 "    JSON file ${filejson} returned status null"
+    return 1 #                                                                 ERROR 1: Invalid JSON
+  fi
+  debuglog="|| verify install |"
+  case "${status}" in
+    todo) #                                                                       install base to do
+      if [[ -s "${script}" ]]; then # file exists and length > 0
+        debuglog="|${debuglog}| ${script} esiste |"
+      else
+        debuglog="|${debuglog}| install script ${script} not found |"
+        bugmessage ERROR 66 "    file not found"
+        return 66 #                                                 il file non esiste  -->  ERRORE 4
+      fi
+      # do install :
+      echo "    <-- exec ${script} ..."
+      . ${script} # esegui lo script di install
+      temp=$?
+      echo
+      echo "    <-- ${script} return code: ${temp}"
+      if [ "${temp}" -gt 0 ]; then # errore nello script
+        debuglog="|${debuglog}| install script error: ${temp} |"
+        bugmessage ERROR "${temp}" "    script execution error"
+        return "${temp}"
+      else
+        # install done : update .json file
+        echo
+        echo "    <-- update .json status from 'todo' to 'done'"
+        echo "$(cat "${filejson}" | jq -r '.status |= "done"')" > "${filejson}.new"
+        temp=$?
+        echo "    <-- save existing file into 'old'"
+        cp -r "${filejson}"  "${filejson}.old"
+        echo "    <-- copy 'new' file onto baseinstall.json"
+        cp -r "${filejson}.new"  "${filejson}"
+        echo -n "    <-- verify baseinstall.json status : "
+        temp=($(cat ${filejson} | jq -r '.status'))
+        echo ${temp}
+        # temp=($(cat /home/pi/dockrepo/dockimages/base/baseinstall.json | jq -r '.status'))
+        if [ "${temp}" != "done" ]; then
+          bugmessage ERROR 5 "    ERROR : can't update ${filejson} file"
+          return 5 #                                         update JSON file failed!  -->  ERRORE 5
+        fi
+      fi
+      echo "    <-- .json status update OK"
+      echo "    ------------------------------"
+      ;;
+    done)
+      echo "    OK - install not required"
+      ;;
+    *)
+      bugmessage ERROR 3 "    ERROR 3 - JSON status value is invalid"
+      return 0
+      ;; #                                                                     ERROR 3: Invalid JSON
+  esac
+  echo "    INSTALL phase OK"
+  return 0
+}
+#
+##########################################################################                          ** IN ELIMINAZIONE **
 verifyvuedev() {
   #   Verifica esistenza file di gestione vuedev:  vuedev_g
+  #   eventuale espansione da file archivio
   echo
-  echo
-  echo "---------------------------------------------------------"
-  echo "Verify app install script exists"
+  echo "Verify vuedev install script exists ..."
+  local Filebasegz Pidirgz Filemark
+  RETLEVEL=0 #-- si parte con 'tutto bene'
+  Filegz="vuedev_g"
+  Pidirgz="dockrepo/dockimages/vuedev/"
   # verifichiamo esistenza file
-  FILEG="vuedev_g"           # deve esistere il file tar.gz in sysarchive
-  GITBR="gothings-install/master/"
-  PIDIRGZ="dockrepo/dockimages/vuedev/"
-  getgitfile ${FILEG} $GITBR $PIDIRGZ
-  if [[ $ITEXISTS -ne 1 ]]
-    then                           # SI INTERROMPE TUTTO se vuedev_g non esiste
-    stopmenu "${FILEG}"  "file ${FILEG} is essential for control menu"
-    return 66                      # interrommpere il menu principale
+  getgitfile "${Filegz}" "gothings-install/master/" "${Pidirgz}"
+  if [ $ITEXISTS -ne 1 ]; then  # SI torna con errore se vuedev_g non esiste
+    errmessage "${Filegz}"  "file ${Filegz} is essential for control menu"
+    return 3 #                                                                #### report errore '3'
   fi
   # il file dockrepo/dockimages/vuedev/vuedev_g esiste, proseguiamo
-  #chmod +x "${PIDIRGZ}${FILEG}" #  <-- rendi il file eseguibile                           ELIMINATO
-  "${PIDIRGZ}${FILEG}" "E"  # verifica esistenza dello script
+  #chmod +x "${Pidirgz}${Filegz}" #  <-- rendi il file eseguibile                           ELIMINATO
+  "${Pidirgz}${Filegz}" "E"  # verifica esistenza dello script
   RISULTATO=$?
   echo
   echo "VUEDEV done. Result code is: ${RISULTATO}"
-  if [[ ${RISULTATO} -eq 127 ]]
-  then
+  if [ ${RISULTATO} -eq 127 ]; then
     echo "Cannot find VUEDEV install script"
-  elif [[ ${RISULTATO} -eq 126 ]]
-  then
+    return 4  #                                                               #### report errore '4'
+  elif [ ${RISULTATO} -eq 126 ]; then
     echo "VUEDEV script is not executable"
+    return 4  #                                                               #### report errore '4'
   elif [[ ${RISULTATO} -eq 0 ]]
   then
+    # se si arriva qui significa che i file 'vuedev_g' esiste ed e' eseguibile
     echo "VUEDEV script is OK"
+    return 0
   fi
 }
+#
+#
+###############################
+#    Main Logic execution     #
+###############################
+#
+############################################################### MAIN LOGIC
+##########################################################################
 #
 ##########################################################################
 ############################# Verifica pre-requisiti per sottosistema BASE
 echo
-echo "Verify installation of BASE subsystem ..."
-verifybase
+echo "  Verify installation of BASE subsystem ..."
+echo
+echo "    <-- expand phase starts ..."
+verifybaseexpand
+#
+#----  verifica parte expand
+# - si verifica baseexpand.json per vedere se l'espansione e' da fare,
+#    ovvero se e' gia' fatta o non e' comunque necessaria:
+#
+#  ritorna:  0  se l'operazione expand non ha prodotto errori
+#           !0  se ci sono stati errori ...
+#
+#  error details in:  .../github-gothings/README.github.gothings
+#
 RETLEVEL=$?
-if [ ${RETLEVEL} -ne 0 ]
-then
-  echo "DEBUG: ginit KO"
+echo "    <-- expand phase returns code ${RETLEVEL}"
+if [ ${RETLEVEL} -gt 0 ]; then
+  debuglog="Expand phase not good"
+  if [ ${RETLEVEL} -lt 50 ]; then
+    echo
+    bugmessage ERROR "${RETLEVEL}" "    expand phase"
+  else
+    echo
+    bugmessage ERROR "${RETLEVEL}" "    expand phase"
+  fi
+  MENUTRAP=${RETLEVEL}
+  pause
+  exit ${MENUTRAP}
+fi
+echo "    EXPAND PHASE DONE."
+#
+echo
+echo "    <-- INSTALL PHASE starts ..."
+verifybaseinstall
+#
+#----  verifica parte install
+# - si verifica baseinstall.json per vedere se l'espansione e' da fare,
+#    ovvero se e' gia' fatta o non e' comunque necessaria:
+#
+#  ritorna:  0  se l'operazione install non ha prodotto errori
+#           !0  se ci sono stati errori ...
+#
+#  error details in:  .../github-gothings/README.github.gothings
+#
+RETLEVEL=$?
+echo "    <-- install phase returns code ${RETLEVEL}"
+if [ ${RETLEVEL} -gt 0 ]; then
+  if [ ${RETLEVEL} -lt 50 ]; then
+    echo
+    bugmessage WARNING "${RETLEVEL}" "    Warning ${RETLEVEL} in install phase"
+  else
+    echo
+    bugmessage ERROR "${RETLEVEL}" "    error ${RETLEVEL} in install phase"
+    echo -e "${RED} ERROR ${RETLEVEL} in install phase ${STD}"
+    MENUTRAP=${RETLEVEL}
+    pause
+    exit ${MENUTRAP}
+  fi
+else
+  echo "    <-- INSTALL PHASE DONE."
+  echo
+fi
+pause
+exit ${MENUTRAP}
+#
+#
+##########################################################  siamo qui
+exit 0
+#
+########################################################## Verifica VUEDEV
+verifyvuedev
+RETLEVEL=$?
+if [ ${RETLEVEL} -ne 0 ]; then
+  echo
+  echo -e "${RED} ERROR ${RETLEVEL} on VUEDEV application ${STD}"
   sleep 5
   MENUTRAP=66
   pause
   exit ${MENUTRAP}
+else
+  echo "  --> BASE subsystem is installed"
+  echo
 fi
-############################# Verifica VUEDEV
-verifyvuedev
 ############################# Verifica
-############################# Verifica
+
+############################# FINE Verifica
 echo "DEBUG: ginit OK - back to control menu ..."
 sleep 2
 exit 0
-#
-##########################################################################
-##########################################################################
-#
-##########################################################################
-###################                        Dovra' essere trasformato in 'MANAGE containers & applications'
-gothingsinstall(){ ###################                                                 **ELIMINARE**
-  # Initialize and install gothings base & applications
-  #verifybase  <-- spostato in prerequire                                              **ELIMINARE**
-  # esegui menu applicazione base  
-  RIPETI=1
-  until [[ $RIPETI -gt 10 ]]
-    do
-      showsubtitle "         INSTALL:  GOTHINGS base & applications"
-      echo "Please choose one of the options below:"
-      echo " 1) BASE     install BASE nodejs modules"
-      echo " 2) VUE      install vue framework"
-      echo " 3) PYTHON   install python applications"
-      echo " 4) UPDATE   GOTHINGS Control Menu"
-      echo " 5) RETURN   to main menu"
-      read -rsp $'Your choice: ' -n 1 key
-      case $key in
-        1)  # INSTALL base subsystem
-            echo
-            echo
-            echo "---------------------------------------------------------"
-            echo "Use docker-compose to install the BASE subsystem"
-            echo
-            echo 
-            echo "Install gothings docker networks"
-            echo "Please note that the following will show 'already exists' errors"
-            echo "if the network was already installed"
-            echo 
-            echo "- gothingsnet"
-            docker network create -d bridge --subnet 172.29.196.0/24 --gateway 172.29.196.1 gothingsnet  
-            echo "- servicenet"
-            docker network create -d bridge --subnet 172.29.195.0/24 --gateway 172.29.195.1 servicenet
-            echo
-            echo
-            echo "Starting docker-compose ..."
-            docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbaseinstall.yml up -d
-            echo "Compose: done."
-            echo
-            echo "Wait completion of install ..."
-            docker logs -f base
-            echo
-            echo "NPM INSTALL done."
-            sleep 4
-            RIPETI=1
-            ;;
-        2)  # ?
-            echo
-            echo
-            echo "---------------------------------------------------------"
-            echo "Verify app install script exists"
-            # verifichiamo esistenza file
-            FILEG="vuedev_g"           # deve esistere il file tar.gz in sysarchive
-            GITBR="gothings-install/master/"
-            PIDIRGZ="dockrepo/dockimages/vuedev/"
-            getgitfile ${FILEG} $GITBR $PIDIRGZ
-            if [[ $ITEXISTS -ne 1 ]]
-              then                           # SI INTERROMPE TUTTO se vuedev_g non esiste
-              stopmenu "${FILEG}"  "file ${FILEG} is essential for control menu"
-              return 66                      # interrommpere il menu principale
-            fi
-            # il file dockrepo/dockimages/vuedev/vuedev_g esiste, proseguiamo
-            chmod +x "${PIDIRGZ}${FILEG}"
-            echo "Exec VUEDEV install script"
-            echo
-            sleep 3
-            "${PIDIRGZ}${FILEG}"
-            RISULTATO=$?
-            echo
-            echo "VUEDEV done. Result code is: ${RISULTATO}"
-            if [[ ${RISULTATO} -eq 127 ]]
-            then
-              echo "Cannot find VUEDEV install script"
-            elif [[ ${RISULTATO} -eq 126 ]]
-            then
-              echo "VUEDEV script is not executable"
-            elif [[ ${RISULTATO} -eq 0 ]]
-            then
-              echo "Result OK"
-            fi
-            sleep 5
-            RIPETI=2
-            ;;
-        3)  # ?
-            boh
-            RIPETI=3
-            ;;
-        4)  # ?
-            echo
-            echo
-            echo "---------------------------------------------------------"
-            echo "UPDATE Gothings Control Menu  (this application)"
-            echo
-            echo "This operation downloads the last version from GITHUB"
-            echo "This menu will be overwritten and re-executed"
-            echo "Please note you need a working internet connection to go"
-            echo
-            read -rsp "Do you like to download last version of this menu? [y/N] " -n 1 key
-            case "$key" in
-              [yY]) 
-                echo
-                echo "... download 'g'"
-                echo
-                FILE="g"
-                GITBR="gothings-install/master/"  # dir su github dove va preso il file
-                PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
-                CALL="${FILE} $GITBR $PIDIR"
-                getgitfile ${CALL}
-                if [[ $ITEXISTS -ne 1 ]]
-                then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
-                  echo 
-                  echo "------------------------------------------------------"
-                  echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
-                  echo $DEBUGLOG
-                  echo "------------------------------------------------------"
-                  echo "Cannot continue."
-                  echo 
-                  MENUTRAP=66
-                  return 66
-                fi ########## Si va avanti se il file esiste ...
-                chmod +x /home/pi/g
-                echo
-                echo "GOTHINGS CONTROL MENU is now updated"
-                sleep 4
-                ./g
-                echo "exit from g download"
-                MENUTRAP=67
-                ;;
-              *)
-                echo
-                echo "Back to choice"
-                ;;
-            esac
-            sleep 4
-            RIPETI=4
-            ;;
-        5)  # NON eseguito, si ritorna al controlmenu
-            echo "Ritorno ..."
-            RIPETI=99
-            ;;
-      esac
-    done
-  #
-}
-#
-##########################################################################
-#
-##########################################################################
-gothingsbase(){
-  # Initialize and install gothings base & applications
-  verifybase
-  # esegui menu applicazione base  
-  RIPETI=1
-  until [[ $RIPETI -gt 10 ]]
-    do
-      showsubtitle "         MANAGE:  GOTHINGS base container"
-      echo "Please choose one of the options below:"
-      echo " 1) SHOW     all containers"
-      echo " 2) START    GOTHINGS base containers"
-      echo " 3) PAUSE    GOTHINGS base containers"
-      echo " 4) DESTROY  GOTHINGS base containers"
-      echo " 5) RETURN   to main menu"
-      read -rsp $'Your choice: ' -n 1 key
-      case $key in
-        1)  # SHOW all containers
-            showcontainers
-            RIPETI=1
-            ;;
-        2)  # START base subsystem
-            echo
-            echo
-            echo "---------------------------------------------------------"
-            echo "Use docker-compose to START the base containers"
-            echo
-            echo "Starting docker-compose ..."
-            docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml up -d
-            echo "Done."
-            sleep 5
-            RIPETI=2
-            ;;
-        3)  # PAUSE base subsystem
-            echo
-            echo
-            echo "---------------------------------------------------------"
-            echo "Use docker-compose to STOP the base containers"
-            echo
-            echo "This operation will STOP your base containers"
-            echo "You can re-run them with the START operation."
-            echo "Permanent user data will NOT be destroyed"
-            read -rsp "Do you like to STOP base containers? [y/N] " -n 1 key
-            case "$key" in
-                [yY]) 
-                  echo
-                  echo "Using docker-compose to stop base containers ..."
-                  docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml stop
-                  echo
-                  echo "done."
-                  sleep 5
-                  ;;
-                *)
-                  echo
-                  echo "Back to choice"
-                  sleep 2
-                  ;;
-            esac
-            RIPETI=2
-            ;;
-        4)  # DESTROY base subsystem
-            echo
-            echo
-            echo "---------------------------------------------------------"
-            echo "Use docker-compose to STOP & DESTROY the base containers"
-            echo 
-            echo "------------------ ATTENTION, please,"
-            echo "This operation will STOP & DESTROY your running base containers !"
-            echo "Anyway you can re-create and run them with the START operation."
-            echo "Permanent user data will NOT be destroyed"
-            read -rsp "Do you like to STOP & DESTROY? [y/N] " -n 1 key
-            case "$key" in
-                [yY]) 
-                  echo
-                  echo "Using docker-compose to stop base containers ..."
-                  docker-compose -f /home/pi/dockrepo/sysdata/base/gothingsbase.yml down
-                  echo
-                  echo "done."
-                  sleep 5
-                  ;;
-                *)
-                  echo
-                  echo "Back to choice"
-                  sleep 2
-                  ;;
-            esac
-            RIPETI=3
-            ;;
-        5)  # NON eseguito, si ritorna al controlmenu
-            echo "Ritorno ..."
-            RIPETI=99
-            ;;
-      esac
-    done
-  #
-}
-
-##########################################################################
-###################################### Functions for node apps management
-#
-##########################################################################
-# Verifica esistenza applicazione in nodedata
-#     <-- se esiste il file *.tar.gz si presume che l'applicazione esista
-#         <-- si va avanti senza altre azioni
-#             <-- si presume che prima sia andato tutto bene ...
-#       <-- se il file *.tar.gz non c'e' si prova a scaricare il file da github
-#           <-- se si trova il .tar.gz, questo viene espanso senza alcun avviso ...
-#     <-- si verifica se esite il .../sysdata/nodedata/*/config.json
-#         <-- se esite si esce positivamente:  ITEXISTS = 1
-#         <-- altrimenti si esce con errore:   ITEXISTS = 0
-#     
-findnodeapp(){
-  # call:    findnodeapp $1 $2 $3
-  #   $1:    "appname"
-  #   $2:    "github project branch"
-  #   $3:    "raspi directory"
-  # RETURN:
-  #           ITEXISTS = 1 se esiste, 0 altrimenti
-  #
-  # Verify file existence, get it from github if not
-  #
-  # example:
-  #          fileexists "gothingsdev" "gothings-apps/master" "/home/pi/dockrepo/sysdata/nodedata/"
-  #
-  #  -s file  True if file exists and has a size greater than zero
-  DEBUGLOG=""
-  FILEGZ="/home/pi/sysarchive/$1.tar.gz"
-  DEBUGLOG="DEBUG INFO | Il file cercato e': $FILEGZ"
-  if [[ -s $FILEGZ ]]
-  then
-    ITEXISTS=1
-    DEBUGLOG="$DEBUGLOG | $FILEGZ esiste"
-  else 
-    DEBUGLOG="$DEBUGLOG | $FILEGZ does not exist"
-    wget -O $FILEGZ https://raw.githubusercontent.com/fpirri/$2/$1.tar.gz
-    if [[ -s $FILEGZ ]]
-    then
-      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
-      tar -xzvf $FILEGZ -C $3
-      DEBUGLOG="$DEBUGLOG | $FILEGZ expanded in "
-    fi
-  fi
-  FILEJSON="$APPDIR$1/package.json"
-  DEBUGLOG="$DEBUGLOG | verify $FILEJSON existence"
-  if [[ -s $FILEJSON ]]
-  then
-    echo $DEBUGLOG
-    ITEXISTS=1
-  else
-    ITEXISTS=0
-    echo $DEBUGLOG
-    echo
-    echo "-----------------------------------------------------------------"
-  fi
-  #echo $DEBUGLOG   ########### Stampa sempre mentre sviluppo ...
-  return $ITEXISTS
-}
-#
-######################################
-nodedev(){
-  # 1. MANAGE GOTHINGS application - node development containers
-  #
-  APPDIR="/home/pi/dockrepo/sysdata/nodedata/"
-  HLAPP="nodedev"
-  DEVREADY=0
-#====================================================> CONTROLLA che nodedata esista
-  MENUTRAP=66
-  return
-  #
-  #        <--name of the managed  node application
-  #
-  RIPETI=1
-  until [[ $RIPETI -gt 4 ]]
-    do
-      showsubtitle "           MANAGE:  Node js app environment"
-      echo "Please choose one of the options below:"
-      echo " 1) START    NODE app container"
-      echo " 2) PAUSE    NODE app container"
-      echo " 3) DESTROY  NODE app container"
-      echo " 4) CHOOSE   your application"
-      echo " 5) RETURN   to main menu"
-      echo "-----------------------------------------------------------------"
-      echo "                  selected application name : ${HLAPP}"
-      echo "-----------------------------------------------------------------"
-      # VERIFY HLAPP.tar.gz source archive is really available
-      # it should be in /home/pi/dockrepo/sysdata/nodedata/ directory
-      echo
-      findnodeapp "${HLAPP}" "gothings-apps/master" "${APPDIR}"
-      if [[ $ITEXISTS -ne 1 ]]
-      then
-        echo "File missing for ${HLAPP} application"
-        echo "It wasn't possible to download it from github"
-        echo "Please make sure the following is available and contains app data:"
-        echo "  ${APPDIR}${HLAPP}/"
-        echo "Please note you can put files in the directory by yourself"
-        echo
-        echo "You can now choice:"
-        echo "  4 to choose another application"
-        echo "  5 for main menu"
-        echo "-----------------------------------------------------------------"
-      fi
-      read -rsp $'Your choice: ' -n 1 key
-      case $key in
-        1)  # START HLAPP container
-            echo
-            echo "START ${HLAPP} application"
-            echo
-            if [[ $ITEXISTS -ne 1 ]]
-            then
-              echo "Cannot find ${HLAPP} app file on github"
-              echo "Moreover, the config.json wasn't in ${APPDIR}${HLAPP}/"
-              echo "Operation stopped."
-              sleep 4
-            else
-              echo "Starting docker-compose ..."
-              echo "work con il file: ${APPDIR}${HLAPP}/${HLAPP}.yml"
-              docker-compose -f ${APPDIR}${HLAPP}/${HLAPP}.yml up -d
-              echo "Done."
-              sleep 2
-            fi
-            break
-            ;;
-        2)  # PAUSE nodebase container
-            echo
-            echo "Use docker-compose to STOP the ${HLAPP} container"
-            echo
-            if [[ $ITEXISTS -ne 1 ]]
-            then
-              echo "Cannot find ${HLAPP} app file on github"
-              echo "Moreover, the config.json wasn't in ${APPDIR}${HLAPP}/"
-              echo "Operation stopped."
-              sleep 4
-            else
-              echo "This operation will STOP your ${HLAPP} container"
-              echo "You can re-run it with the START operation."
-              echo "Permanent user data will NOT be destroyed"
-              read -rsp "Do you like to STOP ${HLAPP} container? [y/N] " -n 1 key
-              case "$key" in
-                [yY]) 
-                  echo
-                  echo "Using docker-compose to stop ${HLAPP} container ..."
-                  docker-compose -f ${APPDIR}${HLAPP}/${HLAPP}.yml stop
-                  echo
-                  echo "done."
-                  sleep 2
-                  ;;
-                *)
-                  echo
-                  echo "Back to choice"
-                  sleep 2
-                  ;;
-              esac
-            fi
-            break
-            ;;
-        3)  # DESTROY  $HLAPP container
-            echo
-            echo "Use docker-compose to STOP & DESTROY the ${HLAPP} container"
-            echo 
-            echo
-            if [[ $ITEXISTS -ne 1 ]]
-            then
-              echo "Cannot find ${HLAPP} app file on github"
-              echo "Moreover, the config.json wasn't in ${APPDIR}${HLAPP}/"
-              echo "Operation stopped."
-              sleep 4
-            else
-              echo "------------------ ATTENTION, please,"
-              echo "This operation will STOP & DESTROY your running ${HLAPP} container !"
-              echo "Anyway you can re-create and run it with the START operation."
-              echo "Permanent user data will NOT be destroyed"
-              read -rsp "Do you like to STOP & DESTROY ${HLAPP} container? [y/N] " -n 1 key
-              case "$key" in
-                [yY]) 
-                  echo
-                  echo "Using docker-compose to stop & destroy ${HLAPP} container ..."
-                  docker-compose -f ${APPDIR}${HLAPP}/${HLAPP}.yml down
-                  echo
-                  echo "done."
-                  sleep 2
-                  ;;
-                *)
-                  echo
-                  echo "Back to choice"
-                  sleep 2
-                  ;;
-              esac
-            fi
-            break
-            ;;
-        4)  # CHOOSE Application
-            echo
-            echo "-----------------------------------------------------------------"
-            echo "  INIT gothings node application"
-            echo "-----------------------------------------------------------------"
-            echo            
-            read -rp "Please enter application name: " app
-            echo
-            echo "you entered: $app"
-            echo
-            echo "------------------ ATTENTION, please,"
-            echo "This operation will initialize data for the ${app} application."
-            echo "It will STOP the (eventual) running ${app} container and will"
-            echo "expand the archived data into the .../nodedata/${app}"
-            echo "directory. Please be sure you like to do so."
-            read -rsp "Do you like to INIT ${app} application from the archive? [y/N] " -n 1 key
-            case "$key" in
-              [yY]) 
-                echo
-                echo "Set application name: $app"
-                HLAPP="$app"
-                echo
-                echo "Stop ${app} container ..."
-                docker stop ${app}
-                echo "expand user data in .../nodedata/${app} directory ..."
-                FILEGZ="/home/pi/sysarchive/$app.tar.gz"
-                APPDIR="/home/pi/dockrepo/sysdata/nodedata/"
-                echo "FILEGZ: $FILEGZ - APPDIR: $APPDIR"
-      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
-                tar -xzvf $FILEGZ -C $APPDIR
-                echo
-                echo "done."
-                sleep 4
-                break
-                ;;
-              *)
-                echo
-                echo "Back to choice"
-                sleep 2
-                ;;
-            esac
-            sleep 4
-            key=4
-            ;;
-        5)  # NON eseguito, si ritorna al controlmenu
-            echo "5"
-            ;;
-      esac
-      RIPETI=$key
-    done
-  #
-}
-#
-userdir(){
-  # 1. MANAGE user dirs content
-  menu(){
-    clear
-    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    echo "    B A C K U P  /  R E S T O R E"
-    echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-    echo
-    echo "Please choose one of the options below:"
-    echo " 1) GET     User content from archive"
-    echo " 2) BACKUP  User content into archive"
-    echo " 3) SET     archive number (0..9)"
-    echo " 4) RETURN  to main menu"
-  }
-  #
-  echo 
-  echo 
-  echo "-----------------------------------------------------------------"
-  echo "           MANAGE:  user content"
-  RIPETI=1
-  GZVersion=0
-  until [[ $RIPETI -gt 3 ]]
-    do
-      HDIRS="/home/pi/sysarchive/hdirs-${GZVersion}.tar.gz"
-      menu
-      echo "------------------- Archive number:  $GZVersion"
-      read -rsp $'Your choice: ' -n 1 key
-      case $key in
-        1)  # GET User content from archive
-            echo
-            echo "------------------------------------------------------------"
-            echo "GET User content from archive : $GZVersion"
-            echo "------------------------------------------------------------"
-            echo
-            echo "ATTENTION, please !"
-            echo "This operation will DESTROY current content in the user area,"
-            echo "replacing it with the archived content."
-            read -rsp "Do you like to replace? [y/N] " -n 1 key
-            case "$key" in
-                [yY]) 
-                    echo
-                    echo "Replacing user content from archive number $GZVersion"
-                    sleep 3
-      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
-                    sudo tar -xzvf ${HDIRS} -C /
-                    echo "done."
-                    ;;
-                *)
-                    echo
-                    echo "Back to choice"
-                    sleep 1
-                    ;;
-            esac
-            RIPETI=1
-            ;;
-        2)  # BACKUP User content into archive
-            echo
-            echo "------------------------------------------------------------"
-            echo "SAVE current user content in the archive : $GZVersion"
-            if [[ $GZVersion -gt 0 ]]
-            then
-              echo "Please note this operation will REPLACE current archive content"
-              read -rsp "Do you like to replace? [y/N] " -n 1 key
-              case "$key" in
-                  [yY]) 
-                      echo
-                      echo "Store user's content into archive ..."
-                      sleep 2
-      # sudo tar xpf $FILEGZ -v --show-transformed -C $3     <-- preserva permission & ownership
-                      sudo tar -zcvf ${HDIRS} /home/pi/dockrepo/sysdata
-                      echo "done."
-                      sleep 3
-                      ;;
-                  *)
-                      echo
-                      echo "Back to choice"
-                      sleep 1
-                      ;;
-              esac
-            else
-              echo
-              echo "-------------------"
-              echo "It is forbidden to replace  archive # 0"
-              echo "Please change archive number to save current content"
-              echo "-------------------"
-              sleep 3
-            fi
-            RIPETI=2
-            ;;
-        3)  echo
-            echo "--------------------------------------------"
-            read -rsp $'Please input a digit from 0 to 9: ' -n 1 choice
-            case $choice in
-              0) GZVersion=0
-                 ;;
-              1) GZVersion=1
-                 ;;
-              2) GZVersion=2
-                 ;;
-              3) GZVersion=3
-                 ;;
-              4) GZVersion=4
-                 ;;
-              5) GZVersion=5
-                 ;;
-              6) GZVersion=6
-                 ;;
-              7) GZVersion=7
-                 ;;
-              8) GZVersion=8
-                 ;;
-              9) GZVersion=9
-                 ;;
-              *) echo
-                 echo "Wrong choice!"
-                 sleep 2
-                 ;;
-            esac
-            ;;
-        4)  echo "4"
-            echo "key: $key"
-            RIPETI=4
-            ;;
-      esac
-    done
-  #
-}
-#
-# function to display menus
-show_menus() {
-  clear
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ ${VERSION}"
-  echo
-  echo "    G O T H I N G S   DEVELOPMENT   MENU"
-  echo
-  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
-  echo
-  echo "1. BASE      main gothings images"
-  echo "2. NODE      Applicazioni nodejs"
-  echo "3. VUE       applicazioni reattive con vue"
-  echo "4. FLASK     applicazioni python/flask"
-  echo "5. DB        applicazioni mysql ..."
-  echo "6. boh       altre cose da fare ..."
-}
-#
-# read input from the keyboard and take a action
-# invoke the function according to the entered number
-read_options(){
-	local choice
-  read -rsp $'Enter choice [ 1..6 or ^C to exit ] ' -n 1 choice
-	case $choice in
-##### DA ELIMINARE
-    # gothingsinstall;;
-		# gothingsbase;;
-		# nodedev;;
-	  # userdir;;
-
-		1) baseinstall;;
-		2) nodeinstall;;
-		3) vueinstall;;
-		4) boh;;
-		5) boh;;
-		6) boh;;
-		*) echo -e "${RED}Error...${STD}" && sleep 2
-	esac
-}
- 
-# ----------------------------------------------
-# Step #3: Trap CTRL+C, CTRL+Z and quit singles
-# ----------------------------------------------
-trap '' SIGQUIT SIGTSTP
-#trap '' SIGINT SIGQUIT SIGTSTP
- 
-# -----------------------------------
-# Step #4: Main logic - infinite loop
-# ------------------------------------
-
-while true
-do
-  # internal trap
-  if [[ ${MENUTRAP} -eq 67 ]]
-  then
-    echo "------------------------------------------------------"
-    echo "GOTHINGS Control Menu was downloaded from github,"
-    echo "You can re-execute it by typing './g' at the console"
-    echo "------------------------------------------------------"
-    echo
-    break  #-- stop menu
-  fi
-  if [[ ${MENUTRAP} -eq 66 ]]
-  then
-    echo "Are you sure that all necessary software was loaded"
-    echo "in the INSTALL step of the control menu?"
-    echo "------------------------------------------------------"
-    echo
-    break  #-- stop menu
-  fi
-	show_menus
-	read_options
-done
-echo "Shell terminated."
-echo
-#
