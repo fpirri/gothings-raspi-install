@@ -34,12 +34,13 @@ echo
 echo "Hi there!"
 echo "Your droplet was succesfully created!"
 echo
-echo "This script will download and run the 'GOTHINGS Control Menu'"
+echo "This script will download the GOTHINGS Cloud system software"
 echo
-echo "It will:"
-echo "  - install docker into the droplet;"
-echo "  - download and install the gothings software from github;"
-echo "  - allow you to manage the gothings software from a menu."
+echo "It will allow you to:"
+echo "  - download and install the gothings packages from github;"
+echo "  - allow you to manage the gothings cloud applications from a menu."
+echo
+echo "Please look at README.md to find further information"
 echo
 pause
 echo
@@ -49,5 +50,4 @@ echo
 echo "  ... make gocloud executable"
 chmod +x gocloud
 echo
-echo "  ... and run it !"
-./gocloud
+echo "  ... and run it with: ./gocloud"
