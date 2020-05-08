@@ -4,6 +4,18 @@ Script to install docker and running example on a Raspberry board
 <br />  
 
 ----
+DISCLAIMER:  
+**This project is under construction.**  
+
+Project documentation may be unreliable, owing to the on-going testing and possible redefinition of some secondary aspects of the project.  
+Owing to the above, please be aware it may be difficult to use this repository to make any useful work.  
+
+Anyway, the original work included may be used according to the permissible MIT License.  
+
+
+<br />  
+
+----
 [What GoThingsInstall does](https://github.com/fpirri/gothings-install#what-gothingsinstall-does)  
 [What you get](https://github.com/fpirri/gothings-install#what-you-get)  
 [What you need](https://github.com/fpirri/gothings-install#what-you-need)  
