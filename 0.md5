@@ -1,9 +1,0 @@
-400a390019534e0acf79d90766a34619  /home/pi/0
----
-To evaluate the checksum above you may use the following command:
-  md5sum /home/pi/0
----
-/home/pi/0 version 0.00.06
----
-Please note that an -dev version does not have stable checksum
----
