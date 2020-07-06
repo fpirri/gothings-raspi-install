@@ -1,0 +1,342 @@
+#!/bin/bash
+#                                                                    2020-03-12
+#    GOTHINGS RASPI
+                                                                  VERSION="0.01"
+#  NOTA: primo tentativo 'manage raspi boards'
+#    derivato da g + gocloud-wp
+#
+#
+#  Vedi doc in:
+#    .../raspi-apps/README.raspi.apps
+#
+#
+#===============================================================================
+#                                                                 Organizzazione
+#    go-raspi                MAIN part
+#    go-raspi-conf-base     configurazione base
+#     ...                   aggiungere tutto il resto                           DA FARE
+#     ...
+#    go-raspi-menu           parte finale: esecuzione menu              
+#
+#
+################################################################################
+#
+#==============================================================================
+echo
+echo "========================================================= raspi GOTHINGS"
+echo
+echo "      Control loader for GOTHINGS on raspberry boards"
+echo
+echo "========================================================= version ${VERSION}"
+echo
+#
+#-----------------   local working 'globals' for the main application
+USERNAME="pi"
+HOMEDIR="/home/${USERNAME}/"
+APPNAME="base"
+cd ${HOMEDIR} # to work on user <USERNAME>  home
+#
+##########################################################################
+#
+#  usa le variabili:
+RED='\033[0;41;30m'
+STD='\033[0;0;39m'
+#
+confstop(){
+  if [[ ! -s "$1" ]]; then
+    #  Configurazione go-raspi non corretta
+    #    $1    nome del file mancante
+    echo
+    echo "----------------------------------------------------------------"
+    echo 
+    echo -e "${RED} file $1 is missing ${STD}"
+    echo
+    echo "Unfortunately, go-raspi cannot continue !"
+    echo "Please consult documentation, re-configure and retry"
+    echo
+    exit
+  fi
+}
+#
+################################################################################
+#                                                          generic configuration
+# variabili utili per tutte le applicazioni go-raspi
+#
+GOFILE="go-raspi-conf-generic-bla"
+confstop ${GOFILE}
+source ${GOFILE}
+
+#
+#
+################################################################################
+#                                                             base configuration
+# variabili di personalizzazione per la configurazione base
+#
+GOFILE="go-raspi-conf-base"
+confstop ${GOFILE}
+source ${GOFILE}
+
+# ...
+
+#
+################################################################################
+#                                                              generic functions
+# funzioni utili a tutte le applicazioni go-raspi
+#
+GOFILE="go-raspi-generic-functions"
+confstop ${GOFILE}
+source ${GOFILE}
+
+#
+################################################################################
+#                                       functions to verify system configuration
+# ci si accerta che esistano tutti i componenti software necessari
+# si verificano alcuni prerequisiti per il funzionamento della
+# configurazione base
+#
+GOFILE="go-raspi-verify-base"
+confstop ${GOFILE}
+source ${GOFILE}
+
+# ...
+
+#
+################################################################################
+#                                                                     MAIN LOGIC
+#  
+################################################################################
+#                                            Verifiche di esistenza e congruita'
+#
+#  usa le variabili:
+#    USERNAME="pi"
+#    HOMEDIR="/home/${USERNAME}/"
+#    APPNAME="base"
+#    
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@  INIZIO
+
+#
+echo
+echo "Verify GO-RASPI software installation ..."
+#
+#--------------------------------------------------------------- set directories
+echo
+echo
+echo "-------------------------------"
+echo "    VERIFY directories ..."
+#
+if [[ ! -s "${HOMEDIR}dockrepo" ]]; then
+  mkdir dockrepo/
+fi
+if [[ ! -s "${HOMEDIR}dockrepo/dockimages" ]]; then
+  mkdir dockrepo/dockimages
+fi
+if [[ ! -s "${HOMEDIR}dockrepo/dockimages/dirs" ]]; then
+  mkdir dockrepo/dockimages/dirs
+fi
+if [[ ! -s "${HOMEDIR}dockrepo/dockimages/${APPNAME}" ]]; then
+  mkdir dockrepo/dockimages/${APPNAME}
+fi
+#                                                                               ??? RIPRISTINARE ???
+#if [[ ! -s "${HOMEDIR}dockrepo/dockimages/${APPNAME}/var_www_html" ]]; then
+#  mkdir dockrepo/dockimages/${APPNAME}/var_www_html
+#fi
+if [[ ! -s "${HOMEDIR}dockrepo/sysdata" ]]; then
+  mkdir dockrepo/sysdata
+fi
+#
+#-----------------------------------------------------------------  phase EXPAND
+#  verifica presenza dei file necessari
+#  se mancanti, esegue il download da github
+echo
+echo
+echo "-------------------------------"
+echo "    EXPAND phase starts ..."
+echo "      verify ${APPNAME} expand config file ..."
+#
+FILECONF="${FILEEXPAND}"       #  file di configurazione della fase expand
+# assicurati che il file di configurazione esista
+getgitfile "${APPNAME}expand.json" "gothings-cloud-apps/master/${APPNAME}/" "dockrepo/dockimages/${APPNAME}/"
+ITEXISTS=$?
+if [[ $ITEXISTS -ne 1 ]]; then # 'base' non e' installato ! --->  bisogna installarlo
+  echo "      <-- configuration install file DOES NOT exists."
+  stopmenu "${FILECONF}"  "file ${FILECONF} is essential for GoThings CLOUD"
+  exit                       # interrompi esecuzione
+fi
+echo "      <-- exists, verifying content ..." 
+#
+verifyexpand
+#
+#----  verifica parte expand
+# - si verifica ${APPNAME}install.json per vedere se l'espansione e' da fare,
+#    ovvero se e' gia' fatta o non e' comunque necessaria:
+#
+#  ritorna:  0  se l'operazione expand non ha prodotto errori
+#           !0  se ci sono stati errori ...
+#
+#  error details in:  .../github-gothings/README.github.gothings
+#
+MENUTRAP=$?
+echo
+if [ ${MENUTRAP} -gt 0 ]; then
+  echo -e "    ${RED}  <-- expand phase returns code ${MENUTRAP}  ${STD}"
+else
+  echo -e "    <-- expand phase returns code ${MENUTRAP}"
+fi
+echo
+echo "###############################"
+echo "          EXPAND phase done."
+echo
+if [ ${MENUTRAP} -eq 0 ]; then
+#
+#################################################################################
+#####################################################################  phase INIT
+  echo
+  echo "-------------------------------"
+  echo "    INIT phase starts ..."
+  echo "      verify ${APPNAME} init config file ..."
+  #
+  FILECONF="${FILEINIT}"       #  file di configurazione della fase init
+  # assicurati che il file di configurazione esista
+  getgitfile "${APPNAME}init.json" "gothings-cloud-apps/master/${APPNAME}/" "dockrepo/dockimages/${APPNAME}/"
+  ITEXISTS=$?
+  if [[ $ITEXISTS -ne 1 ]]; then
+    echo "      <-- configuration install file DOES NOT exists."
+    stopmenu "${FILECONF}"  "file ${FILECONF} is essential for GoThings CLOUD"
+    exit                       # interrommpere il menu principale
+  fi
+  echo "      <-- exists, verifying content ..." 
+  #
+  verifyinit
+  #
+  #----  verifica parte init
+  # - si verifica <appname>init.json per vedere se ci sono operazioni da fare,
+  #    ovvero se sono gia' state fatte o non sono comunque necessarie:
+  #
+  #  ritorna:  0  se l'operazione init non ha prodotto errori
+  #           !0  se ci sono stati errori ...
+  #
+  #  error details in:  .../github-gothings/README.github.gothings
+  #
+  MENUTRAP=$?
+  echo
+  if [ ${MENUTRAP} -gt 0 ]; then
+    echo -e "    ${RED}  <-- expand phase returns code ${MENUTRAP}  ${STD}"
+  else
+    echo -e "    <-- expand phase returns code ${MENUTRAP}"
+  fi
+  echo
+  echo "###############################"
+  echo "          INIT phase done."
+  echo
+#
+fi
+if [ ${MENUTRAP} -eq 0 ]; then
+#
+#################################################################################
+##################################################################  phase INSTALL
+  echo
+  echo "-------------------------------"
+  echo "    INSTALL phase starts ..."
+  echo "      verify ${APPNAME} install config file ..."
+  #
+  FILECONF="${FILEINSTALL}"       #  file di configurazione della fase install
+  # assicurati che il file di configurazione esista
+  getgitfile "${APPNAME}install.json" "gothings-cloud-apps/master/${APPNAME}/" "dockrepo/dockimages/${APPNAME}/"
+  ITEXISTS=$?
+  if [[ $ITEXISTS -ne 1 ]]; then
+    echo "      <-- configuration install file DOES NOT exists."
+    stopmenu "${FILECONF}"  "file ${FILECONF} is essential for GoThings CLOUD"
+    exit                       # interrommpere il menu principale
+  fi
+  echo "      <-- exists, verifying content ..." 
+  #
+  verifyinstall
+  #
+  #----  verifica parte install
+  # - si verifica <appname>install.json per vedere se ci sono operazioni da fare,
+  #    ovvero se sono gia' state fatte o non sono comunque necessarie:
+  #
+  #  ritorna:  0  se l'operazione install non ha prodotto errori
+  #           !0  se ci sono stati errori ...
+  #
+  #  error details in:  .../github-gothings/README.github.gothings
+  #
+  MENUTRAP=$?
+  echo
+  if [ ${MENUTRAP} -gt 0 ]; then
+    echo -e "    ${RED}  <-- install phase returns code ${MENUTRAP}  ${STD}"
+  else
+    echo -e "    <-- install phase returns code ${MENUTRAP}"
+  fi
+  echo
+  echo "###############################"
+  echo "          INSTALL phase done."
+  echo
+fi
+if [ ${MENUTRAP} -eq 0 ]; then
+#
+#################################################################################
+####################################################  verify security environment
+#
+#----  verifica security environment:  si cercano i file .env-* in sysdata
+#  questi DEVONO essere diversi da quanto memorizzato nella fase expand
+#
+#  - si cerca 'filetargz' usato nella fase expand
+#  - al suo interno si cercano i file '.env-*'
+#  - si crea un file di controllo
+#  - si verifica che i valori nel file .env-* siano diversi dagli originali ...
+#  - ci si blocca se non va bene
+#  ---> alternativa:  cercare il nome file nel <compose>.yml
+#
+#  ritorna:  0  se l'operazione environment non ha prodotto errori
+#           !0  se ci sono stati errori ...
+#
+#  error details in:  .../github-gothings/README.github.gothings
+#
+  echo
+  echo "-------------------------------"
+  echo "    Verify environments ..."
+  echo
+  verifyenv
+  MENUTRAP=$?
+  echo
+  if [ ${MENUTRAP} -gt 0 ]; then
+    echo -e "    ${RED}  <-- environment phase returns code ${MENUTRAP}  ${STD}"
+  else
+    echo -e "    <-- environment phase returns code ${MENUTRAP}"
+  fi
+  echo
+  echo "###############################"
+  echo "     ENVIRONMENT phase done."
+  echo
+fi
+echo
+echo "---------------------------------------"
+echo "  CONTINUE to the menu functions ..."
+#
+# CONTINUE to the menu functions
+#
+##########################################################################
+
+
+#@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   FINE
+
+
+
+#
+################################################################################
+#                                                       get menu utils functions
+source go-raspi-menu-utils
+#
+#
+################################################################################
+#                                                             get menu functions
+source go-raspi-menu-functions
+#
+#
+################################################################################
+#                                                                raspi main menu
+MENUTAG="go-raspi v ${VERSION}"
+source go-raspi-main-menu
+#
+#
