@@ -1,5 +1,6 @@
 # GoThings Raspi Install
 How to install Raspbian and docker on a Raspberry board  
+  
 Get containerized HTTP server, node js, python and more on your raspi !  
 <br />
 
@@ -17,11 +18,11 @@ Please read the [disclaimer](#disclaimer) for more information
 
 ----
 [What GoThings Raspi Install does](#what-gothings-raspi-install-does)  
-[What you get](https://github.com/fpirri/gothings-install#what-you-get)  
-[What you need](https://github.com/fpirri/gothings-install#what-you-need)  
-[GoThingsSystem short description](https://github.com/fpirri/gothings-install#gothingssystem-short-description)  
-[Pre-installation steps](https://github.com/fpirri/gothings-install#pre-installation-steps)  
-[GoThings installation](https://github.com/fpirri/gothings-install#gothings-installation)  
+[What you get](#what-you-get)  
+[What you need](#what-you-need)  
+[GoThingsSystem short description](#gothingssystem-short-description)  
+[Pre-installation steps](#pre-installation-steps)  
+[GoThings installation](#gothings-installation)  
 
 ----
 
@@ -38,7 +39,7 @@ What GoThings Raspi Install does
   
  ***GoThings Control Menu*** allows you to manage lifecycle of your containers
    
- ***GoThings System*** is an ensemble of cloud and embedded applications briefly described [below](#gothings-system-short-description "GoThings System short description")  
+ ***GoThings System*** is an ensemble of cloud and embedded applications briefly described [below](#gothings-system-short-description")  
  
 <br />  
 
@@ -87,26 +88,22 @@ GoThingsSystem short description
 * The 'user' part is specific to a particular configuration
     * please note: this part allows users to run their own code
 * *GoThings* run in your Internet-of-Things, on the ARM achitecture boards such as the Raspberry Pi
-* An alpha version of *GoThings* is now running in standard cloud virtual systems (It may be published during 2019)
+* An alpha version of *GoThings* is now running in standard cloud virtual systems (It will be published ASAP)
 
 <br />
 
-* in [github](https://github.com/fpirri/gothings-install "github gothingscontrolmenu")  you find the **GoThingsControlMenu** to manage the lifecycle of your containers
-* in [gothings-apps](https://github.com/fpirri/gothings-apps "github gothings-apps")  you find templates that can be customized for specific purposes
+In [github](https://github.com/fpirri/gothings-raspi-apps")  you find:
+* **GoThings Control Menu** to manage the lifecycle of your containers
+* some templates that can be customized for specific purposes
  
 <br />  
 
 <br />  
  
-<br />  
-
-----
- 
-#### GoThings is a Docker Distributed Things Operating System (DDT-OS) running on a number of networked things.
-
-#### GoThings uses nodejs, vuejs and python-flask technologies.
-
-#### GoThings networking is based on http protocol and exploits many of the nginx+lua+redis capabilities
+### GoThings can be defined as:
+##### a Docker Distributed Things Operating System (DDT-OS) running on a number of networked things.
+##### GoThings uses nodejs, vuejs and python-flask technologies.
+##### GoThings networking is based on http protocol and exploits many of the nginx+lua+redis capabilities
 
 
 ------------------------------
