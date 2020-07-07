@@ -1,10 +1,22 @@
-# GoThingsInstall
+# GoThings Raspi Install
+How to install Raspbian and docker on a Raspberry board  
 
-Script to install docker and running example on a Raspberry board  
-<br />  
+<br />
+
+ADVICE:
+----  
+
+**This project is under construction.**  
+
+Project documentation is sparse and not reliable, owing to the on-going (re-)definition of many secondary aspects of the project.  
+Owing to the above, please be aware it may be next-to-impossible to use this repository to make any useful work.  
+
+Anyway, the original work included may be used according to the permissible MIT License.  
+
+Please read the [disclaimer](./#disclaimer) for more information
 
 ----
-[What GoThingsInstall does](https://github.com/fpirri/gothings-install#what-gothingsinstall-does)  
+[What GoThings Raspi Install does](./#what-gothingsinstall-does)  
 [What you get](https://github.com/fpirri/gothings-install#what-you-get)  
 [What you need](https://github.com/fpirri/gothings-install#what-you-need)  
 [GoThingsSystem short description](https://github.com/fpirri/gothings-install#gothingssystem-short-description)  
@@ -248,4 +260,20 @@ Very similar times are obtained for the Raspberry PI zeroW board.
 
 # Enjoy docker !
 -----
+
+
+<br />
+
+# DISCLAIMER
+As commonplace in github, the project may include other work which may have different licensing terms.  
+The author make his best to note usability and provenience of every work included here.  
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
 
