@@ -1,6 +1,6 @@
 # GoThings Raspi Install
 How to install Raspbian and docker on a Raspberry board  
-
+Get containerized HTTP server, node js, python and more on your raspi !  
 <br />
 
 ADVICE:
@@ -16,7 +16,7 @@ Anyway, the original work included may be used according to the permissible MIT 
 Please read the [disclaimer](#disclaimer) for more information
 
 ----
-[What GoThings Raspi Install does](./README.md#what-gothingsinstall-does)  
+[What GoThings Raspi Install does](#what-gothings-raspi-install-does)  
 [What you get](https://github.com/fpirri/gothings-install#what-you-get)  
 [What you need](https://github.com/fpirri/gothings-install#what-you-need)  
 [GoThingsSystem short description](https://github.com/fpirri/gothings-install#gothingssystem-short-description)  
@@ -27,18 +27,18 @@ Please read the [disclaimer](#disclaimer) for more information
 
 <br />
 
-What GoThingsInstall does
+What GoThings Raspi Install does
 ----  
 
-* Lets you click/perform a sequence of actions to install docker on your raspberry pi board*
-* ***GoThingsInstall*** allows you to set locales, get some data from github and initialize the ***GoThingsSystem***
+* Lets you click/perform a sequence of actions to install docker on your raspberry pi board
+* ***GoThings Raspi Install*** allows you to set locales, get some data from github and initialize the ***GoThings System***
 * It runs a demo application
-* It also install and execute the ***GoThingsControlMenu*** on the board  
+* It also install and execute the ***GoThings Control Menu*** on the board  
   
   
- ***GoThingsControlMenu*** allows you to manage lifecycle of your containers
+ ***GoThings Control Menu*** allows you to manage lifecycle of your containers
    
- ***GoThingsSystem*** is briefly described [below](https://github.com/fpirri/gothings-install#gothingssystem-short-description "GoThingsSystem short description")  
+ ***GoThings System*** is an ensemble of cloud and embedded applications briefly described [below](#gothings-system-short-description "GoThings System short description")  
  
 <br />  
 
@@ -49,9 +49,9 @@ What you get
    - nginx running in your board as an HTTPS gateway to the external world
    - a basic HTTP service on-board
    - a NODE JS demo application you can modify
-   - the ***GoThingsControlMenu*** to manage your GoThingsSystem
+   - the ***GoThings Control Menu*** to manage your GoThings System
 
-Through **GoThingsControlMenu** you manage the lifecycle of all containers and user data in the *GoThingsSystem*
+Through **GoThings Control Menu** you manage the lifecycle of all containers and user data in the *GoThingsSystem*
 
 After that you may write your programs using javascript, python or PHP languages. They will each run in its own container.  
 
@@ -63,22 +63,23 @@ What you need
 ----  
   
 * a raspberry P1-B+ or PI Zero W board
-* an sd-card with raspbian-stretch-lite.zip  
-     please note you need the 2018-11-13 raspbian version image, available at:
-
-          https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip
-          
+    * the procedure may work for all Raspberry boards
+    * anyway, it is tested on P1B+ and Zero W boards only
+* an sd-card to store the raspbian OS  
 * an internet connection (you will download several big files)
-* you may have to follow the [PRE-INSTALLATION](https://github.com/fpirri/gothings-install#pre-installation-steps) procedure documented below to run the raspbian system on your raspberry board
- 
- Finally, please follow the instructions in the [INSTALLATION](https://github.com/fpirri/gothings-install#gothings-installation) section below
+    * you can download the OS from:  
+          https://downloads.raspberrypi.org/raspbian_lite/images/  
+        
+* you have to follow the [PRE-INSTALLATION](#pre-installation-steps) procedure documented below to run the raspbian system on your raspberry *zero* board  
+   
+Finally, please follow the instructions in the [INSTALLATION](#gothings-installation) section below
  
 <br />  
 
 GoThingsSystem short description  
 ----  
 
-* The *GoThingsSystem* is made up from a number of co-operating docker containers
+* The *GoThings System* is made up from a number of co-operating docker containers
 * each container does a specific function but all the ensemble is seen from the network as a single entity
     * each container may use a different language, i.e. javascript, python, PHP, ...
 * The *GoThingsSystem* is made up from two parts: 'base' & 'user'
@@ -100,34 +101,7 @@ GoThingsSystem short description
 <br />  
 
 ----
-  
-----
-
-PLEASE NOTE: this is WORK IN PROGRESS
-===
-
-<br />
-
-
-  
-Please be patient, I will do my best to include basic docs on github ASAP
-
-
-- Status as October 3rd, 2019:
-
-   - basic tests on Raspberry P1-B+ & PI Zero W passed
-   - docker images available on dockerhub
-      - go to https://hub.docker.com/ and search 'gothings'
-
-   - building documentation on the dedicated 'bla bla site' (available ASAP)
-
-
-----
-<br />
-
-------------------------------
-
-
+ 
 #### GoThings is a Docker Distributed Things Operating System (DDT-OS) running on a number of networked things.
 
 #### GoThings uses nodejs, vuejs and python-flask technologies.
