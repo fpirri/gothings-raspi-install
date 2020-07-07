@@ -4,18 +4,6 @@ Script to install docker and running example on a Raspberry board
 <br />  
 
 ----
-DISCLAIMER:  
-**This project is under construction.**  
-
-Project documentation may be unreliable, owing to the on-going testing and possible redefinition of some secondary aspects of the project.  
-Owing to the above, please be aware it may be difficult to use this repository to make any useful work.  
-
-Anyway, the original work included may be used according to the permissible MIT License.  
-
-
-<br />  
-
-----
 [What GoThingsInstall does](https://github.com/fpirri/gothings-install#what-gothingsinstall-does)  
 [What you get](https://github.com/fpirri/gothings-install#what-you-get)  
 [What you need](https://github.com/fpirri/gothings-install#what-you-need)  
@@ -94,6 +82,37 @@ GoThingsSystem short description
 * in [gothings-apps](https://github.com/fpirri/gothings-apps "github gothings-apps")  you find templates that can be customized for specific purposes
  
 <br />  
+
+<br />  
+ 
+<br />  
+
+----
+  
+----
+
+PLEASE NOTE: this is WORK IN PROGRESS
+===
+
+<br />
+
+
+  
+Please be patient, I will do my best to include basic docs on github ASAP
+
+
+- Status as October 3rd, 2019:
+
+   - basic tests on Raspberry P1-B+ & PI Zero W passed
+   - docker images available on dockerhub
+      - go to https://hub.docker.com/ and search 'gothings'
+
+   - building documentation on the dedicated 'bla bla site' (available ASAP)
+
+
+----
+<br />
+
 ------------------------------
 
 
