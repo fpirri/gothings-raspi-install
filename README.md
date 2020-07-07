@@ -13,10 +13,10 @@ Owing to the above, please be aware it may be next-to-impossible to use this rep
 
 Anyway, the original work included may be used according to the permissible MIT License.  
 
-Please read the [disclaimer](./#disclaimer) for more information
+Please read the [disclaimer](#disclaimer) for more information
 
 ----
-[What GoThings Raspi Install does](./#what-gothingsinstall-does)  
+[What GoThings Raspi Install does](./README.md#what-gothingsinstall-does)  
 [What you get](https://github.com/fpirri/gothings-install#what-you-get)  
 [What you need](https://github.com/fpirri/gothings-install#what-you-need)  
 [GoThingsSystem short description](https://github.com/fpirri/gothings-install#gothingssystem-short-description)  
