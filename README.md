@@ -24,6 +24,8 @@ Please read the [disclaimer](#disclaimer) for more information
 [Pre-installation steps](#pre-installation-steps)  
 [GoThings installation](#gothings-installation)  
 
+[Disclaimer & Licencing](#disclaimer)  
+
 ----
 
 <br />
@@ -77,7 +79,7 @@ Finally, please follow the instructions in the [INSTALLATION](#gothings-installa
  
 <br />  
 
-GoThingsSystem short description  
+GoThings System short description  
 ----  
 
 * The *GoThings System* is made up from a number of co-operating docker containers
@@ -115,18 +117,20 @@ In [github](https://github.com/fpirri/gothings-raspi-apps")  you find:
 
 - Choose your raspbian image.
 
-   - Unfortunately, docker runs only on a few of the available armv6l raspbian images
-   - After many tries I choosed the following release:
+   - Unfortunately, docker does not run on every armv6l raspbian images
+   - last 'buster-lite' version appears OK
+   - the first gothings release, reported here, worked with raspbian-stretch lite version
+   - the following instructions use:
    
         https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip
- 
+ DA CORREGGERE
  
    - You have to burn your sd-card and abilitate ssh.
     
    - Please follow the official instructions or google 'headless raspberry setup' and choose one of the many tutorials.    
       - I followed https://styxit.com/2017/03/14/headless-raspberry-setup.html
 
-    
+    DA CORREGGERE
 
 - Connect via ssh from a PC terminal on the same LAN
    - in terminal you can write:
