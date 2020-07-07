@@ -1,0 +1,9 @@
+9d2396c6a34db070a9912479e619defa  /home/pi/ginit
+---
+To evaluate the checksum above you may use the following command:
+  md5sum /home/pi/ginit
+---
+g version 0.01.03
+---
+Please note that an -dev version does not have stable checksum
+---

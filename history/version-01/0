@@ -1,0 +1,485 @@
+#!/bin/bash
+#                                                                    2019-09-13
+#  INSTALL menu script for GoThings System
+#                                                               version 0.00.07
+#  Menu for GoThings System installation
+#    <-- Install docker
+#    <-- Install GoThings base
+#    <-- GoTo GoThings framework control menu
+#
+# download:
+#   wget -O /home/pi/0 https://raw.githubusercontent.com/fpirri/gothings-install/master/0
+#
+#------------------------------------------------------------------------------
+#    inspired by:
+#      https://bash.cyberciti.biz/guide/Menu_driven_scripts
+#
+#==============================================================================
+echo
+echo "====================================================== GoThings for raspi"
+echo "          INSTALL loader for GoThings docker system."
+echo "========================================================================="
+echo
+sleep 2
+#
+# ---  environment
+VERSION="0.0.5"
+#
+EDITOR=nano
+PASSWD=/etc/passwd
+RED='\033[0;41;30m'
+STD='\033[0;0;39m'
+
+DEBUGLOG=""     # utile nel debug
+ITEXISTS=0      #  1 : file esiste    0 : file assente
+MENUTRAP=0      #  66 : exit menu
+
+HOMEDIR="/home/pi/"
+cd ${HOMEDIR} #work on user pi home
+
+#
+##########################################################################
+############################################# Functions for install script
+#
+##########################################################################
+pause(){
+  #
+  #  ask key before continuing (^C is active)
+  #    $key:  user input key
+  #
+  echo "-------------------------------------------------------------- $1/"
+  read -rsp $'Please press any key to continue ...' -n 1 key
+}
+#
+##########################################################################
+avanti(){
+#
+#  continue or exit
+#    $key:  user input key
+#
+  read -rsp $'Please press any key to continue or ^C to exit ...' -n 1 key
+}
+#
+##########################################################################
+getgitfile(){    # Lettura file da github
+  #
+  #  use globals:
+  #    DEBUGLOG=""     # utile nel debug
+  #    ITEXISTS=0      #  1 : file esiste    0 : file assente
+  #
+  #
+  #     <-- se esiste il file $1 ed ha lunghezza > 0 :
+  #         <-- si va avanti senza altre azioni
+  #     <-- altrimenti si prova a scaricare il file da github               AGGIUSTARE dopo ......
+  #     <-- si riprova il test di lunghezza
+  #         se non funziona si torna con ITEXISTS=0
+  #     
+  # call:    getgitfile $1 $2 $3
+  #   $1:    "file"
+  #   $2:    "github project branch"
+  #   $3:    "raspi path after /home/pi/ "
+  # RETURN:
+  #           ITEXISTS = 1 se esiste, 0 altrimenti
+  #
+  # Verify file existence, get it from github if not
+  #
+  # example:
+  #          getgitfile "gotdirs.tar.gz" "gothings-install/master/" "dockrepo/sysarchive/"
+  #
+  #  bash:  -s file  True if file exists and has a size greater than zero
+  FILEGIT="/home/pi/$3$1"
+  DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $FILEGIT |"
+  if [[ -s $FILEGIT ]]
+  then
+    ITEXISTS=1    # file exists and length > 0
+    DEBUGLOG="$DEBUGLOG | $FILEGIT esiste |"
+  else            # si prova a scaricarlo
+    DEBUGLOG="$DEBUGLOG | $FILEGIT does not exist |"
+    wget -O $FILEGIT https://raw.githubusercontent.com/fpirri/$2$1
+    if [[ -s $FILEGIT ]]
+    then
+      ITEXISTS=1    # file exists and length > 0
+      DEBUGLOG="$DEBUGLOG | $FILEGIT trovato |"
+    else
+      ITEXISTS=0    # file introvabile !
+      DEBUGLOG="$DEBUGLOG | $FILEGIT introvabile |"
+      echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
+    fi
+  fi
+  return $ITEXISTS
+}
+#
+##########################################################################
+stopmenu(){
+  #  $1 :  nome del file non trovato
+  #  $2 :  riga di debug aggiuntiva
+  echo 
+  echo "------------------------------------------------------"
+  echo -e "${RED} ERROR on file: $1 - debug message: ${STD}"
+  echo $DEBUGLOG
+  echo $2
+  echo "------------------------------------------------------"
+  echo "Cannot continue."
+  echo 
+  MENUTRAP=66
+  return 66
+}
+#
+##########################################################################
+utils(){
+  # 1. Set base directories & data, INSTALL utilities for docker
+  SECONDS=0
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 1:"
+  echo "Preliminary operations:"
+  echo " - set docker group"
+  echo " - expand filesystem"
+  echo "   Note: Docker group will be useful later on .."
+  echo "Add docker group"
+  sudo groupadd docker
+  echo "Add user pi to docker group"
+  sudo gpasswd -a $USER docker
+  echo
+  sleep 5
+  echo 
+  echo "----------------------------------------------------------------"
+  echo "Set base directories & data, INSTALL utilities for docker"
+  echo 
+  sleep 2
+  # set locale
+  echo "Generate locales for gothings"
+  sudo cp /etc/locale.gen  /etc/locale.gen.bk
+  sudo sed -i '$a it_IT.UTF-8 UTF-8' /etc/locale.gen
+  sudo sed -i '$a en_US.UTF-8 UTF-8' /etc/locale.gen
+  ### en_GB non serve: e' gia' attivo
+  #sudo sed -i '$a en_GB.UTF-8 UTF-8' /etc/locale.gen
+  sudo locale-gen 
+  echo "Set default on en_US"
+  sudo update-locale LC_ALL=en_US.UTF-8 LANG=en_US.UTF-8 LANGUAGE=en_US.UTF-8 
+  sudo cp /etc/locale.gen.bk  /etc/locale.gen
+  echo "Available locales now are:"
+  locale -a
+  echo
+  echo "Please note active locale will be updated at next login/reboot"
+  # install tree (altri programmi utili?)
+  echo "install utilities"
+  #sudo apt-get -y update && sudo apt-get -y upgrade && \
+  sudo apt-get -y update && sudo apt-get -o Dpkg::Options::=--force-confdef -y install tree
+  echo
+  echo "Create base dirs"
+  mkdir /home/pi/dockrepo
+  mkdir /home/pi/dockrepo/sysdata
+  mkdir /home/pi/dockrepo/sysarchive
+  mkdir /home/pi/dockrepo/sysarchive/sysdata
+  mkdir /home/pi/dockrepo/sysdata/htdocs      # web data
+  mkdir /home/pi/dockrepo/sysdata/nginxdata   # network
+  mkdir /home/pi/dockrepo/sysdata/nodedata    # node applications
+  mkdir /home/pi/dockrepo/sysdata/pythondata  # python applications
+  mkdir /home/pi/dockrepo/sysdata/redisdata   # noSQL db
+  mkdir /home/pi/dockrepo/sysdata/vpndata     # private networking
+  echo "Show dir tree:"
+  tree -d /home/pi/
+  echo
+  sleep 3
+  echo
+  # setup dirs:  dockrepo & sysarchive
+  echo
+  echo "set dirs for GOTHINGS: get content"
+  echo
+  FILE="gotdirs.tar.gz"             # $1
+  GITBR="gothings-install/master/"  # $2
+  PIDIR=""                          # $3
+  CALL="${FILE} $GITBR $PIDIR"
+  getgitfile ${CALL}
+  if [[ $ITEXISTS -ne 1 ]]
+  then
+    echo 
+    echo "------------------------------------------------------"
+    echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
+    echo $DEBUGLOG
+    echo "------------------------------------------------------"
+    echo "Cannot continue."
+    echo 
+    MENUTRAP=66
+    return 66
+  else
+    echo 
+    echo "expand content"
+    sudo tar xzvf "/home/pi/${FILE}" -C /home/pi/
+  fi
+  echo
+  echo "GOTHINGS user content copied"
+  sleep 5
+  echo 
+  echo "Add the Docker official repos"
+  curl -fsSL https://download.docker.com/linux/$(. /etc/os-release; echo "$ID")/gpg | sudo apt-key add -
+  echo "deb [arch=armhf] https://download.docker.com/linux/$(. /etc/os-release; echo "$ID") \
+        $(lsb_release -cs) stable" | \
+        sudo tee /etc/apt/sources.list.d/docker.list
+  echo 
+  echo "Install docker package prerequisites"
+  sudo apt update
+  sudo apt install -y \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg2 \
+    software-properties-common
+  echo
+  echo "Docker package prerequisites now installed"
+  sleep 3
+  echo
+  echo "GOTHINGS dir tree:"
+  echo
+  tree -d /home/pi/
+  ELAPSED=$SECONDS
+  echo
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
+  echo "--------------------------------------------------------------"
+  sleep 5
+  pause "2"
+}
+#
+##########################################################################
+dockinstall(){
+  # 3. INSTALL docker community edition
+  SECONDS=0
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 3:"
+  echo "INSTALL docker community edition"
+  echo 
+  echo "Docker version: 18.06.1~ce~3-0~raspbian"
+  sleep 3
+  cd ${HOMEDIR} #work on user pi home
+  sudo apt update -y
+  sudo apt install -y docker-ce=18.06.1~ce~3-0~raspbian
+  echo
+  echo "Docker installed, verify docker version:"
+  sudo docker version
+  echo
+  echo
+  echo "Test the simple 'docker ps -a' function, it should not show errors"
+  sudo docker ps -a
+  echo "------------------"
+  sleep 3
+  echo
+  echo "Install compose and pip pre-requisites:"
+  echo
+  echo "Please note this section will take a long time!"
+  echo "It took more than an hour on my raspberry PI1 mod. B+"
+  sleep 5
+  sudo apt update
+  sudo apt install -y build-essential libssl-dev libffi-dev python
+  sudo apt install -y python-dev python-pip
+  echo
+  echo "Install docker-compose using python-pip"
+  sudo pip install docker-compose
+  echo
+  echo "docker-compose version:"
+  sudo docker-compose --version
+  ELAPSED=$SECONDS
+  echo
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
+  echo "--------------------------------------------------------------"
+  sleep 5
+  pause "3"
+}
+#
+##########################################################################
+testgothings(){
+  # 4. TEST use docker-compose for a simple configuration
+  SECONDS=0
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 4:"
+  echo
+  echo "TEST - use docker-compose for a simple configuration"
+  echo
+  echo "Some pre-built images to support gothings services are:"
+  echo "  BOXBASE   <-- contains several utilities to develop and debug gothings services"
+  echo "  NGINX     <-- http proxy to interface all network communication"
+  echo "  NODEBASE  <-- nodejs environment to support generic javascript applications"
+  echo "  VUEDEV    <-- node + vue environment to support reactive applications"
+  echo
+  echo "This test will use a couple of docker images:"
+  echo "  NGINX"
+  echo "  VUEDEV"
+  echo "Downloading these images may take a long time, please be patient"
+  echo "30 minutes over a standard ADSL connection is normal"
+  echo 
+  echo "Install gothings docker networks"
+  echo "Please note that the following will show 'already exists' errors"
+  echo "if this section is started multiple times"
+  echo "- gothingsnet"
+  sudo docker network create -d bridge --subnet 172.29.196.0/24 --gateway 172.29.196.1 gothingsnet  
+  echo "- servicenet"
+  sudo docker network create -d bridge --subnet 172.29.195.0/24 --gateway 172.29.195.1 servicenet
+  echo
+  echo "Start example using docker-compose"
+  echo "Please see 'bla bla page' for a detailed description of this example"
+  echo
+  echo "First time you run this section, you have to download two docker images"
+  echo "Total size can be 1 GB or more, so this can be a long process"
+  echo "Anyway, this only need to be done once."
+  echo
+  echo "At the end of download, containers should run in less than 60 seconds"
+  echo
+  echo "The process is starting now:"
+  sudo docker-compose -f /home/pi/dockrepo/dockimages/app-testvue.yml up -d
+  echo
+  echo "Containers should have started. I wait 20 seconds to allow for them"
+  echo "to stabilize"
+  echo "Then you should see the status of containers in your raspi"
+  sleep 10
+  sudo docker ps -a --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}"
+  echo "-------------------------"
+  echo "You find above the status of containers in your system"
+  echo "Hopefully, for each container you see something similar to:"
+  echo "  'up xx seconds'"
+  echo "-------------------------"
+  sleep 5
+  echo 
+  echo "Now, I try to read something using nginx container .."
+  echo "The instruction is:\n    curl 'localhost:6003/test.txt'"
+  echo
+  echo "-------------------------> text from nginx container:"
+  curl 'localhost:6003/test.txt'
+  echo "<------------------------- end of text from nginx"
+  echo
+  echo "The text above is coming from nginx container"
+  echo "It should confirm nginx is running"
+  echo "-------------------------"
+  sleep 7
+  echo 
+  echo "Last thing to be confirmed is testvue container running"
+  echo -e "The instruction is:\n    curl 'localhost:6001'"
+  echo
+  echo
+  echo "-------------------------> text from vuedev container:"
+  curl 'localhost:6001'
+  echo
+  echo "<------------------------- end of text from vuedev"
+  echo
+  echo "The text above is coming from testvue container"
+  echo "It should confirm testvue is running"
+  echo "-------------------------"
+  ELAPSED=$SECONDS
+  echo
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
+  echo "--------------------------------------------------------------"
+  sleep 5
+  echo
+  echo "If all seems OK you can go to the gothings configuration from the main menu"
+  echo 
+  echo "Please visit the 'bla bla page' for further information on GOTHINGS"
+  echo
+  sleep 4
+  pause "4"
+}
+#
+##########################################################################
+gotocontrol(){
+  SECONDS=0
+  # 5. GO to GOTHINGS CONTROL MENU
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 5:"
+  echo "Preparing for GOTHINGS CONTROL MENU"
+  echo
+  echo "STOP & DESTROY all running containers ..."
+  echo
+  echo "... stopping running containers"
+  sudo docker stop $(docker ps -a -q -f status=running)
+  echo
+  echo "... removing all containers"
+  sudo docker rm $(docker ps -a -q -f status=exited)
+  echo
+  echo "Done."
+  echo
+  FILE="g"
+  GITBR="gothings-install/master/"  # dir su github dove va preso il file
+  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
+  CALL="${FILE} $GITBR $PIDIR"
+  getgitfile ${CALL}
+  if [[ $ITEXISTS -ne 1 ]]
+  then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
+    echo 
+    echo "------------------------------------------------------"
+    echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
+    echo $DEBUGLOG
+    echo "------------------------------------------------------"
+    echo "Cannot continue."
+    echo 
+    MENUTRAP=66
+    return 66
+  fi ########## Si va avanti se il file esiste ...
+  echo
+  echo "Now ready to exec GOTHINGS CONTROL MENU"
+  echo "    NOTE: if you continue the GOTHINGS CONTROL MENU will be executed"
+  echo
+  echo -e "    ${RED}  ATTENTION !!  ${STD} "
+  echo "    continue will bring you to the GOTHINGS CONTROL MENU"
+  echo "    exit return back to the console prompt"
+  echo
+  avanti
+  chmod +x /home/pi/g
+  ./g
+  echo "exit from 0 / boot install"
+  MENUTRAP=66
+}
+#
+###################################################################
+#
+# function to display menus
+show_menus() {
+  clear
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ 0.00.07"
+  echo
+  echo "      G O T H I N G S   B U I L D   MENU"
+  echo
+  echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
+  echo
+  echo "1. UTILS   install utilities & base data"
+  echo "2. DOCKER  download & install docker for GOTHINGS"
+  echo "3. GO      download GOTHINGS control menu"
+  echo "4. TEST    use docker-compose for a simple configuration"
+}
+# read input from the keyboard and take a action
+# invoke the function according to the entered number
+read_options(){
+	local choice
+#	read -p "Enter choice [ 1..3 or ^C to exit] " choice
+  read -rsp $'Enter choice [ 1..5 or ^C to exit ] ' -n 1 choice
+	case $choice in
+    1) utils;;
+		2) dockinstall;;
+    3) gotocontrol;;
+		4) testgothings;;
+		*) echo -e "${RED}Error...${STD}" && sleep 2
+	esac
+}
+ 
+# ----------------------------------------------
+# Step #3: Trap CTRL+C, CTRL+Z and quit singles
+# ----------------------------------------------
+trap '' SIGQUIT SIGTSTP
+#trap '' SIGINT SIGQUIT SIGTSTP
+ 
+# -----------------------------------
+# Step #4: Main logic - infinite loop
+# ------------------------------------
+
+while true
+do
+  # internal trap
+  if [[ ${MENUTRAP} -eq 66 ]]
+  then
+    return 66  #-- stop menu
+  fi
+	show_menus
+	read_options
+done
+echo "Shell terminated."
+echo
