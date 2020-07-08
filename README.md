@@ -243,7 +243,7 @@ Very similar times are obtained for the Raspberry PI zeroW board.
 # DISCLAIMER
 As commonplace in github, the project may include other work which may have different licensing terms.  
 The author make his best to note usability and provenience of every work included here.  
-A list of the software that inspired this work is reported in the ACKNOWLEDGEMENT section.  
+A list of the software that inspired this work is reported in the [ACKNOWLEDGEMENT](https://github.com/fpirri/gothings-raspi-install/blob/master/ACKNOWLEDGEMENT.md) section.  
 <br/>
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
