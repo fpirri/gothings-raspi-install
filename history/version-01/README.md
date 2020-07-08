@@ -1,6 +1,7 @@
 # GoThingsInstall
 
 Script to install docker and running example on a Raspberry board  
+  --> 2019 version
 <br />  
 
 ----
