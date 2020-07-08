@@ -25,7 +25,7 @@ Please read the [disclaimer](#disclaimer) for more information
 [Pre-installation steps](#pre-installation-steps)  
 [GoThings installation](#gothings-installation)  
 
-[Disclaimer & Licencing](#disclaimer)  
+[Disclaimer & Licensing](#disclaimer)  
 
 ----
 
@@ -254,5 +254,5 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
-Please consult the LICENCE section.
+Please consult the [LICENSE](https://github.com/fpirri/gothings-raspi-install/blob/master/LICENSE) section.
 
