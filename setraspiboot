@@ -1,0 +1,55 @@
+#!/bin/bash
+#                                                                    2019-07-25
+#   Set raspbian boot dir
+#     --> set initial data for raspbian system bootstrap
+#     --> enable ssh
+#     --> set wifi credential
+#
+# ref.:
+#    Linux:  https://styxit.com/2017/03/14/headless-raspberry-setup.html
+#  Windows:  https://desertbot.io/blog/headless-pi-zero-w-wifi-setup-windows
+#
+#
+# ---  environment
+                                                                    VERSION="01"
+SDBOOTDIR="/media/$USER/boot/"
+#
+EDITOR=nano
+RED='\033[0;41;30m'
+STD='\033[0;0;39m'
+
+pause(){
+#  continue or exit
+  echo "--------------------------------------------------------------/"
+  read -rsp $'Press any key to continue or ^C to exit ...' -n 1 key
+}
+
+echo
+echo "======================================================= version $VERSION"
+echo
+echo "ATTENTION !!     This will write data on: ${SDBOOTDIR}"
+echo
+##    ... chiedi conferma prima di proseguire
+pause
+
+touch "${SDBOOTDIR}ssh"
+echo "SSH Enabled"
+
+WPA_FILE="${SDBOOTDIR}wpa_supplicant.conf"
+WPA_DATA='ap_scan=1
+update_config=1
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+network={
+    ssid="Network-6cfdb958c930"
+    psk="Tosca,Cenaia,1925-Franco,Livorno,1945"
+    key_mgmt=WPA-PSK
+}
+network={
+    ssid="PALMIPEDE"
+    psk="paperoga"
+    key_mgmt=WPA-PSK
+}'
+echo "${WPA_DATA}" > ${WPA_FILE}
+
+echo "WiFi data written"
+echo "FINE"
