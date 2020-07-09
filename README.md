@@ -136,7 +136,7 @@ The script is tested with bash shell on ubuntu, it should run an many other linu
 It may also run on *extended* MS Windows.  
   
 The steps to follow:
-* download the [buster](https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip) raspbian image from the raspberry official site
+* download the (https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip) raspbian image from the raspberry official site
     * if you use [balena etcher](https://www.balena.io/etcher/) SD-card burning software you don't need to expand the zip archive
 * burn the *buster* image onto your SD card
     * an 8GB card is required
@@ -146,7 +146,7 @@ The steps to follow:
     * on ubuntu 18.04 it probably is /media/<username>/boot
       were <username> is your user name on the machine
 * take note of the path of the boot volume
-* download the [setraspiboot](https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot) script
+* download the setraspiboot script at https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot
     * open it in your editor
     * at the top you find 2 variables:
        SDBOOTDIR
@@ -162,8 +162,10 @@ The steps to follow:
 * put the new card in the raspberry board and power it up
   
 First time you should allow the board to complete OS installation.  
-It may take up to a few minutes. You should view 
+It may take up to a few minutes.  
+You should see faint flashes of the LED, periods of darkness and finally the LED stably lit for more than 10 seconds  
 
+At the end you can:
 - Connect via ssh from a PC terminal on the same LAN
    - in terminal you can write:
    
@@ -181,7 +183,7 @@ It may take up to a few minutes. You should view
     -   **<-- PLEASE FOLLOW** this advice !!!
 
 
-**You should now have a raspberry PI, reachable via ssh, which can run the GoThings system**
+**You should now have a raspberry PI, reachable via ssh, which can run the GoThings System**
     
 <br />
 
