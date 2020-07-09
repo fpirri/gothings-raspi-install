@@ -131,7 +131,7 @@ I successfully followed this [tutorial](https://styxit.com/2017/03/14/headless-r
 You must also abilitate the wi-fi connection to use the *zero w* raspi model  
   
 <br>
-If it happens you use Linux on your PC, you can use the [zeroconf](https://github.com/fpirri/gothings-raspi-install/blob/master/setraspiboot) shell script, following the instruction below.  
+If it happens you use Linux on your PC, you can use the [zeroconf](https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot) shell script, following the instruction below.  
 The script is tested with bash shell on ubuntu, it should run an many other linuxes.  
 It may also run on *extended* MS Windows.  
   
