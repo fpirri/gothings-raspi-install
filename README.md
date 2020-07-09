@@ -59,7 +59,7 @@ Through **GoThings Control Menu** you manage the lifecycle of all containers and
 
 After that you may write your programs using javascript, python or PHP languages. They will each run in its own container.  
 
-Please note the docker installation is a standard one. The *GoThingsSystem* configuration data is made up from a few files and you may delete them and use docker for any other purpose.
+Please note the docker installation is a standard one. The *GoThings System* configuration data is made up from a few files and you may delete them and use docker for any other purpose.
   
 <br />  
 
@@ -67,7 +67,7 @@ What you need
 ----  
   
 * a raspberry P1-B+ or PI Zero W board
-    * the procedure may work for all Raspberry boards
+    * the procedure may work for other Raspberry board models
     * anyway, it is tested on P1B+ and Zero W boards only
 * an sd-card to store the raspbian OS  
 * an internet connection (you will download several big files)
@@ -86,16 +86,16 @@ GoThings System short description
 * The *GoThings System* is made up from a number of co-operating docker containers
 * each container does a specific function but all the ensemble is seen from the network as a single entity
     * each container may use a different language, i.e. javascript, python, PHP, ...
-* The *GoThingsSystem* is made up from two parts: 'base' & 'user'
+* The *GoThings System* is made up from two parts: 'base' & 'user'
 * The 'base' part gives to the GoThings System the capabilities common to most applications, such as network access and security  
 * The 'user' part is specific to a particular configuration
     * please note: this part allows users to run their own code
 * *GoThings* run in your Internet-of-Things, on the ARM achitecture boards such as the Raspberry Pi
-* An alpha version of *GoThings* is now running in standard cloud virtual systems (It will be published ASAP)
+* An alpha version of *GoThings* is now running in standard cloud virtual systems (It will be published ASAP [here](https://github.com/fpirri/gothings-cloud))
 
 <br />
 
-In [github](https://github.com/fpirri/gothings-raspi-apps")  you find:
+In [github raspi-apps](https://github.com/fpirri/gothings-raspi-apps")  you find:
 * **GoThings Control Menu** to manage the lifecycle of your containers
 * some templates that can be customized for specific purposes
  
@@ -105,10 +105,11 @@ In [github](https://github.com/fpirri/gothings-raspi-apps")  you find:
  
 ### GoThings can be defined as:
 ##### a Docker Distributed Things Operating System (DDT-OS) running on a number of networked things.
-##### GoThings uses nodejs, vuejs and python-flask technologies.
-##### GoThings networking is based on http protocol and exploits many of the nginx+lua+redis capabilities
-
-
+  
+GoThings uses nodejs, vuejs and python-flask technologies.  
+GoThings networking is based on http protocol and exploits many of the nginx+lua+redis capabilities  
+  
+  
 ------------------------------
 
 <br/>
@@ -117,19 +118,24 @@ In [github](https://github.com/fpirri/gothings-raspi-apps")  you find:
 
 
 - Choose your raspbian image.
-
    - Unfortunately, docker does not run on every armv6l raspbian images
    - last 'buster-lite' version appears OK
-   - the first gothings release, reported here, worked with raspbian-stretch lite version
+   - the first gothings release, reported [here](https://github.com/fpirri/gothings-raspi-install/tree/master/history/version-01), worked with raspbian-stretch lite version
    - the following instructions use:
-   
-        https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2018-11-15/2018-11-13-raspbian-stretch-lite.zip
- DA CORREGGERE
- 
+       https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip 
    - You have to burn your sd-card and abilitate ssh.
-    
-   - Please follow the official instructions or google 'headless raspberry setup' and choose one of the many tutorials.    
-      - I followed https://styxit.com/2017/03/14/headless-raspberry-setup.html
+ <br/>
+ 
+Please note you have to abilitate SSH access on your raspberry in order to use the *GoThings System*  
+To this end you may follow the official instructions or google 'headless raspberry setup' and choose one of the many tutorials.    
+I successfully followed this [tutorial](https://styxit.com/2017/03/14/headless-raspberry-setup.html)  
+You must also abilitate the wi-fi connection to use the *zero w* raspi model  
+  
+<br>
+  You can also use the [zeroconf](https://github.com/fpirri/gothings-raspi-install/blob/master/setraspiboot)  bash script, following the instruction below.  
+  
+* download the [buster](https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip) raspbian image from the raspberry official site
+    * NON ESPADERE *
 
     DA CORREGGERE
 
