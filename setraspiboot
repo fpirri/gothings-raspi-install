@@ -1,5 +1,6 @@
 #!/bin/bash
 #                                                                    2019-07-25
+                                                                    VERSION="01"
 #   Set raspbian boot dir
 #     --> set initial data for raspbian system bootstrap
 #     --> enable ssh
@@ -10,9 +11,27 @@
 #  Windows:  https://desertbot.io/blog/headless-pi-zero-w-wifi-setup-windows
 #
 #
-# ---  environment
-                                                                    VERSION="01"
+################################################################################
+#                                                                 User variables
+# --- boot volume path:
 SDBOOTDIR="/media/$USER/boot/"
+#
+# --- wi-fi configuration
+WPA_DATA='ap_scan=1
+update_config=1
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+network={
+    ssid="<your ssid>"
+    psk="<your wifi pass phrase>"
+    key_mgmt=WPA-PSK
+}
+network={
+    ssid="another ssid you may use"
+    psk="password for another wifi network"
+    key_mgmt=WPA-PSK
+}'
+#
+################################################################################
 #
 EDITOR=nano
 RED='\033[0;41;30m'
@@ -36,19 +55,6 @@ touch "${SDBOOTDIR}ssh"
 echo "SSH Enabled"
 
 WPA_FILE="${SDBOOTDIR}wpa_supplicant.conf"
-WPA_DATA='ap_scan=1
-update_config=1
-ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-network={
-    ssid="Network-6cfdb958c930"
-    psk="Tosca,Cenaia,1925-Franco,Livorno,1945"
-    key_mgmt=WPA-PSK
-}
-network={
-    ssid="PALMIPEDE"
-    psk="paperoga"
-    key_mgmt=WPA-PSK
-}'
 echo "${WPA_DATA}" > ${WPA_FILE}
 
 echo "WiFi data written"
