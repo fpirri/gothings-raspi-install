@@ -130,8 +130,7 @@ To this end you may follow the official instructions or google 'headless raspber
 I successfully followed this [tutorial](https://styxit.com/2017/03/14/headless-raspberry-setup.html)  
 You must also abilitate the wi-fi connection to use the *zero w* raspi model  
   
-<br>
-If it happens you use Linux on your PC, you can use the [zeroconf](https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot) shell script, following the instruction below.  
+If it happens you use Linux on your PC, you can use the *zeroconf* script at https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot , following the instruction below.  
 The script is tested with bash shell on ubuntu, it should run an many other linuxes.  
 It may also run on *extended* MS Windows.  
   
@@ -143,7 +142,7 @@ The steps to follow:
     * a 16GB or greater is recommended  
 * inspect the burned card on your PC  
     * you should find two volumes: *boot* & *rootfs*
-    * on ubuntu 18.04 it probably is /media/&lt;username&gt;/boot
+    * on ubuntu 18.04 the boot volume path probably is: /media/&lt;username&gt;/boot
       were &lt;username&gt; is your user name on the machine
 * take note of the path of the boot volume
 * download the setraspiboot script at https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot
