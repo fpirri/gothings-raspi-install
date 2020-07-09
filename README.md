@@ -135,16 +135,16 @@ If it happens you use Linux on your PC, you can use the [zeroconf](https://raw.g
 The script is tested with bash shell on ubuntu, it should run an many other linuxes.  
 It may also run on *extended* MS Windows.  
   
-The steps to follow:
-* download the (https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip) raspbian image from the raspberry official site
-    * if you use [balena etcher](https://www.balena.io/etcher/) SD-card burning software you don't need to expand the zip archive
-* burn the *buster* image onto your SD card
-    * an 8GB card is required
-    * a 16GB or greater is recommended
-* inspect the burned card on your PC
+The steps to follow:  
+* download the (https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip) raspbian image from the raspberry official site  
+    * if you use [balena etcher](https://www.balena.io/etcher/) SD-card burning software you don't need to expand the zip archive  
+* burn the *buster* image onto your SD card  
+    * an 8GB card is required  
+    * a 16GB or greater is recommended  
+* inspect the burned card on your PC  
     * you should find two volumes: *boot* & *rootfs*
-    * on ubuntu 18.04 it probably is /media/<username>/boot
-      were <username> is your user name on the machine
+    * on ubuntu 18.04 it probably is /media/&lt;username&gt;/boot
+      were &lt;username&gt; is your user name on the machine
 * take note of the path of the boot volume
 * download the setraspiboot script at https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot
     * open it in your editor
