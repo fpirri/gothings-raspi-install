@@ -118,12 +118,11 @@ GoThings networking is based on http protocol and exploits many of the nginx+lua
 
 
 - Choose your raspbian image.
-   - Unfortunately, docker does not run on every armv6l raspbian images
-   - last 'buster-lite' version appears OK
-   - the first gothings release, reported [here](https://github.com/fpirri/gothings-raspi-install/tree/master/history/version-01), worked with raspbian-stretch lite version
    - the following instructions use:
        https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip 
-   - You have to burn your sd-card and abilitate ssh.
+   - the first gothings release, archived [here](https://github.com/fpirri/gothings-raspi-install/tree/master/history/version-01), worked with raspbian-stretch lite version
+   - You have to burn your sd-card to use it on the rasperry
+   - if you wish to use a different release, please note that docker does not run on every armv6l raspbian images
  <br/>
  
 Please note you have to abilitate SSH access on your raspberry in order to use the *GoThings System*  
@@ -132,12 +131,38 @@ I successfully followed this [tutorial](https://styxit.com/2017/03/14/headless-r
 You must also abilitate the wi-fi connection to use the *zero w* raspi model  
   
 <br>
-  You can also use the [zeroconf](https://github.com/fpirri/gothings-raspi-install/blob/master/setraspiboot)  bash script, following the instruction below.  
+If it happens you use Linux on your PC, you can use the [zeroconf](https://github.com/fpirri/gothings-raspi-install/blob/master/setraspiboot) shell script, following the instruction below.  
+The script is tested with bash shell on ubuntu, it should run an many other linuxes.  
+It may also run on *extended* MS Windows.  
   
+The steps to follow:
 * download the [buster](https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip) raspbian image from the raspberry official site
-    * NON ESPADERE *
-
-    DA CORREGGERE
+    * if you use [balena etcher](https://www.balena.io/etcher/) SD-card burning software you don't need to expand the zip archive
+* burn the *buster* image onto your SD card
+    * an 8GB card is required
+    * a 16GB or greater is recommended
+* inspect the burned card on your PC
+    * you should find two volumes: *boot* & *rootfs*
+    * on ubuntu 18.04 it probably is /media/<username>/boot
+      were <username> is your user name on the machine
+* take note of the path of the boot volume
+* download the [setraspiboot](https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot) script
+    * open it in your editor
+    * at the top you find 2 variables:
+       SDBOOTDIR
+       WPA_DATA
+* update the script content:
+   * your boot volume path in SDBOOTDIR
+   * your wifi data in  WPA_DATA
+   * you may add as many wifi network as you like
+* save the script and launch it with the command:
+     source setraspiboot
+    * the script will run in your current environment
+* eject the sd-card
+* put the new card in the raspberry board and power it up
+  
+First time you should allow the board to complete OS installation.  
+It may take up to a few minutes. You should view 
 
 - Connect via ssh from a PC terminal on the same LAN
    - in terminal you can write:
