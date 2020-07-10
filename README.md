@@ -95,7 +95,7 @@ GoThings System short description
 
 <br />
 
-In [github raspi-apps](https://github.com/fpirri/gothings-raspi-apps")  you find:
+In [github raspi-apps](https://github.com/fpirri/gothings-raspi-apps)  you find:
 * **GoThings Control Menu** to manage the lifecycle of your containers
 * some templates that can be customized for specific purposes
  
@@ -120,9 +120,9 @@ GoThings networking is based on http protocol and exploits many of the nginx+lua
 - Choose your raspbian image.
    - the following instructions use:
        https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip 
-   - the first gothings release, archived [here](https://github.com/fpirri/gothings-raspi-install/tree/master/history/version-01), worked with raspbian-stretch lite version
+   - the first gothings-raspi-install release, archived [here](https://github.com/fpirri/gothings-raspi-install/tree/master/history/version-01), worked with raspbian-stretch lite version
    - You have to burn your sd-card to use it on the rasperry
-   - if you wish to use a different release, please note that docker does not run on every armv6l raspbian images
+   - if you wish to use a different release, please note that docker does not run on every armv6l raspbian image
  <br/>
  
 Please note you have to abilitate SSH access on your raspberry in order to use the *GoThings System*  
@@ -132,7 +132,7 @@ You must also abilitate the wi-fi connection to use the *zero w* raspi model
   
 If it happens you use Linux on your PC, you can use the *zeroconf* script at https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot , following the instruction below.  
 The script is tested with bash shell on ubuntu, it should run an many other linuxes.  
-It may also run on *extended* MS Windows.  
+It may also run on MS Windows 10, *extended* with WSL (not tested).  
   
 The steps to follow:  
 * download the (https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip) raspbian image from the raspberry official site  
@@ -200,68 +200,30 @@ Connect to your board via ssh, commands below should be gived in the home direct
 #### 2- Download the 'zero' script
 Exec the command:
 
-      wget -O /home/pi/0 https://raw.githubusercontent.com/fpirri/gothings-install/master/0
+      wget -O /home/pi/zero https://raw.githubusercontent.com/fpirri/gothings-install/master/zero
 
-The 0 (number zero) is the primary bootstrap script.
+The file *zero* is the primary bootstrap script.
      
- To give yourself a minimum of security you should verify the integrity of the files you download from internet.  
-To this end you have to calculate the checksum of the downloaded 0 file:  
-
-       md5sum /home/pi/0  <-- you thype this
-       54c6223a01420b9028720e9d5789adf3 /home/pi/0  <-- you see the locally calculated checksum
-
-You should compare it with the file on github repository.
-Content of github 0.md5 file is similar to:  
-    
-        54c6223a01420b9028720e9d5789adf3  /home/pi/0
-        ---
-        To evaluate the checksum above you may use the following command:
-        md5sum /home/pi/0
-        ---
-        0  version 0.0.3
-        ---
-  
-  
-#### 3- Verify the 'zero' script
-You should verify equality of the locally calculated checksum with that reported on the github repository
-
-NOTE :  
-  There are means of verification other than md5 checksum.
-  Here MD5 is choosed because it is already available in the raspbian OS.  
- Security will be eventually improved later on
-
-#### 4- exec the 0 script
+ To give yourself a minimum of security you should inspect the integrity of the files you download from internet.  
+ 
+#### 3- exec the zero script
 Exec the command:
 
-        . 0             <-- the command is:  'dot' 'space' 'number 0'
+        source zero
 
-please note: this immediately executes the script locally, without the need to mark it as executable
+please note: the script executes the script locally, without the need to mark it as executable
 
-#### 5- Install actions
+#### 4- Install actions
 
- Follow the procedure suggested by the 0 script, one action at a time.  
+ Follow the procedure suggested by the zero script, one action at a time.  
 **It is advisable to exec the first action only once.**  
 You may execute the following sections multiple times, althought it should not be necessary.  
-Last but one action dowload the  [g menu](https://github.com/fpirri/gothings-install "GoThingsControlMenu for things management") from github. It also allow you to exec the menu by typing './g' in the /home/pi/ directory.   
-Anyway, Control Menu is not executed by this action, you should first verify its checksum after the download.  
-Then, you may execute it by typeing ./g at the console.  
+Last but one action dowload the  [go-raspi menu](https://github.com/fpirri/gothings-install) from github. It also allow you to exec the menu by typing './go-raspi' in the /home/pi/ directory.   
 
 
-#### 6- Execution times
+#### 5- Execution times
 The execution time for each action is influenced by the raspberry board model and by the speed of your internet connection.  
-Times below are for a raspberry P1B+ directly connected via LAN to a fast ADSL provider.  
-Very similar times are obtained for the Raspberry PI zeroW board.
-
-     A.1 First boot          :  4 m, including reboot;  
-     A.2 Install utilities   : 7 m;  
-     A.3 Setup user data     : less than 1 m;  
-     A.4 Docker & docker-compose installation
-                     docker  : 12 min;  
-            compose  via PIP : 1h 15m;  
-     A.5 Demo example
-         images download : 32 m;   (first time only)
-             run example : 2 m.  
-         Note: this action can be safely interrupted and re-executed   
+NOTE: timetable is TODO
 ----------------------
 
 <br /><hr />

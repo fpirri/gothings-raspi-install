@@ -22,16 +22,43 @@ Normally, if the software is downloaded and installed by the end user it can be 
 
 ##### Raspbian OS
 Ref.:  
-https://www.raspberrypi.org/documentation/installation/installing-images/README.md
+https://www.raspberrypi.org/documentation/installation/installing-images/README.md  
 License:  
-Not clear:
-You may find a discussion [here](https://www.raspberrypi.org/forums/viewtopic.php?t=114981)
+Not clear:  
+You may find a discussion [here](https://www.raspberrypi.org/forums/viewtopic.php?t=114981)  
 
 ##### Docker
 Ref.:  
-https://www.docker.com/components-licenses-dtr-1-4-ucp-1-1
+https://www.docker.com/components-licenses-dtr-1-4-ucp-1-1  
 License:  
-Mostly: Apache 2
-Please read the reference above for details
+Apache 2  
+Please read the reference above for details  
+  
+- 
 
+<br/>
+  
+Useful information used while making GoThings
+----
+
+
+Tutorials:
+* sd-card burning  
+    https://styxit.com/2017/03/14/headless-raspberry-setup.html  
+* ?
+    bla bla
+  
+- 
+
+<br/>
+  
+Help from internet sources
+----
+
+Internet help is invaluable!  
+An endless source of inspiration was found on the innumerable forums in the internet.
+
+stackoverflow.com
+Is my favorite
+Thank you to the programmer's community!
 
