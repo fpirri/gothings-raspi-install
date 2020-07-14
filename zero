@@ -36,6 +36,14 @@ MENUTRAP=0      #  66 : exit menu
 HOMEDIR="/home/pi/"
 cd ${HOMEDIR} #work on user pi home
 
+#  conteggio tempi
+SECONDS=0
+TIMETOTAL=0
+TIME1=0
+TIME2=0
+TIME3=0
+TIME4=0
+
 #
 ##########################################################################
 ############################################# Functions for install script
@@ -233,6 +241,7 @@ utils(){
   echo
   tree -d /home/pi/
   ELAPSED=$SECONDS
+  TIMETOTAL=${ELAPSED}
   echo
   echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
   echo "--------------------------------------------------------------"
@@ -242,7 +251,7 @@ utils(){
 #
 ##########################################################################
 dockinstall(){
-  # 3. INSTALL docker community edition
+  # 2. INSTALL docker community edition
   SECONDS=0
   echo 
   echo 
@@ -251,6 +260,7 @@ dockinstall(){
   echo
   echo "Follow recommended procedure for raspberry at:"
   echo "  https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script"
+  echo -e "${RED}  please note that docker team advices against executing this step more than once${STD}"
   echo 
   cd ${HOMEDIR} #work on user pi home
   echo "download the convenience script"
@@ -272,7 +282,28 @@ dockinstall(){
   echo "Test the simple 'docker ps -a' function, it should not show errors"
   sudo docker ps -a
   echo "------------------"
-  sleep 3
+  echo
+  echo "Please verify there are no errors above"
+  ELAPSED=$SECONDS
+  TIMETOTAL=${ELAPSED}+${TIMETOTAL}
+  echo
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
+  echo "--------------------------------------------------------------"
+  sleep 5
+  pause "3"
+}
+composeinstall(){
+  # 3. INSTALL docker-compose
+  SECONDS=0
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 3:"
+  echo "INSTALL docker for raspbian"
+  echo
+  echo "This step follows the recommended procedure for raspberry at:"
+  echo "  https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script"
+  echo 
+  cd ${HOMEDIR} #work on user pi home
   echo
   echo "Install compose and pip pre-requisites:"
   echo
@@ -290,6 +321,7 @@ dockinstall(){
   echo "docker-compose version:"
   sudo docker-compose --version
   ELAPSED=$SECONDS
+  TIMETOTAL=${ELAPSED}+${TIMETOTAL}
   echo
   echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
   echo "--------------------------------------------------------------"
@@ -299,7 +331,7 @@ dockinstall(){
 #
 ##########################################################################
 testgothings(){
-  # 4. TEST use docker-compose for a simple configuration
+  # 5. TEST use docker-compose for a simple configuration
   SECONDS=0
   echo 
   echo 
@@ -307,12 +339,14 @@ testgothings(){
   echo
   echo "TEST - use docker-compose for a simple configuration"
   echo
-  echo "Some pre-built images to support gothings services are:"
-  echo "  BOXBASE   <-- contains several utilities to develop and debug gothings services"
-  echo "  NGINX     <-- http proxy to interface all network communication"
-  echo "  NODEBASE  <-- nodejs environment to support generic javascript applications"
-  echo "  VUEDEV    <-- node + vue environment to support reactive applications"
-  echo
+  echo "SORRY!"
+  echo "This step is under construction!"
+  echo "It will be completed ASAP."
+  echo 
+  sleep 4
+  pause "4"
+  return 0
+################### DA RIVEDERE
   echo "This test will use a couple of docker images:"
   echo "  NGINX"
   echo "  VUEDEV"
@@ -376,6 +410,7 @@ testgothings(){
   echo "It should confirm testvue is running"
   echo "-------------------------"
   ELAPSED=$SECONDS
+  TIMETOTAL=${ELAPSED}+${TIMETOTAL}
   echo
   echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
   echo "--------------------------------------------------------------"
@@ -408,8 +443,8 @@ gotocontrol(){
   echo
   echo "Done."
   echo
-  FILE="g"
-  GITBR="gothings-install/master/"  # dir su github dove va preso il file
+  FILE="go-raspi"
+  GITBR="gothings-raspi-install/master/"  # dir su github dove va preso il file
   PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
   CALL="${FILE} $GITBR $PIDIR"
   getgitfile ${CALL}
@@ -434,9 +469,9 @@ gotocontrol(){
   echo "    exit return back to the console prompt"
   echo
   avanti
-  chmod +x /home/pi/g
-  ./g
-  echo "exit from 0 / boot install"
+  chmod +x /home/pi/go-raspi
+  ./go-raspi
+  echo "exit from boot install"
   MENUTRAP=66
 }
 #
@@ -451,10 +486,11 @@ show_menus() {
   echo
   echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   echo
-  echo "1. UTILS   install utilities & base data"
-  echo "2. DOCKER  download & install docker for GOTHINGS"
-  echo "3. GO      download GOTHINGS control menu"
-  echo "4. TEST    use docker-compose for a simple configuration"
+  echo "1. UTILS    install utilities & base data"
+  echo "2. DOCKER   install docker for GOTHINGS"
+  echo "3. COMPOSE  install docker-compose"
+  echo "4. GO      download GOTHINGS control menu"
+  echo "5. TEST    use docker-compose for a simple configuration"
 }
 # read input from the keyboard and take a action
 # invoke the function according to the entered number
@@ -462,13 +498,14 @@ read_options(){
 	local choice
 #	read -p "Enter choice [ 1..3 or ^C to exit] " choice
   read -rsp $'Enter choice [ 1..5 or ^C to exit ] ' -n 1 choice
-	case $choice in
+  case $choice in
     1) utils;;
-		2) dockinstall;;
-    3) gotocontrol;;
-		4) testgothings;;
-		*) echo -e "${RED}Error...${STD}" && sleep 2
-	esac
+    2) dockinstall;;
+    3) composeinstall;;
+    4) gotocontrol;;
+    5) testgothings;;
+    *) echo -e "${RED}Error...${STD}" && sleep 2
+  esac
 }
  
 # ----------------------------------------------
