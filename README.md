@@ -129,7 +129,7 @@ To this end you may follow the official instructions or google 'headless raspber
 I successfully followed this [tutorial](https://styxit.com/2017/03/14/headless-raspberry-setup.html)  
 You must also abilitate the wi-fi connection to use the *zero w* raspi model  
   
-If it happens you use Linux on your PC, you can use the *zeroconf* script at https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot , following the instruction below.  
+If it happens you use Linux on your PC, you can download the [zeroconf](https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot) script. Point and save the link on your PC and follow the instructions below.  
 The script is tested with bash shell on ubuntu, it should run an many other linuxes.  
 It may also run on MS Windows 10, *extended* with WSL (not tested).  
   
