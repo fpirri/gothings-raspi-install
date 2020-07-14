@@ -315,10 +315,7 @@ composeinstall(){
   sudo apt-get remove python-configparser
   sudo pip3 -v install docker-compose 
   echo
-  echo "Install docker-compose using python-pip"
-  sudo pip install docker-compose
-  echo
-  echo "docker-compose version:"
+  echo "Verify docker-compose version:"
   sudo docker-compose --version
   ELAPSED=$SECONDS
   TIMETOTAL=${ELAPSED}+${TIMETOTAL}
