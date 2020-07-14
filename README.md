@@ -171,7 +171,7 @@ At the end you can:
       normally it automatically find the new board on LAN
    -  If that don't function please try googling 'find your raspberry IP address'  and connect via ssh from terminal:
         
-          ssh pi@&lt;your IP address&gt;
+          ssh pi@<your IP address>
           
           
 - It is **VERY IMPORTANT** that you change your password to a very strong one ...
