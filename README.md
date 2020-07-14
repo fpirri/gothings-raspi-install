@@ -118,11 +118,10 @@ GoThings networking is based on http protocol and exploits many of the nginx+lua
 
 
 - Choose your raspbian image.
-   - the following instructions use:
-       https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip 
-   - the first gothings-raspi-install release, archived [here](https://github.com/fpirri/gothings-raspi-install/tree/master/history/version-01), worked with raspbian-stretch lite version
+   - the following instructions use the ***buster lite*** version of raspbian OS from the official rasperry site
+   - the first gothings-raspi-install release, archived [here](https://github.com/fpirri/gothings-raspi-install/tree/master/history/version-01), worked with raspbian *stretch lite* version
    - You have to burn your sd-card to use it on the rasperry
-   - if you wish to use a different release, please note that docker does not run on every armv6l raspbian image
+   - if you wish to use a different release, please note that docker does not run on every armv6l raspbian image, you have to test it by yourself
  <br/>
  
 Please note you have to abilitate SSH access on your raspberry in order to use the *GoThings System*  
