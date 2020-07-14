@@ -131,30 +131,30 @@ You must also abilitate the wi-fi connection to use the *zero w* raspi model
   
 If it happens you use Linux on your PC, you can download the [zeroconf](https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot) script. Point and save the link on your PC and follow the instructions below.  
 The script is tested with bash shell on ubuntu, it should run an many other linuxes.  
-It may also run on MS Windows 10, *extended* with WSL (not tested).  
+It may also run on MS Windows 10, *extended* with WSL (**not tested**).  
   
 The steps to follow:  
 * download the (https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip) raspbian image from the raspberry official site  
     * if you use [balena etcher](https://www.balena.io/etcher/) SD-card burning software you don't need to expand the zip archive  
 * burn the *buster* image onto your SD card  
-    * an 8GB card is required  
+    * at minimum an 8GB card is required  
     * a 16GB or greater is recommended  
 * inspect the burned card on your PC  
     * you should find two volumes: *boot* & *rootfs*
     * on ubuntu 18.04 the boot volume path probably is: /media/&lt;username&gt;/boot
-      were &lt;username&gt; is your user name on the machine
+    * were &lt;username&gt; is your user name on the PC
 * take note of the path of the boot volume
 * download the setraspiboot script at https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot
     * open it in your editor
-    * at the top you find 2 variables:
-       SDBOOTDIR
+    * at the top you find 2 variables:  
+       SDBOOTDIR  
        WPA_DATA
 * update the script content:
    * your boot volume path in SDBOOTDIR
    * your wifi data in  WPA_DATA
    * you may add as many wifi network as you like
-* save the script and launch it with the command:
-     source setraspiboot
+* save the script and launch it with the command:  
+     source setraspiboot  
     * the script will run in your current environment
 * eject the sd-card
 * put the new card in the raspberry board and power it up
@@ -166,15 +166,11 @@ You should see faint flashes of the LED, periods of darkness and finally the LED
 At the end you can:
 - Connect via ssh from a PC terminal on the same LAN
    - in terminal you can write:
-   
         ssh pi@raspberrypi
-        
       normally it automatically find the new board on LAN
       
    -  If that don't function please try googling 'find your raspberry IP address'  and connect via ssh from terminal:
-        
           ssh pi@<your IP address>
-          
           
 - It is **VERY IMPORTANT** that you change your password to a very strong one ...
 
