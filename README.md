@@ -165,12 +165,14 @@ You should see faint flashes of the LED, periods of darkness and finally the LED
 
 At the end you can:
 - Connect via ssh from a PC terminal on the same LAN
-   - in terminal you can write:
-        ssh pi@raspberrypi
+   - in terminal you can write:  
+        ssh pi@raspberrypi.local
+        
       normally it automatically find the new board on LAN
-      
    -  If that don't function please try googling 'find your raspberry IP address'  and connect via ssh from terminal:
-          ssh pi@<your IP address>
+        
+          ssh pi@&lt;your IP address&gt;
+          
           
 - It is **VERY IMPORTANT** that you change your password to a very strong one ...
 
