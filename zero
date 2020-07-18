@@ -1,7 +1,7 @@
 #!/bin/bash
 #                                                                     2020-07-05
 #  INSTALL menu script for GoThings System
-                                                                  VERSION="1.00"
+                                                                  VERSION="1.01"
 #  Menu for GoThings System installation
 #    <-- Install docker
 #    <-- Install GoThings base
@@ -47,6 +47,18 @@ TIME4=0
 #
 ##########################################################################
 ############################################# Functions for install script
+#
+##########################################################################
+go_on(){
+  #
+  #  ask before continuing (^C is active)
+  #  to make sure the user read the screen ...
+  #  final result is a blank line
+  #
+  echo
+  read -rsp $'... press any key to continue' -n 1 key
+  echo -e  "\r                               \r"
+}
 #
 ##########################################################################
 pause(){
@@ -117,6 +129,52 @@ getgitfile(){    # Lettura file da github
 }
 #
 ##########################################################################
+setzerodirs(){
+  #  $1    nome proprio archivio da verificare in home
+  #          es.:  $1="zero" verifica ${HOMEDIR}zerodirs.tar.gz
+  #   --> verify se esiste il file archivio
+  #         se esiste, non fare niente, ritorna 0
+  #         se non esiste, scarica da github
+  #            se fallisce, ritorna 66
+  #            se OK, espandi e ritorna 1
+  # setup dirs:  dockrepo & sysarchive
+  #  NOTE: zerodirs potrebbe essere spostato nel test finale (5)
+  #        si potrebbe aggiungere anche go-raspi !!
+  echo
+  echo "set dirs for GOTHINGS: get content"
+  echo
+  FILE=$1"dirs.tar.gz"            # $1
+  if [[ -s "${HOMEDIR}${FILE}" ]]
+  then
+    # zerodirs file exists and length > 0  -->  nothing to do
+    echo "zerodirs file exists, nothing to do"
+  else
+    # zerodirs non esiste, si prova a scaricarlo
+    echo "zerodirs file does not exists, try to download & expand"
+    GITBR="gothings-install/master/"  # $2
+    PIDIR=""                          # $3
+    CALL="${FILE} $GITBR $PIDIR"
+    getgitfile ${CALL}
+    if [[ $ITEXISTS -ne 1 ]]
+      then
+      echo 
+      echo "------------------------------------------------------"
+      echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
+      echo $DEBUGLOG
+      echo "------------------------------------------------------"
+      echo "Cannot continue."
+      echo 
+      MENUTRAP=66
+      return 66
+    else
+      echo 
+      echo "expand content"
+      sudo tar xzvf "/home/pi/${FILE}" -C /home/pi/
+    fi
+  fi
+}
+#
+##########################################################################
 stopmenu(){
   #  $1 :  nome del file non trovato
   #  $2 :  riga di debug aggiuntiva
@@ -136,6 +194,7 @@ stopmenu(){
 utils(){
   # 1. Set base directories & data, INSTALL utilities for docker
   SECONDS=0
+  TIMETOTAL=0
   echo 
   echo 
   echo "-------------------------------------------------------------- 1:"
@@ -149,6 +208,13 @@ utils(){
   sudo gpasswd -a $USER docker
   echo
   sleep 5
+######  CORREZIONE DA FARE
+#
+#  - leggere ed espandere zerodirs
+#  - mettere in zerodirs i file che servono:
+#     dockimages & sysdata per nginx+test
+#
+##############
   echo 
   echo "----------------------------------------------------------------"
   echo "Set base directories & data, INSTALL utilities for docker"
@@ -190,30 +256,15 @@ utils(){
   echo
   sleep 3
   echo
-  # setup dirs:  dockrepo & sysarchive
-  echo
-  echo "set dirs for GOTHINGS: get content"
-  echo
-  FILE="gotdirs.tar.gz"             # $1
-  GITBR="gothings-install/master/"  # $2
-  PIDIR=""                          # $3
-  CALL="${FILE} $GITBR $PIDIR"
-  getgitfile ${CALL}
-  if [[ $ITEXISTS -ne 1 ]]
-  then
-    echo 
-    echo "------------------------------------------------------"
-    echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
-    echo $DEBUGLOG
-    echo "------------------------------------------------------"
-    echo "Cannot continue."
-    echo 
-    MENUTRAP=66
-    return 66
-  else
-    echo 
-    echo "expand content"
-    sudo tar xzvf "/home/pi/${FILE}" -C /home/pi/
+  # ------ verifica zerodirs
+  setzerodirs "zero"
+  RETLEVEL=$?
+  if [ ${RETLEVEL} -gt 0 ]
+    then
+      echo " REPOSITORY ERROR - stop now"
+      return ${RETLEVEL}
+    else
+      echo "content OK, go on"
   fi
   echo
   echo "GOTHINGS user content copied"
@@ -241,7 +292,7 @@ utils(){
   echo
   tree -d /home/pi/
   ELAPSED=$SECONDS
-  TIMETOTAL=${ELAPSED}
+  TIMETOTAL=${ELAPSED}+${TIMETOTAL}
   echo
   echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
   echo "--------------------------------------------------------------"
@@ -332,44 +383,56 @@ testgothings(){
   SECONDS=0
   echo 
   echo 
-  echo "-------------------------------------------------------------- 4:"
+  echo "-------------------------------------------------------------- 5:"
   echo
   echo "TEST - use docker-compose for a simple configuration"
-  echo
-  echo "SORRY!"
-  echo "This step is under construction!"
-  echo "It will be completed ASAP."
+  echo "This test will install a web server using the docker image NGINX"
   echo 
-  sleep 4
-  pause "4"
-  return 0
-################### DA RIVEDERE
-  echo "This test will use a couple of docker images:"
-  echo "  NGINX"
-  echo "  VUEDEV"
-  echo "Downloading these images may take a long time, please be patient"
-  echo "30 minutes over a standard ADSL connection is normal"
-  echo 
-  echo "Install gothings docker networks"
+  echo "To make the example compatible with GoThings we define a couple of"
+  echo "custom docker networks to allow containers to talk each other"
+  echo "in a predefined way"
   echo "Please note that the following will show 'already exists' errors"
   echo "if this section is started multiple times"
+  go_on
   echo "- gothingsnet"
   sudo docker network create -d bridge --subnet 172.29.196.0/24 --gateway 172.29.196.1 gothingsnet  
   echo "- servicenet"
   sudo docker network create -d bridge --subnet 172.29.195.0/24 --gateway 172.29.195.1 servicenet
+  go_on
+  # verifica zerodirs
+  setzerodirs "zero"
+  RETLEVEL=$?
+  if [ ${RETLEVEL} -gt 0 ]
+    then
+      echo " REPOSITORY ERROR - stop now"
+      return ${RETLEVEL}
+    else
+      echo "content OK, go on"
+  fi
+  echo
+  echo "The NGINX image will be downloaded now"
+  echo "Downloading NGINX image may take a long time, please be patient"
+  echo "and wait until the end of download"
+  echo "Anyway, this only need to be done once, docker will store the"
+  echo "image internally"
+  go_on
   echo
   echo "Start example using docker-compose"
-  echo "Please see 'bla bla page' for a detailed description of this example"
-  echo
-  echo "First time you run this section, you have to download two docker images"
-  echo "Total size can be 1 GB or more, so this can be a long process"
-  echo "Anyway, this only need to be done once."
+  echo "Please see the github page:"
+  echo "https://github.com/fpirri/gothings-raspi-install/blob/master/README.md#gothings-installation"
+  echo "for a detailed description of this example"
   echo
   echo "At the end of download, containers should run in less than 60 seconds"
+  go_on
+  SECONDS=0
   echo
   echo "The process is starting now:"
-  sudo docker-compose -f /home/pi/dockrepo/dockimages/app-testvue.yml up -d
+  sudo docker-compose -f /home/pi/dockrepo/dockimages/zero/zero.yml up -d
   echo
+  ELAPSED=$SECONDS
+  echo
+  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
+  echo "--------------------------------------------------------------"
   echo "Containers should have started. I wait 20 seconds to allow for them"
   echo "to stabilize"
   echo "Then you should see the status of containers in your raspi"
@@ -380,51 +443,31 @@ testgothings(){
   echo "Hopefully, for each container you see something similar to:"
   echo "  'up xx seconds'"
   echo "-------------------------"
-  sleep 5
+  go_on
   echo 
-  echo "Now, I try to read something using nginx container .."
-  echo "The instruction is:\n    curl 'localhost:6003/test.txt'"
+  echo "Now, I try to read something using the nginx container .."
+  echo -e "The instruction is:\n    curl 'localhost/test.txt'"
   echo
   echo "-------------------------> text from nginx container:"
-  curl 'localhost:6003/test.txt'
+  curl 'localhost/test.txt'
   echo "<------------------------- end of text from nginx"
   echo
   echo "The text above is coming from nginx container"
   echo "It should confirm nginx is running"
   echo "-------------------------"
-  sleep 7
+  echo
+  echo "If all seems OK your raspi board is ready to use Docker"
+  echo "ENJOY the Gothings system"
   echo 
-  echo "Last thing to be confirmed is testvue container running"
-  echo -e "The instruction is:\n    curl 'localhost:6001'"
-  echo
-  echo
-  echo "-------------------------> text from vuedev container:"
-  curl 'localhost:6001'
-  echo
-  echo "<------------------------- end of text from vuedev"
-  echo
-  echo "The text above is coming from testvue container"
-  echo "It should confirm testvue is running"
-  echo "-------------------------"
-  ELAPSED=$SECONDS
-  TIMETOTAL=${ELAPSED}+${TIMETOTAL}
-  echo
-  echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
-  echo "--------------------------------------------------------------"
-  sleep 5
-  echo
-  echo "If all seems OK you can go to the gothings configuration from the main menu"
-  echo 
-  echo "Please visit the 'bla bla page' for further information on GOTHINGS"
-  echo
-  sleep 4
-  pause "4"
+  echo "Visit https://github.com/fpirri/gothings-raspi-apps#gothings-raspi-apps"
+  echo "for further information on GOTHINGS"
+  go_on
 }
 #
 ##########################################################################
 gotocontrol(){
   SECONDS=0
-  # 5. GO to GOTHINGS CONTROL MENU
+  # 4 ??. GO to GOTHINGS CONTROL MENU
   echo 
   echo 
   echo "-------------------------------------------------------------- 5:"
@@ -439,6 +482,10 @@ gotocontrol(){
   sudo docker rm $(docker ps -a -q -f status=exited)
   echo
   echo "Done."
+########################
+#  DA FARE:
+#    aggiungere go-raspi a zerodirs  -->  mettere qui il chmod +x
+#    spostare go-raspi in fondo  <--  il test diventa 4
   echo
   FILE="go-raspi"
   GITBR="gothings-raspi-install/master/"  # dir su github dove va preso il file
