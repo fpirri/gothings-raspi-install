@@ -80,6 +80,22 @@ avanti(){
 }
 #
 ##########################################################################
+dots(){
+  # wait $1 seconds, printing dots on the screen
+  #   $1 :  # of seconds to wait
+  local param1
+  printf -v param1 '%d\n' $1 2>/dev/null # converti in intero con tutti i controlli
+  while [ $param1 -gt 0 ]
+  do
+    echo -n "."
+    sleep 0.5
+    echo -n "."
+    sleep 0.5
+    let "--param1"
+  done
+}
+#
+##########################################################################
 getgitfile(){    # Lettura file da github
   #
   #  use globals:
@@ -363,7 +379,7 @@ composeinstall(){
   sleep 5
   sudo apt-get install -y libffi-dev libssl-dev
   sudo apt-get install -y python3 python3-pip
-  sudo apt-get remove python-configparser
+  sudo apt-get remove -y python-configparser
   sudo pip3 -v install docker-compose 
   echo
   echo "Verify docker-compose version:"
@@ -379,11 +395,11 @@ composeinstall(){
 #
 ##########################################################################
 testgothings(){
-  # 5. TEST use docker-compose for a simple configuration
+  # 4. TEST use docker-compose for a simple configuration
   SECONDS=0
   echo 
   echo 
-  echo "-------------------------------------------------------------- 5:"
+  echo "-------------------------------------------------------------- 4:"
   echo
   echo "TEST - use docker-compose for a simple configuration"
   echo "This test will install a web server using the docker image NGINX"
@@ -415,12 +431,6 @@ testgothings(){
   echo "and wait until the end of download"
   echo "Anyway, this only need to be done once, docker will store the"
   echo "image internally"
-  go_on
-  echo
-  echo "Start example using docker-compose"
-  echo "Please see the github page:"
-  echo "https://github.com/fpirri/gothings-raspi-install/blob/master/README.md#gothings-installation"
-  echo "for a detailed description of this example"
   echo
   echo "At the end of download, containers should run in less than 60 seconds"
   go_on
@@ -433,10 +443,13 @@ testgothings(){
   echo
   echo "Elapsed time: $((ELAPSED/60))m $((ELAPSED%60))s"
   echo "--------------------------------------------------------------"
+  echo
   echo "Containers should have started. I wait 20 seconds to allow for them"
   echo "to stabilize"
   echo "Then you should see the status of containers in your raspi"
-  sleep 10
+  dots 10
+  echo
+  echo "-------------------------"
   sudo docker ps -a --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}"
   echo "-------------------------"
   echo "You find above the status of containers in your system"
@@ -455,11 +468,13 @@ testgothings(){
   echo "The text above is coming from nginx container"
   echo "It should confirm nginx is running"
   echo "-------------------------"
+  dots 3
   echo
   echo "If all seems OK your raspi board is ready to use Docker"
   echo "ENJOY the Gothings system"
   echo 
-  echo "Visit https://github.com/fpirri/gothings-raspi-apps#gothings-raspi-apps"
+  echo "Visit:"
+  echo "   https://github.com/fpirri/gothings-raspi-apps#gothings-raspi-apps"
   echo "for further information on GOTHINGS"
   go_on
 }
@@ -467,7 +482,7 @@ testgothings(){
 ##########################################################################
 gotocontrol(){
   SECONDS=0
-  # 4 ??. GO to GOTHINGS CONTROL MENU
+  # 5. GO to GOTHINGS CONTROL MENU
   echo 
   echo 
   echo "-------------------------------------------------------------- 5:"
@@ -533,8 +548,8 @@ show_menus() {
   echo "1. UTILS    install utilities & base data"
   echo "2. DOCKER   install docker for GOTHINGS"
   echo "3. COMPOSE  install docker-compose"
-  echo "4. GO      download GOTHINGS control menu"
-  echo "5. TEST    use docker-compose for a simple configuration"
+  echo "4. TEST    use docker-compose for a simple configuration"
+  echo "5. GO      download GOTHINGS control menu"
 }
 # read input from the keyboard and take a action
 # invoke the function according to the entered number
@@ -546,8 +561,8 @@ read_options(){
     1) utils;;
     2) dockinstall;;
     3) composeinstall;;
-    4) gotocontrol;;
-    5) testgothings;;
+    4) testgothings;;
+    5) gotocontrol;;
     *) echo -e "${RED}Error...${STD}" && sleep 2
   esac
 }

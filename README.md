@@ -129,7 +129,7 @@ To this end you may follow the official instructions or google 'headless raspber
 I successfully followed this [tutorial](https://styxit.com/2017/03/14/headless-raspberry-setup.html)  
 You must also abilitate the wi-fi connection to use the *zero w* raspi model  
   
-If it happens you use Linux on your PC, you can download the [zeroconf](https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot) script. Point and save the link on your PC and follow the instructions below.  
+If it happens you use Linux on your PC, you can download the [setraspiboot](https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot) script. Point and save the link on your PC and follow the instructions below.  
 The script is tested with bash shell on ubuntu, it should run an many other linuxes.  
 It may also run on MS Windows 10, *extended* with WSL (**not tested**).  
   
@@ -199,28 +199,45 @@ Exec the command:
 
       wget -O /home/pi/zero https://raw.githubusercontent.com/fpirri/gothings-install/master/zero
 
-The file *zero* is the primary bootstrap script.
+The file *zero* is the primary bootstrap script.  
      
  To give yourself a minimum of security you should inspect the integrity of the files you download from internet.  
+ You can inspect the file with the command:  
+         nano zero  
+please do not change anything and use ctrl-X to exit from the nano editor.  
  
 #### 3- exec the zero script
 Exec the command:
 
         source zero
 
-please note: the script executes the script locally, without the need to mark it as executable
+please note: the script runs locally, without the need to mark it as executable
 
 #### 4- Install actions
 
- Follow the procedure suggested by the zero script, one action at a time.  
-**It is advisable to exec the first action only once.**  
+Follow the procedure suggested by the zero script, one action at a time.  
+**It is advisable to exec first and second actions only once.**  
 You may execute the following sections multiple times, althought it should not be necessary.  
+
+###### 4.1- Utils
+
+First action set the board as recommended for running docker and docker-compose.  
+Locales  GB, IT and US are created.  
+Also, the archive zerdirs.tar.gz is downloaded and expanded.
+This install a number of directories and files that allow to run a simple test and prepare the board for GoThings applications.  
+
+###### 4.2- Install docker
+
 Last but one action dowload the  [go-raspi menu](https://github.com/fpirri/gothings-install) from github. It also allow you to exec the menu by typing './go-raspi' in the /home/pi/ directory.   
 
 
+
 #### 5- Execution times
+
 The execution time for each action is influenced by the raspberry board model and by the speed of your internet connection.  
+  
 NOTE: timetable is TODO
+
 ----------------------
 
 <br /><hr />
