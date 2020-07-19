@@ -224,7 +224,7 @@ utils(){
   sudo gpasswd -a $USER docker
   echo
   sleep 5
-######  CORREZIONE DA FARE
+######  CORREZIONE DA FARE                                FATTO - Da Controllare
 #
 #  - leggere ed espandere zerodirs
 #  - mettere in zerodirs i file che servono:

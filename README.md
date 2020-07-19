@@ -223,26 +223,36 @@ You may execute the following sections multiple times, althought it should not b
 
 First action set the board as recommended for running docker and docker-compose.  
 Locales  GB, IT and US are created.  
-Also, the archive zerdirs.tar.gz is downloaded and expanded.
+Also, the archive zerodirs.tar.gz is downloaded from github and expanded.
 This install a number of directories and files that allow to run a simple test and prepare the board for GoThings applications.  
 
-###### 4.2- Install docker
+###### 4.2- Install DOCKER
 
-Last but one action dowload the  [go-raspi menu](https://github.com/fpirri/gothings-install) from github. It also allow you to exec the menu by typing './go-raspi' in the /home/pi/ directory.   
+This automates the installing of docker binaries, following the official procedure from [docker](https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script)  
+Please note that docker documentation affirms it is dangerous to execute this step more than once.
 
+###### 4.3- Install COMPOSE
 
+This step follows this [tutorial](https://dev.to/rohansawant/installing-docker-and-docker-compose-on-the-raspberry-pi-in-5-simple-steps-3mgl) to install docker-compose.  
+This step is a time-consuming one: in my raspi zero w it spent more than an hour to go.
 
-#### 5- Execution times
+###### 4.4- Test
 
-The execution time for each action is influenced by the raspberry board model and by the speed of your internet connection.  
-  
-NOTE: timetable is TODO
+This section install a web server on your raspi and allow you to browse a few test pages.  
+It eventually confirms the whole install process and the network connection.  
+You can start browsing loooking at the homepage:  
+   http://<your-raspi-ip-address>  
+
+###### 4.5- Go
+
+Last action dowload the  go-raspi control script from github. It also allow you to exec the menu by typing './go-raspi' in the /home/pi/ directory.   
+
 
 ----------------------
 
 <br /><hr />
 
-# Enjoy docker !
+# Enjoy docker and GoThings !
 -----
 
 
