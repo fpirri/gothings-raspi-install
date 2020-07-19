@@ -470,12 +470,16 @@ testgothings(){
   echo "-------------------------"
   dots 3
   echo
-  echo "If all seems OK your raspi board is ready to use Docker"
-  echo "ENJOY the Gothings system"
-  echo 
-  echo "Visit:"
-  echo "   https://github.com/fpirri/gothings-raspi-apps#gothings-raspi-apps"
-  echo "for further information on GOTHINGS"
+  echo "If all seems OK your raspi board is ready to use Docker and"
+  echo "you now have an HTTP server running on the board."
+  echo "To visit you server you may write:"
+  echo "   http://<your-raspi-IP-address>"
+  echo "where <your-raspi-IP-address> is the address of your SSH connection"
+  echo
+  IPADDR=$(hostname -I | awk '{print $1}')
+  echo "as long as I can see your IP address is: ${IPADDR}"
+  echo "so, you should visit the page:"
+  echo "   http://${IPADDR}"
   go_on
 }
 #
@@ -500,10 +504,12 @@ gotocontrol(){
 ########################
 #  DA FARE:
 #    aggiungere go-raspi a zerodirs  -->  mettere qui il chmod +x
-#    spostare go-raspi in fondo  <--  il test diventa 4
+#
   echo
+  #  https://raw.githubusercontent.com/fpirri/gothings-raspi-apps/master/base/go-raspi
   FILE="go-raspi"
   GITBR="gothings-raspi-install/master/"  # dir su github dove va preso il file
+  GITBR="gothings-raspi-apps/master/base/" 
   PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
   CALL="${FILE} $GITBR $PIDIR"
   getgitfile ${CALL}
@@ -519,6 +525,7 @@ gotocontrol(){
     MENUTRAP=66
     return 66
   fi ########## Si va avanti se il file esiste ...
+  chmod +x /home/pi/go-raspi
   echo
   echo "Now ready to exec GOTHINGS CONTROL MENU"
   echo "    NOTE: if you continue the GOTHINGS CONTROL MENU will be executed"
@@ -528,7 +535,6 @@ gotocontrol(){
   echo "    exit return back to the console prompt"
   echo
   avanti
-  chmod +x /home/pi/go-raspi
   ./go-raspi
   echo "exit from boot install"
   MENUTRAP=66
