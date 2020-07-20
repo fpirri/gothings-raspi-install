@@ -494,31 +494,32 @@ gotocontrol(){
   echo
   echo "STOP & DESTROY all running containers ..."
   echo
-  echo "... stopping running containers"
-  sudo docker stop $(docker ps -a -q -f status=running)
+  echo "Search for running containers ..."
+  RUNNING=$(docker ps -a -q -f status=running)
   echo
-  echo "... removing all containers"
-  sudo docker rm $(docker ps -a -q -f status=exited)
+  echo "Running containers:"
+  echo "${RUNNING}"
   echo
-  echo "Done."
-########################
-#  DA FARE:
-#    aggiungere go-raspi a zerodirs  -->  mettere qui il chmod +x
-#
+  if [ "$RUNNING" ]; then
+    echo "... stopping running containers"
+    sudo docker stop $RUNNING
+    echo
+    echo "... removing all containers"
+    sudo docker rm $RUNNING
+    echo
+    echo "Done."
+  else
+    echo "Nothing to do with containers"
+  fi
+  #    aggiungto go-raspi a zerodirs  -->  mettere qui il chmod +x
   echo
   #  https://raw.githubusercontent.com/fpirri/gothings-raspi-apps/master/base/go-raspi
   FILE="go-raspi"
-  GITBR="gothings-raspi-install/master/"  # dir su github dove va preso il file
-  GITBR="gothings-raspi-apps/master/base/" 
-  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
-  CALL="${FILE} $GITBR $PIDIR"
-  getgitfile ${CALL}
-  if [[ $ITEXISTS -ne 1 ]]
-  then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
+  if [[ -s $FILE ]]
+  then ### se il file MANCA:  caso 'interrompi TUTTO' e si esce dal menu
     echo 
     echo "------------------------------------------------------"
-    echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
-    echo $DEBUGLOG
+    echo -e "${RED} ERROR - file: ${FILE} does not exists ${STD}"
     echo "------------------------------------------------------"
     echo "Cannot continue."
     echo 
@@ -554,8 +555,8 @@ show_menus() {
   echo "1. UTILS    install utilities & base data"
   echo "2. DOCKER   install docker for GOTHINGS"
   echo "3. COMPOSE  install docker-compose"
-  echo "4. TEST    use docker-compose for a simple configuration"
-  echo "5. GO      download GOTHINGS control menu"
+  echo "4. TEST     use docker-compose for a simple configuration"
+  echo "5. GO       download GOTHINGS control menu"
 }
 # read input from the keyboard and take a action
 # invoke the function according to the entered number
