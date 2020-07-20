@@ -515,7 +515,7 @@ gotocontrol(){
   echo
   #  https://raw.githubusercontent.com/fpirri/gothings-raspi-apps/master/base/go-raspi
   FILE="go-raspi"
-  if [[ -s $FILE ]]
+  if [[ ! -s $FILE ]]
   then ### se il file MANCA:  caso 'interrompi TUTTO' e si esce dal menu
     echo 
     echo "------------------------------------------------------"
@@ -525,8 +525,9 @@ gotocontrol(){
     echo 
     MENUTRAP=66
     return 66
-  fi ########## Si va avanti se il file esiste ...
-  chmod +x /home/pi/go-raspi
+  else   ########## Si va avanti se il file esiste ...
+    chmod +x /home/pi/go-raspi
+  fi
   echo
   echo "Now ready to exec GOTHINGS CONTROL MENU"
   echo "    NOTE: if you continue the GOTHINGS CONTROL MENU will be executed"
@@ -538,7 +539,7 @@ gotocontrol(){
   avanti
   ./go-raspi
   echo "exit from boot install"
-  MENUTRAP=66
+  MENUTRAP=
 }
 #
 ###################################################################
