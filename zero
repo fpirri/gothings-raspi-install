@@ -511,11 +511,16 @@ gotocontrol(){
   else
     echo "Nothing to do with containers"
   fi
-  #    aggiungto go-raspi a zerodirs  -->  mettere qui il chmod +x
+  #    aggiunto go-raspi a zerodirs  -->  mettere qui solo il chmod +x
+  #                                       (non dovrebbe essere necessario)
   echo
   #  https://raw.githubusercontent.com/fpirri/gothings-raspi-apps/master/base/go-raspi
+#getgitfile "gotdirs.tar.gz" "gothings-install/master/" "dockrepo/sysarchive/"
   FILE="go-raspi"
-  if [[ ! -s $FILE ]]
+  GITBRANCH="gothings-raspi-apps/master/base/"
+  FILEPATH=""
+  getgitfile "${FILE}" "${GITBRANCH}" "${FILEPATH}" 
+  if [[ $ITEXISTS -ne 1 ]]
   then ### se il file MANCA:  caso 'interrompi TUTTO' e si esce dal menu
     echo 
     echo "------------------------------------------------------"
@@ -529,17 +534,28 @@ gotocontrol(){
     chmod +x /home/pi/go-raspi
   fi
   echo
-  echo "Now ready to exec GOTHINGS CONTROL MENU"
-  echo "    NOTE: if you continue the GOTHINGS CONTROL MENU will be executed"
+  echo "Now ready to exec raspi-boot"
+  echo "    NOTE: if you continue the GOTHINGS boot process will be executed"
+  echo "          this step install the GOTHINGS Control Menu"
+  echo "          you will be able to manage the GOTHINGS system. Details at:"
+  echo "            https://github.com/fpirri/gothings-raspi-apps"
   echo
   echo -e "    ${RED}  ATTENTION !!  ${STD} "
-  echo "    continue will bring you to the GOTHINGS CONTROL MENU"
+  echo "    continue will download a few scripts"
   echo "    exit return back to the console prompt"
   echo
   avanti
   ./go-raspi
   echo "exit from boot install"
-  MENUTRAP=
+  echo
+  echo -e "    ${RED}  First execution of raspi-boot is done  ${STD} "
+  echo "From now on you can manage your GoThings installation by typing:"
+  echo "    ./go-raspi"
+  echo "on your console."
+  echo
+  echo "ENJOY your raspi board with DOCKER & GoThings !!"
+  echo
+  exit
 }
 #
 ###################################################################
