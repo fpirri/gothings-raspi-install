@@ -254,7 +254,7 @@ utils(){
   # install tree (altri programmi utili?)
   echo "install utilities"
   #sudo apt-get -y update && sudo apt-get -y upgrade && \
-  sudo apt-get -y update && sudo apt-get -o Dpkg::Options::=--force-confdef -y install tree
+  sudo apt-get -y update && sudo apt-get -o Dpkg::Options::=--force-confdef -y install tree jq
   echo
   echo "Create base dirs"
   mkdir /home/pi/dockrepo
