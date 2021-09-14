@@ -259,9 +259,9 @@ utils(){
   echo "set dirs for GOTHINGS: get content"
   echo
 # def  $1 $2 $3
-  FILE="zerodirs.tar.gz"
-  GITBR="gothings-install/master/"
-  PIDIR=""
+  FILE="raspi-testdirs.tar.gz"
+  GITBR="gothings-raspi-install/raw/master/"  # dir su github dove va preso il file
+  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
   CALL="${FILE} $GITBR $PIDIR"
   getgitfile ${CALL}
   if [[ $ITEXISTS -ne 1 ]]
@@ -398,6 +398,8 @@ testgothings(){
   echo "You will find documentation about this test in the site:"
   echo "  https://www.gothings.org/raspberry-gothings/"
   echo 
+  echo 
+  echo 
   pause
   echo
   echo "There are a few pre-built images to support testing of GoThings"
@@ -443,6 +445,7 @@ testgothings(){
   echo
   echo "Start example using docker-compose"
   dots 2
+pause
   echo
   echo "First time you run this section, the raspi has to download the docker"
   echo "images and downloads may take a long time, please be patient"
