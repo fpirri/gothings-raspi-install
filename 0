@@ -143,23 +143,24 @@ getgitfile(){    # Lettura file da github
   #
   #     <-- se esiste il file $1 ed ha lunghezza > 0 :
   #         <-- si va avanti senza altre azioni
-  #     <-- altrimenti si prova a scaricare il file da github               AGGIUSTARE dopo ......
+  #     <-- altrimenti si prova a scaricare il file da github
   #     <-- si riprova il test di lunghezza
   #         se non funziona si torna con ITEXISTS=0
   #     
   # call:    getgitfile $1 $2 $3
-  #   $1:    "file"
-  #   $2:    "github project branch"
-  #   $3:    "raspi path after /home/pi/ "
+  #   $1:    "file"                           <--  raspi-testdirs.tar.gz
+  #   $2:    "github project branch"          <--  gothings-raspi-install/master/
+  #   $3:    "raspi path after /home/pi/ "    <--  ''
+  # path fisso per gothings:
+  #   Const: "https://raw.githubusercontent.com/fpirri/"
+  #
   # RETURN:
   #           ITEXISTS = 1 se esiste, 0 altrimenti
   #
   # Verify file existence, get it from github if not
   #
-  # example:
-  #          getgitfile "gotdirs.tar.gz" "gothings-install/master/" "dockrepo/sysarchive/"
-  #
   #  bash:  -s file  True if file exists and has a size greater than zero
+  #
   FILEGIT="/home/pi/$3$1"
   DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $FILEGIT |"
   if [[ -s $FILEGIT ]]
@@ -168,6 +169,7 @@ getgitfile(){    # Lettura file da github
     DEBUGLOG="$DEBUGLOG | $FILEGIT esiste |"
   else            # si prova a scaricarlo
     DEBUGLOG="$DEBUGLOG | $FILEGIT does not exist |"
+    
     wget -O $FILEGIT https://raw.githubusercontent.com/fpirri/$2$1
     if [[ -s $FILEGIT ]]
     then
@@ -260,8 +262,8 @@ utils(){
   echo
 # def  $1 $2 $3
   FILE="raspi-testdirs.tar.gz"
-  GITBR="gothings-raspi-install/raw/master/"  # dir su github dove va preso il file
-  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
+  GITBR="gothings-raspi-install/master/" # github branch/dir dove va preso il file
+  PIDIR=""                               # path da aggiungere a HOMEDIR == /home/pi/
   CALL="${FILE} $GITBR $PIDIR"
   getgitfile ${CALL}
   if [[ $ITEXISTS -ne 1 ]]
@@ -417,18 +419,19 @@ testgothings(){
   echo "- servicenet"
   sudo docker network create -d bridge --subnet 172.29.195.0/24 --gateway 172.29.195.1 servicenet
   echo 
-  echo "DA AGGIUSTARE !!!!"
-  echo "--> manca il download di raspi-testdirs.tar.gz"
+  echo "IN VERIFICA !!!!"
+  echo "--> download & expand raspi-testdirs.tar.gz"
   pause
 
-# https://github.com/fpirri/gothings-raspi-install/raw/master/raspi-testdirs.tar.gz
-  FILE="raspi-testdirs.tar.gz"
-  GITBR="gothings-raspi-install/raw/master/"  # dir su github dove va preso il file
-  PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
+
+# def  $1 $2 $3
+  FILE="raspi-testdirs.tar.gz"      # nome dell'archivio
+  GITBR="gothings-raspi-install/master/" # github branch/dir dove va preso il file
+  PIDIR=""                               # path da aggiungere a HOMEDIR == /home/pi/
   CALL="${FILE} $GITBR $PIDIR"
   getgitfile ${CALL}
   if [[ $ITEXISTS -ne 1 ]]
-  then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
+  then
     echo 
     echo "------------------------------------------------------"
     echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
@@ -438,9 +441,15 @@ testgothings(){
     echo 
     MENUTRAP=66
     return 66
-  fi ########## Si va avanti se il file esiste ...
-  #
-  pause
+  else
+    echo 
+    echo "expand content"
+    sudo tar xzvf "/home/pi/${FILE}" -C /home/pi/
+  fi
+  echo
+  echo "GOTHINGS user content copied"
+
+
 
   echo
   echo "Start example using docker-compose"
