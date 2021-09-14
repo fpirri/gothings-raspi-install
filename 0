@@ -394,7 +394,7 @@ testgothings(){
   echo
   echo "TEST - use docker-compose for a simple configuration"
   echo
-  echo "Please note:
+  echo "Please note:"
   echo "You will find documentation about this test in the site:"
   echo "  https://www.gothings.org/raspberry-gothings/"
   echo 
