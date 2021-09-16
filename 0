@@ -534,21 +534,21 @@ pause
   echo "npm install ends"
   dots 2
   echo
-  echo "Use docker-compose to start the nodejs server containers"
-  sudo docker-compose -f /home/pi/dockrepo/sysdata/raspi-test/raspi-test-run.yml up -d
   echo
-  echo "docker-compose generated two node js containers, each"
-  echo "one running an http server"
+  echo "You now have two node js containers, each one running an http "
+  echo "server built with the EXPRESS framework"
   echo "Their names are 'node-main' and 'node-srv'"
   echo
-  echo "Please write the following in the address bar of your PC browser:"
+  echo "In the next section you will reach them at the URL:"
   echo "   http://<IP raspi address>"
   echo "where <IP raspi address> is the IP address  of your Raspberry"
-  echo "you can now test the server containers"
   echo
-  echo "Let's show container status, in the meantime you can verify"
-  echo "each server and the reverse proxy funtioning using the browser"
+  echo "Let's show container status, to verify NPM work"
+  echo "you should see the nginx proxy up, while the node js containers"
+  echo "exited after NPM installation of the framework"
   echo "you will end the 'status show' pressing any key"
+  echo
+  echo "Run TEST2 to start the node js servers"
   echo
   pause
   ./showdock
@@ -558,52 +558,31 @@ pause
 #
 ##########################################################################
 testnode() {
-# 5. TEST use docker-compose for a nodejs web server
-  SECONDS=0
+# 5. TEST use docker-compose and test a couple of nodejs web server
   echo 
   echo 
   echo "-------------------------------------------------------------- 5:"
-  echo "TEST DA ELIMINARE !!!"
+  echo "TEST DA CONTROLLARE !!!"
   echo
-  pause
-  return
-
   echo
-  echo "TEST - use docker-compose for a simple nodejs application"
+  echo "TEST - use docker-compose to run node js web servers"
   echo
-  echo "This test install both a nginx http proxy and a nodejs web server"
-  echo "We will have the containers:"
-  echo "  nginx     <-- http proxy to interface all network communication"
-  echo "  nodebase  <-- nodejs environment to support generic javascript applications"
+  echo "This test run two nodejs web server"
   echo
-  echo 'This test will use docker images from the (old) hlite project'
-  echo 
-  echo "Install gothings docker networks"
-  echo "Please note that the following will show 'already exists' warnings"
-  echo "if a network was installed before. The warnings are irrelevant"
-  echo "Netwoek: gothingsnet"
-  sudo docker network create -d bridge --subnet 172.29.196.0/24 --gateway 172.29.196.1 gothingsnet  
-  echo "Network: servicenet"
-  sudo docker network create -d bridge --subnet 172.29.195.0/24 --gateway 172.29.195.1 servicenet
-  echo
-  echo "Start example using docker-compose"
   echo "Please see 'bla bla page' "
   echo "for a detailed description of this example"
   echo
-  echo "First time you run this section, you may have to download docker images"
-  echo "Downloading may take a long time, please be patient"
-  echo "Anyway, this only need to be done once."
-  echo
-  echo "At the end of download, nginx and nodebase containers should run"
-  echo "in a few seconds"
-  echo
-  echo "DA AGGIUSTARE !!!!"
-  echo "--> manca il download di raspi-testdirs.tar.gz"
-  echo "    da costruire la dir .../raspi-test/nodebase"
   pause
+  SECONDS=0
+  echo
   echo "The process is starting now:"
   echo
-  sudo docker-compose -f /home/pi/dockrepo/sysdata/raspi-test/raspi-test2.yml up -d
+  sudo docker-compose -f /home/pi/dockrepo/sysdata/raspi-test/raspi-test-run.yml up -d
+  TIME5=${SECONDS}
+  echo
+  echo "--------------------------------------------------------------"
+  echo "Elapsed time to start the node js express servers:"
+  printms ${TIME5} "5. TEST node   "
   echo
   echo "Container should have started. I wait 10 seconds to allow for them"
   echo "to stabilize"
@@ -615,60 +594,73 @@ testnode() {
   echo "Hopefully, for each container you see something similar to:"
   echo "  'Up xx seconds'"
   echo "-------------------------"
-  sleep 5
+  dots 3
   pause
-  echo 
-  echo "Now, I try to read something using nginx container .."
   echo
-  echo -e "${RED}-------------------------> ${STD}text from nginx container:"
-  curl 'localhost/test.txt'
-  echo
-  echo -e "${RED}<------------------------- ${STD} end of text from nginx"
-  echo
-  echo "The text above is coming from nginx container"
-  echo "It should confirm nginx is running"
-  echo "-------------------------"
   echo "Please write the following in the address bar of your browser:"
   echo "   http://<IP raspi address>"
   echo "where <IP raspi address> is the IP address  of your Raspberry"
-  echo "you should find a bunch of simple tests for the nginx proxy"
   echo
-  echo "-------------------------"
-  TIME5=${SECONDS}
-  sleep 7
+  echo "You may try the following URLs to test the proxy to serve some"
+  echo "static pages you may modify for your purposes:"
+  echo " <IP raspi address>         reverse proxy homepage "
+  echo " <IP raspi address>/main    reverse proxy 1st server homepage"
+  echo " <IP raspi address>/srv2    reverse proxy 2nd server homepage"
+  echo "pages above are static and independent from the node js servers,"
+  echo "you so verify the proxy functioning"
+  echo
+  echo "You may also try:"
+  echo " <IP raspi address>/main/     1st node server homepage"
+  echo " <IP raspi address>/srv2/     2nd node server homepage"
+  echo " <IP raspi address>/main/...  a page from 1.st server"
+  echo " <IP raspi address>/srv2/...  a page from 1.st server"
+  echo "pages above are dynamic and are generated by the respective"
+  echo "node js servers, so you verify the node servers functioning"
   echo
   pause
+}
+#
+##########################################################################
+delconts() {
+# 7. delete all containers
+  echo 
+  echo 
+  echo "-------------------------------------------------------------- 5:"
+  echo "DELETE all existing containers"
   echo
-  echo "--------------------------------------------------------------"
-  echo "Elapsed time building nginx proxy:"
-  printms ${TIME4} "5. TEST node   "
-  sleep 5
+  echo "Please note you will have to restart the creation process"
   echo
-  echo "NODEBASE da aggiustare ..."
-  echo
-  sleep 4
-  pause "5"
+  read -rsp "Do you like to DELETE ? [y/N] " -n 1 key
+  case "$key" in
+      [yY]) 
+        echo
+        echo "STOP & DESTROY all running containers ..."
+        echo
+        echo "... stopping running containers"
+        sudo docker stop $(docker ps -a -q -f status=running)
+        echo
+        echo "... removing all containers"
+        sudo docker rm $(docker ps -a -q -f status=exited)
+        echo
+        echo "Done."
+        echo
+        ;;
+      *)
+        echo
+        echo "Back to choice"
+        dots 2
+        ;;
+  esac
 }
 #
 ##########################################################################
 gotocontrol(){
-# 5   download 'g'
+# 8   download 'g'
   SECONDS=0
-  # 5. GO to GOTHINGS CONTROL MENU
   echo 
   echo 
-  echo "-------------------------------------------------------------- 5:"
+  echo "-------------------------------------------------------------- 8:"
   echo "Preparing for GOTHINGS CONTROL MENU"
-  echo
-  echo "STOP & DESTROY all running containers ..."
-  echo
-  echo "... stopping running containers"
-  sudo docker stop $(docker ps -a -q -f status=running)
-  echo
-  echo "... removing all containers"
-  sudo docker rm $(docker ps -a -q -f status=exited)
-  echo
-  echo "Done."
   echo
   FILE="g"
   GITBR="gothings-install/master/"  # dir su github dove va preso il file
@@ -690,10 +682,10 @@ gotocontrol(){
   #
   chmod +x /home/pi/g
   #
-  TIME5=${SECONDS}
+  TIME8=${SECONDS}
   echo
   echo "Elapsed time:"
-  printms ${TIME5} "5. TEST 2    "
+  printms ${TIME8} "8. DELETE all"
   echo "--------------------------------------------------------------"
   sleep 3
   echo
@@ -721,14 +713,15 @@ show_menus() {
   echo
   echo "~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~"
   echo
-  echo "1. UTILS     install utilities & base data"
-  echo "2. DOCKER    download & install docker for GOTHINGS"
-  echo "3. COMPOSE   download & install docker-compose"
-  echo "4. TEST      use docker-compose for a simple configuration"
-  echo "5. TEST2     test a simple web server using nodejs"
+  echo "1. UTILS      install utilities & base data"
+  echo "2. DOCKER     download & install docker for GOTHINGS"
+  echo "3. COMPOSE    download & install docker-compose"
+  echo "4. TEST       use docker-compose for a simple configuration"
+  echo "5. TEST NODE  test node js express web servers"
   echo "..."
-  echo "8. GoThings  download GoThings control menu"
-  echo "9. TIMES     show elapsed times"
+  echo "7. DELETE     delete all containers"
+  echo "8. GoThings   download GoThings control menu"
+  echo "9. TIMES      show elapsed times"
 }
 # read input from the keyboard and take a action
 # invoke the function according to the entered number
@@ -741,6 +734,7 @@ read_options(){
 		3) composeinstall;;
 		4) testgothings;;
     5) testnode;;
+    7) delconts;;
     8) gotocontrol;;
 		9) showtimes;;
 		*) echo -e "${RED}Error...${STD}" && sleep 2
