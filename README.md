@@ -197,7 +197,7 @@ Connect to your board via ssh, commands below should be gived in the home direct
 #### 2- Download the 'zero' script
 Exec the command:
 
-      wget -O /home/pi/0 https://raw.githubusercontent.com/fpirri/gothings-install/master/0
+      wget -O /home/pi/0 https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/0
 
 The file *0* is the primary bootstrap script.  
      
@@ -230,7 +230,7 @@ This automates the installing of docker binaries, following the standard apt pro
 ###### 4.3- Install COMPOSE
 
 This step follows this [tutorial](https://dev.to/rohansawant/installing-docker-and-docker-compose-on-the-raspberry-pi-in-5-simple-steps-3mgl) to install docker-compose.  
-This step is a time-consuming one: in my raspi zero w it spent more than an hour to go.
+This step is a time-consuming one: in my raspi zero w it spent an hour to go.
 
 ###### 4.4- Test
 
