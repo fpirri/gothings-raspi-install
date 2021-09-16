@@ -1,7 +1,7 @@
 # GoThings Raspi Install
-How to install Raspbian and docker on a Raspberry board  
-  
 Get containerized HTTP server, node js, python and more on your raspi !  
+
+You will also have docker installed on the Raspberry board  
 <br />
 
 ADVICE:
@@ -10,7 +10,7 @@ ADVICE:
 **This project is under construction.**  
 
 Project documentation is sparse and not reliable, owing to the on-going (re-)definition of many secondary aspects of the project.  
-Owing to the above, please be aware it may be next-to-impossible to use this repository to make any useful work.  
+Owing to the above, please be aware it may be difficult to use this repository to make useful work.  
 
 Anyway, the original work included may be used according to the permissible MIT License.  
 
@@ -91,7 +91,7 @@ GoThings System short description
 * The 'user' part is specific to a particular configuration
     * please note: this part allows users to run their own code
 * *GoThings* run in your Internet-of-Things, on the ARM achitecture boards such as the Raspberry Pi
-* An alpha version of *GoThings* is now running in standard cloud virtual systems (It will be published ASAP [here](https://github.com/fpirri/gothings-cloud))
+* An alpha version of *GoThings* is now running in standard cloud virtual systems (It will be published  [here](https://github.com/fpirri/gothings-cloud))
 
 <br />
 
@@ -117,9 +117,9 @@ GoThings networking is based on http protocol and exploits many of the nginx+lua
 ## Pre-installation steps
 
 
+The raspberry board must be reachable with an SSH connection in order to function. If you are already able to reach the card from an SSH terminal, the pre-installation step described here is useless and you can skip straight to the installation section below.
 - Choose your raspbian image.
    - the following instructions use the ***buster lite*** version of raspbian OS from the official rasperry site
-   - the first gothings-raspi-install release, archived [here](https://github.com/fpirri/gothings-raspi-install/tree/master/history/version-01), worked with raspbian *stretch lite* version
    - You have to burn your sd-card to use it on the rasperry
    - if you wish to use a different release, please note that docker does not run on every armv6l raspbian image, you have to test it by yourself
  <br/>
@@ -197,19 +197,16 @@ Connect to your board via ssh, commands below should be gived in the home direct
 #### 2- Download the 'zero' script
 Exec the command:
 
-      wget -O /home/pi/zero https://raw.githubusercontent.com/fpirri/gothings-install/master/zero
+      wget -O /home/pi/0 https://raw.githubusercontent.com/fpirri/gothings-install/master/0
 
-The file *zero* is the primary bootstrap script.  
+The file *0* is the primary bootstrap script.  
      
- To give yourself a minimum of security you should inspect the integrity of the files you download from internet.  
- You can inspect the file with the command:  
-         nano zero  
-please do not change anything and use ctrl-X to exit from the nano editor.  
+
  
 #### 3- exec the zero script
 Exec the command:
 
-        source zero
+        source 0
 
 please note: the script runs locally, without the need to mark it as executable
 
@@ -223,13 +220,12 @@ You may execute the following sections multiple times, althought it should not b
 
 First action set the board as recommended for running docker and docker-compose.  
 Locales  GB, IT and US are created.  
-Also, the archive zerodirs.tar.gz is downloaded from github and expanded.
+Also, the archive raspi-testdirs.tar.gz is downloaded from github and expanded.
 This install a number of directories and files that allow to run a simple test and prepare the board for GoThings applications.  
 
 ###### 4.2- Install DOCKER
 
-This automates the installing of docker binaries, following the official procedure from [docker](https://docs.docker.com/engine/install/debian/#install-using-the-convenience-script)  
-Please note that docker documentation affirms it is dangerous to execute this step more than once.
+This automates the installing of docker binaries, following the standard apt procedure. 
 
 ###### 4.3- Install COMPOSE
 
@@ -240,8 +236,8 @@ This step is a time-consuming one: in my raspi zero w it spent more than an hour
 
 This section install a web server on your raspi and allow you to browse a few test pages.  
 It eventually confirms the whole install process and the network connection.  
-You can start browsing loooking at the homepage:  
-   http://<your-raspi-ip-address>  
+You can start browsing loooking at the test page:  
+   http://your-raspi-ip-address:8080  
 
 ###### 4.5- Go
 
@@ -273,4 +269,5 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Please consult the [LICENSE](https://github.com/fpirri/gothings-raspi-install/blob/master/LICENSE) section.
+
 

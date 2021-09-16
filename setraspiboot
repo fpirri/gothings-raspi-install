@@ -10,7 +10,11 @@
 #    Linux:  https://styxit.com/2017/03/14/headless-raspberry-setup.html
 #  Windows:  https://desertbot.io/blog/headless-pi-zero-w-wifi-setup-windows
 #
-#
+################################################################################
+#  TODO:
+#  - aggiungere: scopri boot & ?? per verificare che sono giusti
+#  - accetta wifi ssid & pass phrase
+#  - write wpa-supplicant
 ################################################################################
 #                                                                 User variables
 # --- boot volume path:

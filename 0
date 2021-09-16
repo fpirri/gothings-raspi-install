@@ -419,11 +419,6 @@ testgothings(){
   echo "- servicenet"
   sudo docker network create -d bridge --subnet 172.29.195.0/24 --gateway 172.29.195.1 servicenet
   echo 
-  echo "IN VERIFICA !!!!"
-  echo "--> download & expand raspi-testdirs.tar.gz"
-  pause
-
-
 # def  $1 $2 $3
   FILE="raspi-testdirs.tar.gz"      # nome dell'archivio
   GITBR="gothings-raspi-install/master/" # github branch/dir dove va preso il file
@@ -448,13 +443,12 @@ testgothings(){
   fi
   echo
   echo "GOTHINGS user content copied"
-
-
-
   echo
   echo "Start example using docker-compose"
   dots 2
 pause
+  echo
+  echo
   echo
   echo "First time you run this section, the raspi has to download the docker"
   echo "images and downloads may take a long time, please be patient"
@@ -502,10 +496,14 @@ pause
   printms ${TIME4} "4. TEST nginx  "
   sleep 5
   echo
+  echo
   echo "Please write the following in the address bar of your PC browser:"
   echo "   http://<IP raspi address>:8080"
   echo "where <IP raspi address> is the IP address  of your Raspberry"
   echo "you should find a bunch of simple tests for the nginx proxy"
+  echo
+  echo "This test uses only the static files capabilities of nginx"
+  echo "In the following we exploit the proxy capabilities also"
   echo
   echo "Please note that you will have errors if your PC is not"
   echo "connected to the same LAN network of your raspi"
@@ -513,17 +511,15 @@ pause
 # sezione: aspetta npm install
   pause "4"
   echo
+  echo
   echo "The node-test container has to initialize the node environment"
   echo "Main job here is to read the package.json configuration file and"
   echo "to populate the node_modules directory"
   echo "After that npm will re-start and passes control to nodejs servers"
   echo
-
-# qui va la parte run
-
+# parte 'attendi la fine di run install'
   sudo docker ps -a --format "table {{.Names}}\\t{{.Image}}\\t{{.Status}}"
   echo "-------------------------"
-
   Fine=0
   echo "start loop di attesa"
   while [ "$Fine" -ne "1" ]
@@ -535,13 +531,29 @@ pause
     echo "Fine: "${Fine}
   done
   echo
-  echo "Use docker-compose to start the nodejs server container"
+  echo "npm install ends"
+  dots 2
+  echo
+  echo "Use docker-compose to start the nodejs server containers"
   sudo docker-compose -f /home/pi/dockrepo/sysdata/raspi-test/raspi-test-run.yml up -d
   echo
-  echo "Show container status ..."
-  sleep 2
+  echo "docker-compose generated two node js containers, each"
+  echo "one running an http server"
+  echo "Their names are 'node-main' and 'node-srv'"
+  echo
+  echo "Please write the following in the address bar of your PC browser:"
+  echo "   http://<IP raspi address>"
+  echo "where <IP raspi address> is the IP address  of your Raspberry"
+  echo "you can now test the server containers"
+  echo
+  echo "Let's show container status, in the meantime you can verify"
+  echo "each server and the reverse proxy funtioning using the browser"
+  echo "you will end the 'status show' pressing any key"
+  echo
+  pause
   ./showdock
-  pause "4"
+  echo
+  dots 2
 }
 #
 ##########################################################################
