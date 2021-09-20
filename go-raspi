@@ -39,7 +39,6 @@ cd ${HOMEDIR} # to work on user <USERNAME>  home
 
 echo "Script DA AGGIUSTARE!!!"
 echo
-echo
 exit
 
 
