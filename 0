@@ -8,7 +8,7 @@
 #
 #-------------------------------------------------------------------------------
 #  INSTALL menu script for GoThings System
-                                                               VERSION="0.01.07"
+                                                               VERSION="0.01.09"
 #  Menu for GoThings System installation
 #    <-- Install docker
 #    <-- Install GoThings base
@@ -662,16 +662,16 @@ gotocontrol(){
   echo "-------------------------------------------------------------- 8:"
   echo "Preparing for GOTHINGS CONTROL MENU"
   echo
-  FILE="g"
+  GoFile="go-raspi"
   GITBR="gothings-install/master/"  # dir su github dove va preso il file
   PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
-  CALL="${FILE} $GITBR $PIDIR"
+  CALL="${GoFile} $GITBR $PIDIR"
   getgitfile ${CALL}
   if [[ $ITEXISTS -ne 1 ]]
   then ########## DA FARE se il file MANCA  (caso 'interrompi TUTTO' e si esce dal menu)
     echo 
     echo "------------------------------------------------------"
-    echo -e "${RED} ERROR on file: ${FILE} - debug message: ${STD}"
+    echo -e "${RED} ERROR on file: ${GoFile} - debug message: ${STD}"
     echo $DEBUGLOG
     echo "------------------------------------------------------"
     echo "Cannot continue."
@@ -680,7 +680,7 @@ gotocontrol(){
     return 66
   fi ########## Si va avanti se il file esiste ...
   #
-  chmod +x /home/pi/g
+  chmod +x /home/pi/${GoFile}
   #
   TIME8=${SECONDS}
   echo
@@ -697,7 +697,7 @@ gotocontrol(){
   echo "    exit return back to the console prompt"
   echo
   avanti
-  ./g
+  ./${GoFile}
   echo "exit from 0 / boot install"
   MENUTRAP=66
 }

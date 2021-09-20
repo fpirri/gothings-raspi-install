@@ -35,6 +35,14 @@ USERNAME="pi"
 HOMEDIR="/home/${USERNAME}/"
 APPNAME="base"
 cd ${HOMEDIR} # to work on user <USERNAME>  home
+
+
+echo "Script DA AGGIUSTARE!!!"
+echo
+echo
+exit
+
+
 #
 ##########################################################################
 #
