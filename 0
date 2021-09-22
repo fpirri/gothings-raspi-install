@@ -120,15 +120,19 @@ showtimes(){
   echo 
   echo "--------------------------------------------------------- 6:"
   echo "Elapsed times:"
-  printms ${TIME1} "1. UTILS       "
-  printms ${TIME2} "2. DOCKER      "
-  printms ${TIME3} "3. COMPOSE     "
-  printms ${TIME4} "4. TEST nginx  "
-  printms ${TIME5} "5. TEST node   "
+  printms ${TIME1} "1. UTILS        "
+  printms ${TIME2} "2. DOCKER       "
+  printms ${TIME3} "3. COMPOSE      "
+  printms ${TIME4} "4. TEST nginx   "
+  printms ${TIME5} "5. TEST servers "
+  printms ${TIME7} "5. TEST node    "
   echo
   TIMETOTAL=$((TIME1+TIME2+TIME3+TIME4+TIME5))
   printms ${TIMETOTAL} "Total time: "
   echo 
+  echo 
+  printms ${TIME7} "Delete containers  "
+  echo
   echo "-----------------------------------------------------------"
   avanti
 }
@@ -596,7 +600,7 @@ testnode() {
   echo
   echo "This test run two nodejs web server"
   echo
-  echo "Please see 'bla bla page' "
+  echo "Please see https://www.gothings.org/raspberry-gothings "
   echo "for a detailed description of this example"
   echo
   pause
@@ -621,7 +625,7 @@ testnode() {
   echo "Hopefully, for each container you see something similar to:"
   echo "  'Up xx seconds'"
   echo "-------------------------"
-  dots 3
+  echo
   pause
   echo
   echo "Please write the following in the address bar of your browser:"
@@ -635,6 +639,11 @@ testnode() {
   echo " <IP raspi address>/srv2    reverse proxy 2nd server homepage"
   echo "pages above are static and independent from the node js servers,"
   echo "you so verify the proxy functioning"
+  echo
+  echo "Please note that start-up time for node js server may be long"
+  echo "owing to npm updating of required modules. This may take up to"
+  echo "a few minutes, normally it is only several seconds"
+  dots 3
   echo
   echo "You may also try:"
   echo " <IP raspi address>/main/     1st node server homepage"

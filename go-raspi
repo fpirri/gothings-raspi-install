@@ -37,7 +37,9 @@ APPNAME="base"
 cd ${HOMEDIR} # to work on user <USERNAME>  home
 
 
-echo "Script DA AGGIUSTARE!!!"
+echo "TEST version !!!"
+echo "To only verify '0' script"
+echo
 echo
 exit
 
