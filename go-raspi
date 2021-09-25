@@ -58,7 +58,7 @@ MenuTag="${MenuName} v${Version}"
 #
 # ----------------------------------
 # variabili globali interne
-UserName=yesfi
+UserName=pi
 HomeDir="/home/${UserName}/"
 Dockrepo="${HomeDir}dockrepo/"
 AppDir="${Dockrepo}sysdata/${AppName}/"
@@ -170,7 +170,8 @@ getgitfile(){    # Lettura file da github
   #   $2:    "github project branch"          <--  gothings-raspi-install/master/
   #   $3:    "raspi path after /home/pi/ "    <--  ''
   # path fisso per gothings:
-  #   Const: "https://raw.githubusercontent.com/fpirri/"
+  #   Const: "https://github.com/fpirri/"
+#  https://github.com/fpirri/gothings-raspi-basezero/raw/main/dockrepo/sysconfig/raspi-basezero/manage-raspi
   #
   # RETURN:
   #           ITEXISTS = 1 se esiste, 0 altrimenti
@@ -188,7 +189,7 @@ getgitfile(){    # Lettura file da github
   else            # si prova a scaricarlo
     DEBUGLOG="$DEBUGLOG | $FILEGIT does not exist |"
     
-    wget -O $FILEGIT https://raw.githubusercontent.com/fpirri/$2$1
+    wget -O $FILEGIT https://github.com/fpirri/$2$1
     if [[ -s $FILEGIT ]]
     then
       ITEXISTS=1    # file exists and length > 0
@@ -225,9 +226,11 @@ echo "Verify directory structure ..."
   fi
 #
 #  prendi 'manage-raspi' da github & rendilo eseguibile
+#  https://github.com/fpirri/gothings-raspi-basezero/main/dockrepo/sysconfig/raspi-basezero/manage-raspi
+#
 File="manage-raspi"
-GitBr="gothings-raspi-install/master/" # github branch/dir dove va preso il file
-PiDir="dockrepo/sysconfig/raspi-basezero/"                               # path da aggiungere a HOMEDIR == /home/pi/
+PiDir="dockrepo/sysconfig/raspi-basezero/"       # path da aggiungere a HOMEDIR == /home/pi/
+GitBr="gothings-raspi-basezero/raw/main/${PiDir}"            # github branch/dir dove va preso il file
 Call="${File} $GitBr $PiDir"
 getgitfile ${Call}
 if [[ $ITEXISTS -ne 1 ]]
