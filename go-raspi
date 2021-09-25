@@ -50,8 +50,6 @@ DebugMode=0                     # 0 == NO debug     > 0 == Show debug info
 AppName="basezero"
 AppDisplayName="BaseZero"
 AppType="cloud"
-GithubName="gothings-raspi-${AppName}"
-GithubPath="${GithubName}/main/"
 #
 # ----------------------------------
 # Define display
@@ -64,18 +62,8 @@ UserName=yesfi
 HomeDir="/home/${UserName}/"
 Dockrepo="${HomeDir}dockrepo/"
 AppDir="${Dockrepo}sysdata/${AppName}/"
-AppConfigDir="${Dockrepo}sysconfig/${AppName}/"
-AppSecretDir="${Dockrepo}docksecret/${AppName}/"
-SiteFile="${AppDir}nginxdata/sites-enabled/${AppName}"
-SiteNginxDir="${Dockrepo}sysdata/nginx/nginxdata/sites-enabled/"
-WorkDir=${HomeDir}
-ScriptName="none"
-# -------------------------------------------------------  DA RIVEDERE alla fine
-#
-InstallDir="${HomeDir}dockrepo/dockimages/${AppName}/"     # dir dei file di configurazione nella droplet
-GithubHome="https://raw.githubusercontent.com/fpirri/"     # prefisso per i progetti fpirri su github
-#
-#  gothings-app-servicewp/main/dockrepo/dockimages/servicewp/servicewpexpand.json
+SysConfigDir="${Dockrepo}sysconfig/"
+AppConfigDir="${Dockrepo}sysconfig/raspi-${AppName}/"
 #
 # ------------------------------------------------------------------------------
 
@@ -147,10 +135,6 @@ toupdate(){
 #
 ##########################################################################
 #
-#  usa le variabili:
-RED='\033[0;41;30m'
-STD='\033[0;0;39m'
-#
 confstop(){
   if [[ ! -s "$1" ]]; then
     #  Configurazione go-raspi non corretta
@@ -158,7 +142,7 @@ confstop(){
     echo
     echo "----------------------------------------------------------------"
     echo 
-    echo -e "${RED} file $1 is missing ${STD}"
+    echo -e "${Red} file $1 is missing ${Std}"
     echo
     echo "Unfortunately, go-raspi cannot continue !"
     echo "Please consult documentation, re-configure and retry"
@@ -226,15 +210,19 @@ getgitfile(){    # Lettura file da github
 echo
 echo "Verify directory structure ..."
 # la prima volta non ci sono i dirs, creiamoli !
-if [[ ! -s "${HomeDir}dockrepo" ]]; then
-  mkdir dockrepo/
-fi
-if [[ ! -s "${HomeDir}dockrepo/sysconfig" ]]; then
-  mkdir dockrepo/sysconfig/
-fi
-if [[ ! -s "${HomeDir}dockrepo/sysconfig/raspi-basezero" ]]; then
-  mkdir dockrepo/sysconfig/raspi-basezero
-fi
+#
+# ~/dockrepo/
+  if [ ! -d "${Dockrepo}" ]; then
+    mkdir "${Dockrepo}"
+  fi
+# ~/dockrepo/sysconfig/
+  if [ ! -d "${SysConfigDir}" ]; then
+    mkdir "${SysConfigDir}"
+  fi
+# ~/dockrepo/sysconfig/raspi-basezero
+  if [ ! -d "${AppConfigDir}" ]; then
+    mkdir "${AppConfigDir}"
+  fi
 #
 #  prendi 'manage-raspi' da github & rendilo eseguibile
 File="manage-raspi"
