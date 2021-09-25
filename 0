@@ -744,8 +744,9 @@ gotocontrol(){
   TIME8=${SECONDS}
   echo
   echo "Elapsed time:"
-  printms ${TIME8} "8. DELETE all"
+  printms ${TIME8} "8. Load go-raspi"
   echo "--------------------------------------------------------------"
+  echo
   sleep 3
   echo
   echo "Now ready to exec GOTHINGS CONTROL MENU"

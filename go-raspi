@@ -61,7 +61,7 @@ MenuTag="${MenuName} v${Version}"
 # ----------------------------------
 # variabili globali interne
 UserName=yesfi
-HomeDir="/home/${UserName}/"        # dir di lavoro per questo script
+HomeDir="/home/${UserName}/"
 Dockrepo="${HomeDir}dockrepo/"
 AppDir="${Dockrepo}sysdata/${AppName}/"
 AppConfigDir="${Dockrepo}sysconfig/${AppName}/"
@@ -167,19 +167,94 @@ confstop(){
   fi
 }
 #
+##########################################################################
+getgitfile(){    # Lettura file da github
+  #
+  #  use globals:
+  #    DEBUGLOG=""     # utile nel debug
+  #    ITEXISTS=0      #  1 : file esiste    0 : file assente
+  #
+  #
+  #     <-- se esiste il file $1 ed ha lunghezza > 0 :
+  #         <-- si va avanti senza altre azioni
+  #     <-- altrimenti si prova a scaricare il file da github
+  #     <-- si riprova il test di lunghezza
+  #         se non funziona si torna con ITEXISTS=0
+  #     
+  # call:    getgitfile $1 $2 $3
+  #   $1:    "file"                           <--  raspi-testdirs.tar.gz
+  #   $2:    "github project branch"          <--  gothings-raspi-install/master/
+  #   $3:    "raspi path after /home/pi/ "    <--  ''
+  # path fisso per gothings:
+  #   Const: "https://raw.githubusercontent.com/fpirri/"
+  #
+  # RETURN:
+  #           ITEXISTS = 1 se esiste, 0 altrimenti
+  #
+  # Verify file existence, get it from github if not
+  #
+  #  bash:  -s file  True if file exists and has a size greater than zero
+  #
+  FILEGIT="/home/pi/$3$1"
+  DEBUGLOG="|| getgitfile() INFO || Il file cercato e': $FILEGIT |"
+  if [[ -s $FILEGIT ]]
+  then
+    ITEXISTS=1    # file exists and length > 0
+    DEBUGLOG="$DEBUGLOG | $FILEGIT esiste |"
+  else            # si prova a scaricarlo
+    DEBUGLOG="$DEBUGLOG | $FILEGIT does not exist |"
+    
+    wget -O $FILEGIT https://raw.githubusercontent.com/fpirri/$2$1
+    if [[ -s $FILEGIT ]]
+    then
+      ITEXISTS=1    # file exists and length > 0
+      DEBUGLOG="$DEBUGLOG | $FILEGIT trovato |"
+    else
+      ITEXISTS=0    # file introvabile !
+      DEBUGLOG="$DEBUGLOG | $FILEGIT introvabile |"
+      echo $DEBUGLOG                               ########### Stampa sempre mentre sviluppo ...
+    fi
+  fi
+  return $ITEXISTS
+}
+#
 ################################################################################
 #
 ################################################################################
 #                                                                     MAIN LOGIC
+#  set dirs
+echo
+echo "Verify directory structure ..."
+# la prima volta non ci sono i dirs, creiamoli !
+if [[ ! -s "${HomeDir}dockrepo" ]]; then
+  mkdir dockrepo/
+fi
+if [[ ! -s "${HomeDir}dockrepo/sysconfig" ]]; then
+  mkdir dockrepo/sysconfig/
+fi
+if [[ ! -s "${HomeDir}dockrepo/sysconfig/raspi-basezero" ]]; then
+  mkdir dockrepo/sysconfig/raspi-basezero
+fi
+#
 #  prendi 'manage-raspi' da github & rendilo eseguibile
-
+File="manage-raspi"
+GitBr="gothings-raspi-install/master/" # github branch/dir dove va preso il file
+PiDir="dockrepo/sysconfig/raspi-basezero/"                               # path da aggiungere a HOMEDIR == /home/pi/
+Call="${File} $GitBr $PiDir"
+getgitfile ${Call}
+if [[ $ITEXISTS -ne 1 ]]
+then
+  confstop ${File}
+else
+  chmod +x ${AppConfigDir}${File}
+fi
 #
 #  cambia dir
 cd ${AppConfigDir}
 #
 # esegui lo script
 echo "Go to management script"
-./manage-raspi
+./${File}
 echo
 echo "Type:"
 echo "  ./manage-raspi"
