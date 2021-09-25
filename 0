@@ -714,7 +714,7 @@ delconts() {
 #
 ##########################################################################
 gotocontrol(){
-# 8   download 'g'
+# 8.  download & exec 'go-raspi'
   SECONDS=0
   echo 
   echo 
@@ -722,7 +722,7 @@ gotocontrol(){
   echo "Preparing for GOTHINGS CONTROL MENU"
   echo
   GoFile="go-raspi"
-  GITBR="gothings-install/master/"  # dir su github dove va preso il file
+  GITBR="gothings-raspi-install/master/"  # dir su github dove va preso il file
   PIDIR=""                          # path da aggiungere a HOMEDIR == /home/pi/
   CALL="${GoFile} $GITBR $PIDIR"
   getgitfile ${CALL}
@@ -785,20 +785,20 @@ show_menus() {
 # read input from the keyboard and take a action
 # invoke the function according to the entered number
 read_options(){
-	local choice
+  local choice
   read -rsp $'Enter choice [ or ^C to exit ] ' -n 1 choice
-	case $choice in
+  case $choice in
     1) utils;;
-		2) dockinstall;;
-		3) composeinstall;;
-		4) testgothings;;
+    2) dockinstall;;
+    3) composeinstall;;
+    4) testgothings;;
     5) testnode;;
     6) link2doc;;
     7) delconts;;
     8) gotocontrol;;
-		9) showtimes;;
-		*) echo -e "${RED}Error...${STD}" && sleep 2
-	esac
+    9) showtimes;;
+    *) echo -e "${RED}Error...${STD}" && sleep 2
+  esac
 }
  
 # ----------------------------------------------
