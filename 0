@@ -552,7 +552,7 @@ pause
   echo "exited after NPM installation of the framework"
   echo "you will end the 'status show' pressing any key"
   echo
-  echo "Run TEST2 to start the node js servers"
+  echo "Run TEST NODE to start the node js servers"
   echo
   pause
   ./showdock
@@ -562,7 +562,7 @@ pause
 #
 ##########################################################################
 testnode() {
-# 5. TEST use docker-compose and test a couple of nodejs web server
+# 5. TEST NODE use docker-compose and test a couple of nodejs web server
   echo 
   echo 
   echo "-------------------------------------------------------------- 5:"
