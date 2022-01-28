@@ -31,17 +31,8 @@
 Editor=nano
 Red='\033[0;41;30m'
 Std='\033[0;0;39m'
-# file di configurazione
-WpaConfFile="WpaConfFile"
-# file 'run once'
-FirstBootFile="firstboot.sh"
 # --- boot volume path:
 SdBootDir="/media/$USER/boot/"
-# --- wi-fi credentials:
-
-echo "Qui dovremmo controllare le credenziali wi-fi"
-source WpaConfFile
-
 #
 # --- wi-fi configuration
 Data1='ap_scan=1
@@ -59,9 +50,6 @@ network={
     psk="password for another wifi network"
     key_mgmt=WPA-PSK
 }'
-WpaData=$(printf "${Data1}${RaspiSsid}\"${Data2}${RaspiPsk}\"${Data3}")
-echo "File delle credenziali wi-fi:"
-echo -e ${WpaData}
 #
 ################################################################################
 #
@@ -82,6 +70,37 @@ echo -e "${Red} Please be sure to verify security at least the first time ! ${St
 echo
 pause
 echo
+echo "Download files:"
+# file di inzializzazione
+FirstBootFile="firstboot.sh"
+echo "${FirstBootFile}"
+wget -O "${FirstBootFile}" - https://github.com/fpirri/gothings-raspi-install/raw/master/"${FirstBootFile}"
+RunOnceArchive="run_once.tar.gz"
+echo "${RunOnceArchive}"
+wget -O "${RunOnceArchive}" - https://github.com/fpirri/gothings-raspi-install/raw/master/"${RunOnceArchive}"
+RunOnceScript="run_once.sh"
+echo "${RunOnceScript}"
+wget -O "${RunOnceScript}" - https://github.com/fpirri/gothings-raspi-install/raw/master/"${RunOnceScript}"
+pause
+
+# file di configurazione
+WpaConfFile="WpaConfFile"
+
+WpaData=$(printf "${Data1}${RaspiSsid}\"${Data2}${RaspiPsk}\"${Data3}")
+echo "File delle credenziali wi-fi:"
+echo -e ${WpaData}
+
+echo "WiFi credentials ..."
+# --- wi-fi credentials:
+
+echo "Qui dovremmo controllare le credenziali wi-fi"
+
+source WpaConfFile
+
+pause
+
+echo
+echo "
 echo "======================================================= version $VERSION"
 echo
 echo "This script will write data on: ${SdBootDir}"
@@ -102,7 +121,7 @@ chmod +x "${SdBootDir}firstboot.sh"
 echo "firstboot.sh OK"
 
 echo "Copy run_once.tar.gz archive"
-cp run_once.tar.gz "${SdBootDir}run_once.tar.gz"
+cp  "${SdBootDir}run_once.tar.gz"
 echo "Run_once archive OK"
 
 echo "Copy run_once.sh script"
