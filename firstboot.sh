@@ -85,7 +85,7 @@ Dockrepo="${PiHome}/dockrepo"
 setdir "${Dockrepo}"
 Result=$?
 errorstop ${Result} "Error on ${Dockrepo} dir"  "Dir ${Dockrepo}"
-InstallDir="${Dockrepo}/raspi-manager"
+InstallDir="${Dockrepo}/raspi-install"
 setdir "${InstallDir}"
 Result=$?
 errorstop ${Result} "Error on ${InstallDir} dir"  "Dir ${InstallDir}"
@@ -93,7 +93,7 @@ cd "${InstallDir}"
 Result=$?
 errorstop ${Result} "Error on ${InstallDir} cd"  "cd ${InstallDir}"
 #
-# list raspi-manager dir
+# list raspi-install dir
 ls -la >> $LogFile
 Result=$?
 errorstop ${Result} "Error while listing ${InstallDir}"  "${InstallDir} content"

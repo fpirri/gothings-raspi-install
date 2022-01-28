@@ -1,19 +1,24 @@
 #!/bin/bash
-#                                                                     2021-11-20
-#    FirstBoot time installation of raspi-manager
+#                                                                    2022-01-09
+                                                                 VERSION="02.00"
 #
-#    You get bugy/script-server running on your raspberry
+#    run_once installation file
 #
+#    Scopo: personalizzare la raspi per una applicazione specifica
 #
-#  @@@@@ DA CORREGGERE:
+#    La versione iniziale installera' il raspi-manager
+#    (ovvero uno script server)
+#
+#  @@@@@ per ora: NIENTE !!!
+#
 #  @@@@@   in caso di errore, questo va segnalato a firstboot
 #  @@@@@   in modo che si veda bene che manager-boot ha fallito
 #
 #######
 ################################################################################
 #                                                               log script start
-LogFile="$HOME/firstboot.sh.log"
-echo "-----> `date` manager-boot start" >> "${LogFile}"
+LogFile="$HOME/run_once.sh.log"
+echo "-----> `date` run_once starts" >> "${LogFile}"
 #
 ################################################################################
 #                                                                 Funzioni utili
@@ -51,9 +56,16 @@ setdir() {
 #
 ################################################################################
 #                                                                         avviso
-log "Start manager-boot"
+log "Run Once e' partito!"
+errorstop 666 "run_once ancora da fare"  "go run_once!"
+
+exit
+
 #
 ################################################################################
+#
+################################################################################
+#                                                                         avviso
 #                                          download latest manager da repository
 #
 wget -O ${HOME}/managerdirs.tar.gz https://github.com/fpirri/gothings-raspi-manager/raw/main/managerdirs.tar.gz

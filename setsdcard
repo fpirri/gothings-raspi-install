@@ -44,23 +44,26 @@ network={
 Data2='
     psk="'
 Data3='
-    key_mgmt=WPA-PSK
-}
-network={
-    ssid="another ssid you may use"
-    psk="password for another wifi network"
-    key_mgmt=WPA-PSK
 }'
+#Data3='
+#    key_mgmt=WPA-PSK
+#}
+#network={
+#    ssid="another ssid you may use"
+#    psk="password for another wifi network"
+#    key_mgmt=WPA-PSK
+#}'
 #
 ################################################################################
 #
-
 pause(){
 #  continue or exit
   echo "--------------------------------------------------------------/"
   read -rsp $'Press any key to continue or ^C to exit ...' -n 1 key
 }
-
+#
+################################################################################
+#                                                                           MAIN
 echo
 echo "======================================================= version $VERSION"
 echo
@@ -71,27 +74,41 @@ echo -e "${Red} Please be sure to verify security at least the first time ! ${St
 echo
 pause
 echo
+echo "Verify sd card presence"
+if [ ! -s "${SdBootDir}" ]
+then
+  echo -e "${Red} Sorry, I can't find the sd card boot device: ${SdBootDir} ${Std}"
+  echo "I stop processing NOW"
+  echo
+  echo "Please mount your sdcard at the location: ${SdBootDir}"
+  echo
+  exit
+fi
+echo
 echo "Download files:"
 # file di inzializzazione
 FirstBootFile="firstboot.sh"
 echo "${FirstBootFile}"
-wget -nv -O "${FirstBootFile}" https://github.com/fpirri/gothings-raspi-install/raw/master/"${FirstBootFile}"
+wget -q -O "${FirstBootFile}" https://github.com/fpirri/gothings-raspi-install/raw/master/"${FirstBootFile}"
 RunOnceArchive="run_once.tar.gz"
 echo "${RunOnceArchive}"
-wget -nv -O "${RunOnceArchive}" https://github.com/fpirri/gothings-raspi-install/raw/master/"${RunOnceArchive}"
+wget -q -O "${RunOnceArchive}" https://github.com/fpirri/gothings-raspi-install/raw/master/"${RunOnceArchive}"
 RunOnceScript="run_once.sh"
 echo "${RunOnceScript}"
-wget -nv -O "${RunOnceScript}" https://github.com/fpirri/gothings-raspi-install/raw/master/"${RunOnceScript}"
+wget -q -O "${RunOnceScript}" https://github.com/fpirri/gothings-raspi-install/raw/master/"${RunOnceScript}"
 echo
-echo "Initialization files downloded"
+echo "Initialization files downloaded"
+echo
 echo "verify wifi credentials ..."
-pause
-# file di configurazione
+# file di configurazione, verra' usato come 'source' di SSID & PSK
 WpaConfFile="WpaConfFile"
 if [ ! -s "${WpaConfFile}" ]
 then
-  echo"Get wifi credentials definition file template"
-  wget -O "${WpaConfFile}" - https://github.com/fpirri/gothings-raspi-install/raw/master/"${WpaConfFile}"
+  echo
+  echo "wifi credentials definition file template does not exits"
+  echo "Let'get ${WpaConfFile}"
+  wget -q -O "${WpaConfFile}" - https://github.com/fpirri/gothings-raspi-install/raw/master/"${WpaConfFile}"
+  echo
   echo "Please edit ${WpaConfFile} file to contain your wifi SSID and PSK,"
   echo "then re-execute this script with 'bash setsdcard' at the prompt"
   exit
@@ -99,35 +116,26 @@ then
 else
   source WpaConfFile
   WpaData=$(printf "${Data1}${RaspiSsid}\"${Data2}${RaspiPsk}\"${Data3}")
+  echo
   echo "Your wifi credentials are:"
   echo -e ${WpaData}
-  echo "FARE VERIFICA"
+  echo "Please exit and retry if credentials are not correct"
   pause
-  exit
 fi  
 
-
-
-WpaData=$(printf "${Data1}${RaspiSsid}\"${Data2}${RaspiPsk}\"${Data3}")
-echo "File delle credenziali wi-fi:"
-echo -e ${WpaData}
-
-echo "WiFi credentials ..."
+#  cp ~/NetBeansProjects/github-gothings/gothings-raspi-install/setsdcard ./
 # --- wi-fi credentials:
-
-echo "Qui dovremmo controllare le credenziali wi-fi"
-exit
-pause
-
+#
 echo
-echo "
 echo "======================================================= version $VERSION"
 echo
-echo "This script will write data on: ${SdBootDir}"
+echo "All data are now available"
+echo "This script will now write data on: ${SdBootDir}"
 echo
 ##    ... chiedi conferma prima di proseguire
 pause
 
+echo
 touch "${SdBootDir}ssh"
 echo "SSH Enabled"
 
@@ -141,7 +149,7 @@ chmod +x "${SdBootDir}firstboot.sh"
 echo "firstboot.sh OK"
 
 echo "Copy run_once.tar.gz archive"
-cp  "${SdBootDir}run_once.tar.gz"
+cp  run_once.tar.gz "${SdBootDir}run_once.tar.gz"
 echo "Run_once archive OK"
 
 echo "Copy run_once.sh script"
