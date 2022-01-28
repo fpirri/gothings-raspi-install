@@ -97,16 +97,14 @@ then
   exit
   ################## FINE
 else
+  source WpaConfFile
   WpaData=$(printf "${Data1}${RaspiSsid}\"${Data2}${RaspiPsk}\"${Data3}")
   echo "Your wifi credentials are:"
   echo -e ${WpaData}
   echo "FARE VERIFICA"
   pause
   exit
-else
-  echo "You have NOT defined your wifi credentials"
-  pause
-  
+fi  
 
 
 
@@ -118,9 +116,7 @@ echo "WiFi credentials ..."
 # --- wi-fi credentials:
 
 echo "Qui dovremmo controllare le credenziali wi-fi"
-
-source WpaConfFile
-
+exit
 pause
 
 echo
