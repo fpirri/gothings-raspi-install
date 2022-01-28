@@ -18,7 +18,8 @@
 ################################################################################
 #                                                               log script start
 LogFile="$HOME/run_once.sh.log"
-echo "-----> `date` run_once starts" >> "${LogFile}"
+echo "-----> `date` run_once starts" > "${LogFile}"
+exit 111
 #
 ################################################################################
 #                                                                 Funzioni utili

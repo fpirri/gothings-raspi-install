@@ -1,5 +1,6 @@
 #!/bin/bash
 #                                                                    2022-01-09
+                                                                 Version="02.00"
 #
 #
 ################################################################################
@@ -28,7 +29,7 @@ fi
 #                                                                   init logfile
 cd /home/pi
 LogFile="/home/pi/firstboot.sh.log"
-echo "`date` firstboot.sh start" > "${LogFile}"
+echo "`date` firstboot.sh ver. $Version start" > "${LogFile}"
 #
 ################################################################################
 #                                                                 Funzioni utili
@@ -72,14 +73,7 @@ log "Home content:"
 ls -la >> "${LogFile}"
 #
 ################################################################################
-#                                              expand and activate raspi-manager
-#
-# expand
-tar xpf /boot/raspi-manager.tar.gz -C "/home/pi"
-Result=$?
-errorstop ${Result} "Error expanding raspi-manager"  "Expand raspi-manager"
-#
-# verify directories
+#                                                             verify directories
 PiHome="/home/pi"
 Dockrepo="${PiHome}/dockrepo"
 setdir "${Dockrepo}"
@@ -98,32 +92,27 @@ ls -la >> $LogFile
 Result=$?
 errorstop ${Result} "Error while listing ${InstallDir}"  "${InstallDir} content"
 #
-# activate python environment
-# source ./bin/activate
-# Result=$?
-# errorstop ${Result} "Error activating python environment"  "Activate python environment"
-#
-# install requirements
-# pip install -r requirements.txt
-# Result=$?
-# errorstop ${Result} "Error installing requirements"  "install requirements"
-#
 ################################################################################
-#                                                              run raspi-manager
-# python launcher.py &
-# Result=$?
-# errorstop ${Result} "Error running raspi-manager"  "raspi-manager run"
+#                                                           activate run_once.sh
+cp /boot/run_once.sh ./
+Result=$?
+errorstop ${Result} "Copy error: run_once script" "copy run_once script"
+cp /boot/run_once.tar.gz ./
+Result=$?
+errorstop ${Result} "Copy error: run_once archive" "copy run_once archive"
+bash run_once.sh
+Result=$?
+errorstop ${Result} "Error from run_once script" "exec run_once script"
 #
 ################################################################################
 #                                                                       In prova
 
 log "Versione di prova ---------------------------"
-log "pwd: (pwd)" >> $LogFile
-sleep 3
-ps awx | grep "launcher" >> $LogFile
+log "Working dir:"
+pwd >> $LogFile
 
 #
 ################################################################################
 #                                                                 log script end
-echo "`date` firstboot.sh end" >> $LogFile
+echo "`date` firstboot.sh ver. $Version end" >> $LogFile
 #
