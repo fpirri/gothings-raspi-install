@@ -1,6 +1,6 @@
 #!/bin/bash
 #                                                                    2022-01-09
-                                                                    VERSION="02"
+                                                                 VERSION="02.00"
 #
 #   Set raspbian boot dir
 #     --> set initial data for raspbian system bootstrap
@@ -22,6 +22,7 @@
 #  - aggiungere: scopri ??/boot & verifica che sia raspbian
 #  - verifica che ci siano i file richiesti:  WpaConfFile etc.
 #  - chiedi & accetta wifi ssid & pass phrase
+#      <-- 
 #  - controlla validita' di tutte le scritture ...
 #  - verificare aggiornamenti
 #
@@ -82,9 +83,29 @@ RunOnceScript="run_once.sh"
 echo "${RunOnceScript}"
 wget -O "${RunOnceScript}" - https://github.com/fpirri/gothings-raspi-install/raw/master/"${RunOnceScript}"
 pause
-
 # file di configurazione
 WpaConfFile="WpaConfFile"
+if [ ! -s "${WpaConfFile}" ]
+then
+  echo"Get wifi credentials definition file template"
+  wget -O "${WpaConfFile}" - https://github.com/fpirri/gothings-raspi-install/raw/master/"${WpaConfFile}"
+  echo "Please edit ${WpaConfFile} file to contain your wifi SSID and PSK,"
+  echo "then re-execute this script with 'bash setsdcard' at the prompt"
+  exit
+  ################## FINE
+else
+  WpaData=$(printf "${Data1}${RaspiSsid}\"${Data2}${RaspiPsk}\"${Data3}")
+  echo "Your wifi credentials are:"
+  echo -e ${WpaData}
+  echo "FARE VERIFICA"
+  pause
+  exit
+else
+  echo "You have NOT defined your wifi credentials"
+  pause
+  
+
+
 
 WpaData=$(printf "${Data1}${RaspiSsid}\"${Data2}${RaspiPsk}\"${Data3}")
 echo "File delle credenziali wi-fi:"
