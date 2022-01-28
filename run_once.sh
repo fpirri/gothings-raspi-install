@@ -17,8 +17,8 @@
 #######
 ################################################################################
 #                                                               log script start
-LogFile="$HOME/run_once.sh.log"
-echo "-----> `date` run_once starts" > "${LogFile}"
+LogFile="run_once.sh.log"
+echo "-----> `date` run_once ver. $Version starts" > "${LogFile}"
 exit 111
 #
 ################################################################################

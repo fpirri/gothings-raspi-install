@@ -29,7 +29,7 @@ fi
 #                                                                   init logfile
 cd /home/pi
 LogFile="/home/pi/firstboot.sh.log"
-echo "`date` firstboot.sh ver. $Version start" > "${LogFile}"
+echo "`date` firstboot.sh ver. $Version starts" > "${LogFile}"
 #
 ################################################################################
 #                                                                 Funzioni utili
@@ -47,7 +47,7 @@ errorstop() {
   then
     echo "$3 | error $1 - $2" >> "$HOME/firstboot.sh.log"
     echo "`date` firstboot.sh end" >> "$HOME/firstboot.sh.log"
-    exit
+    exit $1
   else
     echo "$3 | passed" >> "$HOME/firstboot.sh.log"
   fi
