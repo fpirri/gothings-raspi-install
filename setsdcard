@@ -13,6 +13,15 @@
 #  Windows:  https://desertbot.io/blog/headless-pi-zero-w-wifi-setup-windows
 #
 ################################################################################
+#                                                  how to get & exec this script
+#   mkdir temp    <-- any temporary directory is OK
+#   cd temp
+#   wget -q -O setsdcard - https://github.com/fpirri/gothings-raspi-install/raw/master/setsdcard
+#   **** VERIFICA lo script ***
+#   bash ./setsdcard
+#     <-- SEGUI le istruzioni ...
+#
+################################################################################
 #  In aggiornamento:
 #    - uso di run_once
 #    - script iniziale: run_once.sh
@@ -81,6 +90,7 @@ then
   echo "I stop processing NOW"
   echo
   echo "Please mount your sdcard at the location: ${SdBootDir}"
+  echo "It may suffice to extract and re-insert the sdcard"
   echo
   exit
 fi

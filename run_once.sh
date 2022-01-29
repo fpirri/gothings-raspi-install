@@ -1,13 +1,13 @@
 #!/bin/bash
 #                                                                    2022-01-09
-                                                                 VERSION="02.00"
+                                                                 Version="02.00"
 #
 #    run_once installation file
 #
 #    Scopo: personalizzare la raspi per una applicazione specifica
 #
 #    La versione iniziale installera' il raspi-manager
-#    (ovvero uno script server)
+#    (ovvero lo script server di bugi)
 #
 #  @@@@@ per ora: NIENTE !!!
 #
@@ -17,9 +17,8 @@
 #######
 ################################################################################
 #                                                               log script start
-LogFile="run_once.sh.log"
+LogFile="$HOME/dockrepo/raspi-install/run_once.sh.log"
 echo "-----> `date` run_once ver. $Version starts" > "${LogFile}"
-exit 111
 #
 ################################################################################
 #                                                                 Funzioni utili
@@ -35,11 +34,11 @@ errorstop() {
 #  $3   label chiamante (per sapere dove ...)
   if [ $1 -gt 0 ]
   then
-    echo "$3 | error $1 - $2" >> "$HOME/firstboot.sh.log"
-    echo "`date` firstboot.sh end" >> "$HOME/firstboot.sh.log"
+    echo "$3 | error $1 - $2" >> "${LogFile}"
+    echo "`date` firstboot.sh end" >> "${LogFile}"
     exit
   else
-    echo "$3 | passed" >> "$HOME/firstboot.sh.log"
+    echo "$3 | passed" >> "${LogFile}"
   fi
 }
 #
@@ -56,11 +55,36 @@ setdir() {
 }
 #
 ################################################################################
+#                                        verifica - aggiornare per la produzione
+log "user: $(whoami)"
+InstallDir="${HOME}/dockrepo/raspi-install"
+cd "$InstallDir"
+Result=$?
+errorstop ${Result} "Error: $InstallDir not active"  "cd $InstallDir"
+log "$InstallDir content:"
+ls -la >> "${LogFile}"
+#
+################################################################################
 #                                                                         avviso
-log "Run Once e' partito!"
-errorstop 666 "run_once ancora da fare"  "go run_once!"
+Archive="run_once.tar.gz"
+log "Espandi l'archivio $Archive"
+tar xzvf "$Archive" -C $HOME
+Result=$?
+errorstop ${Result} "Error expanding $Archive"  "expanding $Archive"
 
-exit
+WorkDir="${HOME}/dockrepo/raspi-manager"
+cd "$WorkDir"
+Result=$?
+errorstop ${Result} "Cannot cd into $WorkDir"  "cd $WorkDir"
+log "$WorkDir content:"
+ls -la >> "${LogFile}"
+
+log "Next step: Install raspi manager"
+
+log "now in raspi manager dir"
+
+#                                                                               SONO QUI
+exit 111
 
 #
 ################################################################################
