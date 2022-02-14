@@ -140,7 +140,7 @@ echo
 echo "======================================================= version $VERSION"
 echo
 echo "All data are now available"
-echo "This script will now write data on: ${SdBootDir}"
+echo -e "${Red} This script will now write data on: ${SdBootDir} ${Std}"
 echo
 ##    ... chiedi conferma prima di proseguire
 pause

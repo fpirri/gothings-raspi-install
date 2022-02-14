@@ -61,83 +61,65 @@ InstallDir="${HOME}/dockrepo/raspi-install"
 cd "$InstallDir"
 Result=$?
 errorstop ${Result} "Error: $InstallDir not active"  "cd $InstallDir"
+#
+################################################################################
+#                                                        eliminare in produzione
 log "$InstallDir content:"
 ls -la >> "${LogFile}"
 #
 ################################################################################
-#                                                                         avviso
+#                                              espansione archivio raspi-manager
 Archive="run_once.tar.gz"
 log "Espandi l'archivio $Archive"
 tar xzvf "$Archive" -C $HOME
 Result=$?
 errorstop ${Result} "Error expanding $Archive"  "expanding $Archive"
-
 WorkDir="${HOME}/dockrepo/raspi-manager"
 cd "$WorkDir"
 Result=$?
 errorstop ${Result} "Cannot cd into $WorkDir"  "cd $WorkDir"
+#
+################################################################################
+#                                                          install raspi manager
+#                                                   aggiornare per la produzione
 log "$WorkDir content:"
 ls -la >> "${LogFile}"
-
-log "Next step: Install raspi manager"
-
 log "now in raspi manager dir"
 
-#                                                                               SONO QUI
-exit 111
+log "ToDo: Install required programs"
+log "venv:"
+sudo apt install -y python3-venv  >> "${LogFile}"
+Result=$?
+errorstop ${Result} "Error installing python3-venv"  "Install python3-venv"
+
+log "pip3"
+sudo apt install -y python3-pip >> "${LogFile}"
+Result=$?
+errorstop ${Result} "Error installing python3-pip"  "Install python3-pip (pip3)"
+
+log "install requirements"
+pip3 install -r requirements.txt >> "${LogFile}"
+Result=$?
+errorstop ${Result} "Error installing requirements"  "Install requirements"
+
+
+log "launch script server"
+python3 launcher.py &
+Result=$?
+errorstop ${Result} "error launching script server"  "script server launch"
 
 #
 ################################################################################
-#
-################################################################################
-#                                                                         avviso
-#                                          download latest manager da repository
-#
-wget -O ${HOME}/managerdirs.tar.gz https://github.com/fpirri/gothings-raspi-manager/raw/main/managerdirs.tar.gz
-#
-#
-################################################################################
-#                                                             expand in dockrepo
-#
-tar xpf "${HOME}/managerdirs.tar.gz" -C "${HOME}"
-Result=$?
-errorstop ${Result} "expand managerdirs.tar.gz error"  "Get managerdirs.tar.gz"
-#
-################################################################################
-#                                                               Lancia il server
-cd "${HOME}/dockrepo/raspi-manager"
-echo "provo a lanciare lo script-server ..."
-pip install -r requirements.txt
-Result=$?
-errorstop ${Result} "pip error in requirements.txt"  "pip requirements"
+#                                                                       In prova
 
-python3 launcher.py
-Result=$?
-errorstop ${Result} "error in launcher.py"  "launch script server"
+log "Versione di prova ---------------------------"
+log "Working dir:"
+pwd >> $LogFile
 
-exit
+#
+################################################################################
+#                                                                 log script end
+echo "`date` run_once.sh ver. $Version ends" >> $LogFile
+#
 #*************************** Versione di prova end
 
-
-################################################################################
-#                                                                installa sul PC
-#
-./dockrepo/raspi-manager/install_raspi_manager
-Result=$?
-errorstop ${Result} "install raspi-manager error"  "Install raspi-manager"
-#
-################################################################################
-#                                                                Avvisa l'utente
-#
-echo
-echo "No errors?"
-echo
-echo "Congratulations! You have installed your PC Manager"
-echo
-echo "Open a browser in this PC and go to the site:"
-echo "  localhost:5000"
-echo
-echo "You may like to try the script 'Ping your raspi'"
-echo
-echo "Please have a look at the documentation at 'www.gothings.org'"
-echo
