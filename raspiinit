@@ -54,14 +54,14 @@ wget -O ./quickinstall https://github.com/fpirri/gothings-raspi-install/raw/mast
 ################################################################################
 #                                                             expand in dockrepo
 #
-sudo tar xpf quickinstall.tar.gz" -C "${HOME}"
+sudo tar xpf quickinstall.tar.gz -C "${HOME}"
 #
 #
 ################################################################################
 #                                                                installa sul PC
 #
 exit
-source /dockrepo/raspi-install/quickinstall
+source /dockrepo/raspi-install/quickstart.sh
 #
 ################################################################################
 #                                                                Avvisa l'utente
