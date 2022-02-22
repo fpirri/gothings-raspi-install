@@ -49,18 +49,51 @@ You can find information on Gothings software at: www.gothings.org
 ################################################################################
 #                                          download latest manager da repository
 #
-wget -O ./quickinstall.tar.gz https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
+# per evitare la cache (nel network) durante lo sviluppo:
+# wget --no-check-certificate --no-cache --no-cookies -O ./raspiinit https://github.com/fpirri/gothings-install/raw/master/raspiinit
 #
+wget -O ./quickinstall.tar.gz https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
+Result=$?
+if [ $Result -gt 0 ]
+then
+  echo "Error $Result while reading quickinstall.tar.gz on github"
+  echo "This should not happen!"
+  echo "please verify your internet connection"
+  echo "Eventually, please report to the developers"
+  exit
+fi
 ################################################################################
 #                                                             expand in dockrepo
 #
 sudo tar xpf quickinstall.tar.gz -C "${HOME}"
+Result=$?
+if [ $Result -gt 0 ]
+then
+  echo "Error $Result while expanding the quickinstall.tar.gz archive"
+  echo "This should not happen!"
+  echo "Eventually, please report to the developers"
+fi
 #
 #
 ################################################################################
 #                                                                installa sul PC
 #
-source /dockrepo/raspi-install/quickstart.sh
+cd ~/dockrepo/sysdata/raspi-install
+Return=$?
+if [ $Result -gt 0 ]
+then
+  echo "Error $Result while changing directory to ~/dockrepo/sysdata/raspi-install"
+  echo "This should not happen!"
+  echo "Eventually, please report to the developers"
+fi
+bash /dockrepo/raspi-install/quickstart.sh
+Return=$?
+if [ $Result -gt 0 ]
+then
+  echo "Error $Result while executing quickstart"
+  echo "This may happen from errors during quickstart execution"
+  echo "Please report all errors you find to the developers"
+fi
 #
 ################################################################################
 #                                                                Avvisa l'utente
