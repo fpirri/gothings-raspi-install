@@ -49,7 +49,7 @@ You can find information on Gothings software at: www.gothings.org
 ################################################################################
 #                                          download latest manager da repository
 #
-wget -O ./quickinstall https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
+wget -O ./quickinstall.tar.gz https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
 #
 ################################################################################
 #                                                             expand in dockrepo
