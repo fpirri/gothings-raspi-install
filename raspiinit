@@ -60,7 +60,6 @@ sudo tar xpf quickinstall.tar.gz -C "${HOME}"
 ################################################################################
 #                                                                installa sul PC
 #
-exit
 source /dockrepo/raspi-install/quickstart.sh
 #
 ################################################################################
@@ -69,12 +68,10 @@ source /dockrepo/raspi-install/quickstart.sh
 echo
 echo "No errors?"
 echo
-echo "Congratulations! You have installed your PC Manager"
+echo "Congratulations! You have installed firstboot service into your board"
 echo
-echo "Open a browser in this PC and go to the site:"
+echo "You may continue to reboot your board and invoke firstboot"
+echo "After that you can access the board from your browser at:"
 echo "  localhost:5000"
 echo
-echo "You may like to try the script 'Ping your raspi'"
-echo
-echo "Please have a look at the documentation at 'www.gothings.org'"
 echo
