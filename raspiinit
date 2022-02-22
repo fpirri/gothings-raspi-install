@@ -86,7 +86,7 @@ then
   echo "This should not happen!"
   echo "Eventually, please report to the developers"
 fi
-bash /dockrepo/raspi-install/quickstart.sh
+bash ~/dockrepo/raspi-install/quickstart.sh
 Return=$?
 if [ $Result -gt 0 ]
 then
