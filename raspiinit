@@ -1,0 +1,82 @@
+#!/bin/bash
+#-------------------------------------------------------------------------------
+#                                                                     2022-02-22
+                                                                  Version="1.01"
+#  Installatore costruito dopo quickstart
+#
+#  scopo:
+#    Inizializzazione scheda raspi con
+#      OS base raspbian
+#      estensione firstboot da raspberian
+#        <-- credits to:   ?fare link
+#      estensione script server da bugy/script server
+#        <-- credits to:   ?fare link
+#
+#   sudo tar -czvpf "${NameTar}" dockrepo/
+#-------------------------------------------------------------------------------
+#
+# download:
+#   wget -O ./raspiinit https://raw.githubusercontent.com/fpirri/gothings-install/master/raspiinit
+#
+#-------------------------------------------------------------------------------
+#
+# creazione archivio:
+#   sudo tar -czvpf "${NameArchive}" dockrepo/
+#     <-- in questo caso puo' bastare: dockrepo/sysdata
+#
+#------------------------------------------------------------------------------
+#                                                                         avviso
+echo
+echo "=============================================================== $Version"
+echo
+echo "    GOTHINGS boot loader for Raspberry (C) board management"
+echo
+echo "======================================================================="
+echo
+echo 'This script will download software to initialize your Raspi board
+
+The board will be able to run initialization software at next boot to
+allow you to access the board using a standard browser on PC or mobile
+
+The script creates a directory in your homedir, named "dockrepo", to contain the
+installer for your raspi. This dir can also be used in the future to contain all
+the GoThings software
+
+Please look at the README file on github to verify the performed operations
+  ( https://github.com/fpirri/gothings-install/ )
+
+You can find information on Gothings software at: www.gothings.org
+'
+#
+################################################################################
+#                                          download latest manager da repository
+#
+wget -O ./quickinstall https://github.com/fpirri/gothings-raspi-install/raw/main/quickintall.tar.gz
+#
+################################################################################
+#                                                             expand in dockrepo
+#
+sudo tar xpf quickinstall.tar.gz" -C "${HOME}"
+#
+#
+################################################################################
+#                                                                installa sul PC
+#
+exit
+source /dockrepo/raspi-install/quickinstall
+#
+################################################################################
+#                                                                Avvisa l'utente
+#
+echo
+echo "No errors?"
+echo
+echo "Congratulations! You have installed your PC Manager"
+echo
+echo "Open a browser in this PC and go to the site:"
+echo "  localhost:5000"
+echo
+echo "You may like to try the script 'Ping your raspi'"
+echo
+echo "Please have a look at the documentation at 'www.gothings.org'"
+echo

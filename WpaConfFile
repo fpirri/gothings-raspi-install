@@ -1,3 +1,0 @@
-# this file will be sourced to get wifi credentials
-RaspiSsid="<il tuo ssid>"
-RaspiPsk="<una password>"
