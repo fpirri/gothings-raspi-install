@@ -33,14 +33,12 @@ echo "    GOTHINGS boot loader for Raspberry (C) board management"
 echo
 echo "======================================================================="
 echo
-echo 'This script will download software to initialize your Raspi board
-
-The board will be able to run initialization software at next boot to
-allow you to access the board using a standard browser on PC or mobile
+echo 'This script will download software from github
+The board will be able to run initialization software at next boot
+This allows you to use a standard browser to access the board
 
 The script creates a directory in your homedir, named "dockrepo", to contain the
-installer for your raspi. This dir can also be used in the future to contain all
-the GoThings software
+installer and future downloads of GoThings software
 
 Please look at the README file on github to verify the performed operations
   ( https://github.com/fpirri/gothings-install/ )
