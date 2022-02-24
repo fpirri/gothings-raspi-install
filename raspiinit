@@ -1,7 +1,8 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
 #                                                                     2022-02-22
-                                                                  Version="1.01"
+                                                                  Version="1.07"
+                                                                         Debug=1
 #  Installatore costruito dopo quickstart
 #
 #  scopo:
@@ -18,6 +19,34 @@
 # download:
 #   wget -O ./raspiinit https://github.com/fpirri/gothings-install/raw/master/raspiinit
 #
+# download & run:
+#   wget -O ./raspiinit https://github.com/fpirri/gothings-install/raw/master/raspiinitb && bash raspiinit
+#
+#-------------------------------------------------------------------------------
+# development:
+#  - work in .../gothings-raspi-install-aux/dockrepo/raspi-install/
+#      <-- to avoid delays in reading updates from github (owing to cache in distribution network)
+#      <-- in raspiinit, set variable Debug to 1
+#  - start directly in the dir with ./start-raspi-install
+#      <-- the script will copy the local version if 'bash raspiinit'
+#      <-- raspiinit will use the archive .../raspi-install/quickinstall.tar.gz 
+#          i.e the resident archive, without re-loading from github
+#  - 
+#  - updates made in any sysdata file should be put into the .tar.gz.archive
+#      <-- i.e. the local archive contains the most recent revision
+#  - at the end of the dev session:
+#    - update Version in raspiinit
+#    - set Debug=0 in raspiiinit
+#    - make sure the .tar.gz archive contains all the changes in sysdata
+#    - copy raspiinit & quickinstall.tar.gz into .../gothings-raspi-install/*
+#    - commit .../gothings-raspi-install repository in NetBeans
+#    - commit updates in github.com
+#  - TEST the result:
+#    - download (only) raspiinit from github
+#    - verify raspinit Version, the net may give you the cached version
+#    - in case, you may download with:
+#        wget --no-check-certificate --no-cache --no-cookies -O ./raspiinit https://github.com/fpirri/gothings-install/raw/master/raspiinit
+#
 #-------------------------------------------------------------------------------
 #
 # creazione archivio:
@@ -25,17 +54,56 @@
 #     <-- in questo caso puo' bastare: dockrepo/sysdata
 #
 #------------------------------------------------------------------------------
-#                                                                         avviso
+#
+##########################################################################
+#                                                           user functions
+#
+Red='\033[0;41;30m'
+Std='\033[0;0;39m'
+#
+redline(){
+# stampa in rosso la stringa $1
+echo -e ${Red}"$1"${Std}
+}
+#
+pause(){
+#  ask key before continuing (^C is active)
+#    $key:  user input key
+#
+echo '--------------------------------------------------------------'
+  read -rsp $'Any key to continue, ^C to STOP ' -n 1 key
+}
+#
+continue() {
+#  ask for user consense or stop processing
+#   Y   continue
+#   *   stop processing
+#
+  read -rsp "Do you like to Continue ? [y/N] " -n 1 key
+  case "$key" in
+    [yY]) 
+      echo
+      echo "OK, let's go on"
+      echo
+      ;;
+    *)
+      echo
+      echo "It is not 'y' or 'Y', so I exit"
+      exit
+      ;;
+  esac
+}
+#
 echo
 echo "=============================================================== $Version"
 echo
 echo "    GOTHINGS boot loader for Raspberry (C) board management"
 echo
-echo "======================================================================="
+echo "================================================================ Debug: $Debug"
 echo
 echo 'This script will download software from github
 The board will be able to run initialization software at next boot
-This allows you to use a standard browser to access the board
+This allows you to use a standard browser to command the board
 
 The script creates a directory in your homedir, named "dockrepo", to contain the
 installer and future downloads of GoThings software
@@ -45,26 +113,29 @@ Please look at the README file on github to verify the performed operations
 
 You can find information on Gothings software at: www.gothings.org
 '
+pause
+#
+if [ $Debug -eq 0 ]
+then
 #
 ################################################################################
 #                                          download latest manager da repository
-#
-# per evitare la cache (nel network) durante lo sviluppo:
-# wget --no-check-certificate --no-cache --no-cookies -O ./raspiinit https://github.com/fpirri/gothings-install/raw/master/raspiinit
-#
-wget -O ./quickinstall.tar.gz https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
-Result=$?
-if [ $Result -gt 0 ]
-then
-  echo "Error $Result while reading quickinstall.tar.gz on github"
-  echo "This should not happen!"
-  echo "please verify your internet connection"
-  echo "Eventually, please report to the developers"
-  exit
+  echo 'Download from github ...'
+  wget -O ./quickinstall.tar.gz https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
+  Result=$?
+  if [ $Result -gt 0 ]
+  then
+    echo "Error $Result while reading quickinstall.tar.gz on github"
+    echo "This should not happen!"
+    echo "please verify your internet connection"
+    echo "Eventually, please report to the developers"
+    exit
+  fi
 fi
 ################################################################################
 #                                                             expand in dockrepo
 #
+echo "Expand .tar.gz archive ..."
 sudo tar xpf quickinstall.tar.gz -C "${HOME}"
 Result=$?
 if [ $Result -gt 0 ]
@@ -86,25 +157,38 @@ then
   echo "This should not happen!"
   echo "Eventually, please report to the developers"
 fi
-bash ~/dockrepo/raspi-install/quickstart.sh
+echo "exec quickstart"
+pause
+bash quickstart.sh
 Return=$?
 if [ $Result -gt 0 ]
 then
-  echo "Error $Result while executing quickstart"
+  echo "Error $Result while executing raspiinit"
   echo "This may happen from errors during quickstart execution"
-  echo "Please report all errors you find to the developers"
-fi
+  echo "Please verify the script output above and report all"
+  echo "errors you find to the developers"
 #
 ################################################################################
 #                                                                Avvisa l'utente
+else
 #
-echo
-echo "No errors?"
-echo
-echo "Congratulations! You have installed firstboot service into your board"
-echo
-echo "You may continue to reboot your board and invoke firstboot"
-echo "After that you can access the board from your browser at:"
-echo "  localhost:5000"
-echo
-echo
+  echo '
+No errors?
+
+Congratulations! You have installed firstboot service into your board.
+
+At next reboot the fistboot service will install the GoThings 
+script-server at the URL:
+    http://<Your Raspi IP Address>:5000"
+Please note that any browser in your LAN can access the script server
+
+While direct control from internet is not allowed, the situation is NOT
+sufficently secure
+It is recommended you restrict the access to your personal PC only.
+
+Please follow the recommendation at:
+    https://www.gothings.org/raspi/script-security-advice
+
+
+--------'
+fi
