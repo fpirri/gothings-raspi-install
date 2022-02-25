@@ -1,7 +1,7 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
 #                                                                     2022-02-22
-                                                                  Version="1.07"
+                                                                  Version="1.08"
                                                                          Debug=1
 #  Installatore costruito dopo quickstart
 #
@@ -72,6 +72,7 @@ pause(){
 #
 echo '--------------------------------------------------------------'
   read -rsp $'Any key to continue, ^C to STOP ' -n 1 key
+echo
 }
 #
 continue() {
@@ -102,8 +103,9 @@ echo
 echo "================================================================ Debug: $Debug"
 echo
 echo 'This script will download software from github
-The board will be able to run initialization software at next boot
-This allows you to use a standard browser to command the board
+
+The board will be able to run initialization software at next boot, to
+allow you to use a standard browser to command the board
 
 The script creates a directory in your homedir, named "dockrepo", to contain the
 installer and future downloads of GoThings software
