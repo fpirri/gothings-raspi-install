@@ -1,7 +1,7 @@
 # GoThings Raspi Install
-Get containerized HTTP server, node js, python and more on your raspi !  
+Raspberry &copy; boards bootstrap installer
 
-You will also have docker installed on the Raspberry board  
+1st step to customized installations using just your browser.  
 <br />
 
 ADVICE:
@@ -9,22 +9,25 @@ ADVICE:
 
 **This project is under construction.**  
 
-Project documentation is sparse and not reliable, owing to the on-going (re-)definition of many secondary aspects of the project.  
-Owing to the above, please be aware it may be difficult to use this repository to make useful work.  
+This version is being adjusted. This notice will be removed after the update is completed.
 
-Anyway, the original work included may be used according to the permissible MIT License.  
+This project is now subjected to a major revision.
+As such, the documentation is currently somewhat inconsistent with the actual operation of the installer.
 
-Please read the [disclaimer](#disclaimer) for more information  
+This work was done by leveraging the work of open source authors. The recognition of these sources is made with links to the various works and, above all, in the  [ACKNOWLEDGEMENT](https://github.com/fpirri/gothings-raspi-install/blob/master/ACKNOWLEDGEMENT.md) section.  
+The original work included can be used according to the permissible MIT License.  
+
+Please goto the  [ACKNOWLEDGEMENT](https://github.com/fpirri/gothings-raspi-install/blob/master/ACKNOWLEDGEMENT.md) page for a list of the external software used here.  
+Please read the [disclaimer](#disclaimer) for more information.  
+
 <br/>
 
 ----
 [What GoThings Raspi Install does](#what-gothings-raspi-install-does)  
 [What you get](#what-you-get)  
 [What you need](#what-you-need)  
-[GoThings System short description](#gothings-system-short-description)  
 [Pre-installation steps](#pre-installation-steps)  
-[GoThings installation](#gothings-installation)  
-
+[Raspi install](#raspi-install)  
 [Disclaimer & Licensing](#disclaimer)  
 
 ----
@@ -34,212 +37,129 @@ Please read the [disclaimer](#disclaimer) for more information
 What GoThings Raspi Install does
 ----  
 
-* Lets you click/perform a sequence of actions to install docker on your raspberry pi board
-* ***GoThings Raspi Install*** allows you to set locales, get some data from github and initialize the ***GoThings System***
-* It runs a demo application
-* It also install and execute the ***GoThings Control Menu*** on the board  
-  
-  
- ***GoThings Control Menu*** allows you to manage lifecycle of your containers
-   
- ***GoThings System*** is an ensemble of cloud and embedded applications briefly described [below](#gothings-system-short-description")  
- 
+- Raspi-Install is simply a bootstrap application, i.e. it installs a bigger application, then it hides itself until called again by the user.  
+- The default version installs the GoThings Raspi Manager <insert-link>;  
+- The user can easily bootstrap other application customizing the run_once script only
+
+NOTE: This bootstrap was made for the ***GoThings System***, which is an ensemble of cloud and embedded applications described here](https://www.gothings.org)  
+
 <br />  
 
 What you get  
 ----  
 
-   - docker installed in your raspberry pi (P1 & Pi Zero)
-   - nginx running in your board as an HTTPS gateway to the external world
-   - a basic HTTP service on-board
-   - a NODE JS demo application you can modify
-   - the ***GoThings Control Menu*** to manage your GoThings System
+Final result of the bootstrap process is an application installed on your raspi at next boot.  
+The default application is an HTTP server which allows you to run bash scripts using a standard browser in the same LAN of your raspi board.  
+This is obtained bringing together three systems: the raspbian operating system, the raspberian-firstboot service and the bugy-script-server
+Please find further details at <link-da-fare>;  
+The procedure is customizable, so the user can use the same process to install whatever application just by changing a run_once script.  
 
-Through **GoThings Control Menu** you manage the lifecycle of all containers and user data in the *GoThingsSystem*
-
-After that you may write your programs using javascript, python or PHP languages. They will each run in its own container.  
-
-Please note the docker installation is a standard one. The *GoThings System* configuration data is made up from a few files and you may delete them and use docker for any other purpose.
-  
 <br />  
 
 What you need
 ----  
-  
-* a raspberry P1-B+ or PI Zero W board
-    * the procedure may work for other Raspberry board models
+
+* a Raspberry &copy; board
+    * the procedure should work for every board supported by the raspbian OS you choose  
     * anyway, it is tested on P1B+ and Zero W boards only
-* an sd-card to store the raspbian OS  
-* an internet connection (you will download several big files)
-    * you can download the OS from:  
-          https://downloads.raspberrypi.org/raspbian_lite/images/  
-        
-* you have to follow the [PRE-INSTALLATION](#pre-installation-steps) procedure documented below to run the raspbian system on your raspberry *zero* board  
-   
+* an sd-card to store the raspbian OS and a few scripts  
+* an internet connection to download the OS and the raspi-install  
+* you have to follow the [PRE-INSTALLATION](#pre-installation-steps) procedure documented below   
+
 Finally, please follow the instructions in the [INSTALLATION](#gothings-installation) section below
- 
-<br />  
-
-GoThings System short description  
-----  
-
-* The *GoThings System* is made up from a number of co-operating docker containers
-* each container does a specific function but all the ensemble is seen from the network as a single entity
-    * each container may use a different language, i.e. javascript, python, PHP, ...
-* The *GoThings System* is made up from two parts: 'base' & 'user'
-* The 'base' part gives to the GoThings System the capabilities common to most applications, such as network access and security  
-* The 'user' part is specific to a particular configuration
-    * please note: this part allows users to run their own code
-* *GoThings* run in your Internet-of-Things, on the ARM achitecture boards such as the Raspberry Pi
-* An alpha version of *GoThings* is now running in standard cloud virtual systems (It will be published  [here](https://github.com/fpirri/gothings-cloud))
-
-<br />
-
-In [github raspi-apps](https://github.com/fpirri/gothings-raspi-apps)  you find:
-* **GoThings Control Menu** to manage the lifecycle of your containers
-* some templates that can be customized for specific purposes
- 
-<br />  
 
 <br />  
- 
-### GoThings can be defined as:
-##### a Docker Distributed Things Operating System (DDT-OS) running on a number of networked things.
-  
-GoThings uses nodejs, vuejs and python-flask technologies.  
-GoThings networking is based on http protocol and exploits many of the nginx+lua+redis capabilities  
-  
-  
+
 ------------------------------
 
 <br/>
 
 ## Pre-installation steps
 
+The goal of the pre-installation is to have an sd card containing a standard version of the raspbian operating system.  
+I will not try to outsmart what you can find in iternet about this goal.
+You may google something like 'raspberry pi os installation guide' to obtains valuable informations.
+Among the top you find documentation [from the manufacturer](https://www.raspberrypi.com/documentation/computers/getting-started.html) 
+containing the detailed instructions to use the Raspberry pi imager.   
+Many others pages and videos are available.
+Personally, I used the search 'raspberry pi headless setup wifi' to find how to setup my Pi ZeroW.
+I found this extremely useful to start working with network only connection which really is the only thing you need to have an SSH connection to your board. 
+In fact, the procedure can be used for every raspi board.
+At the next boot the board will connect to internet and initialize itself without asking anything to you.
+Main advantage of Raspberry Pi Imager is you can setup SSH access and wifi LAN connection just filling 
+some [advanced options](https://www.raspberrypi.com/documentation/computers/getting-started.html#using-raspberry-pi-imager)   
+The imager source is on [github](https://github.com/raspberrypi/imagewriter)
+You may find interesting information on to the advanced options [here](https://www.tomshardware.com/news/raspberry-pi-imager-now-comes-with-advanced-options)  
 
-The raspberry board must be reachable with an SSH connection in order to function. If you are already able to reach the card from an SSH terminal, the pre-installation step described here is useless and you can skip straight to the installation section below.
-- Choose your raspbian image.
-   - the following instructions use the ***buster lite*** version of raspbian OS from the official rasperry site
-   - You have to burn your sd-card to use it on the rasperry
-   - if you wish to use a different release, please note that docker does not run on every armv6l raspbian image, you have to test it by yourself
- <br/>
- 
-Please note you have to abilitate SSH access on your raspberry in order to use the *GoThings System*  
-To this end you may follow the official instructions or google 'headless raspberry setup' and choose one of the many tutorials.    
-I successfully followed this [tutorial](https://styxit.com/2017/03/14/headless-raspberry-setup.html)  
-You must also abilitate the wi-fi connection to use the *zero w* raspi model  
-  
-If it happens you use Linux on your PC, you can download the [setraspiboot](https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot) script. Point and save the link on your PC and follow the instructions below.  
-The script is tested with bash shell on ubuntu, it should run an many other linuxes.  
-It may also run on MS Windows 10, *extended* with WSL (**not tested**).  
-  
-The steps to follow:  
-* download the (https://downloads.raspberrypi.org/raspbian_lite/images/raspbian_lite-2020-02-14/2020-02-13-raspbian-buster-lite.zip) raspbian image from the raspberry official site  
-    * if you use [balena etcher](https://www.balena.io/etcher/) SD-card burning software you don't need to expand the zip archive  
-* burn the *buster* image onto your SD card  
-    * at minimum an 8GB card is required  
-    * a 16GB or greater is recommended  
-* inspect the burned card on your PC  
-    * you should find two volumes: *boot* & *rootfs*
-    * on ubuntu 18.04 the boot volume path probably is: /media/&lt;username&gt;/boot
-    * were &lt;username&gt; is your user name on the PC
-* take note of the path of the boot volume
-* download the setraspiboot script at https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/setraspiboot
-    * open it in your editor
-    * at the top you find 2 variables:  
-       SDBOOTDIR  
-       WPA_DATA
-* update the script content:
-   * your boot volume path in SDBOOTDIR
-   * your wifi data in  WPA_DATA
-   * you may add as many wifi network as you like
-* save the script and launch it with the command:  
-     source setraspiboot  
-    * the script will run in your current environment
-* eject the sd-card
-* put the new card in the raspberry board and power it up
-  
-First time you should allow the board to complete OS installation.  
-It may take up to a few minutes.  
-You should see faint flashes of the LED, periods of darkness and finally the LED stably lit for more than 10 seconds  
+The imager only option for storage is an SD card. I prefer to have a personalized .img file on my PC to skip the Pi Imager step next time.
+The google search 'create image file from sd card' offers ways for windows, mac and linux system.
 
-At the end you can:
-- Connect via ssh from a PC terminal on the same LAN
-   - in terminal you can write:  
-        ssh pi@raspberrypi.local
-        
-      normally it automatically find the new board on LAN
-   -  If that don't function please try googling 'find your raspberry IP address'  and connect via ssh from terminal:
-        
-          ssh pi@<your IP address>
-          
-          
-- It is **VERY IMPORTANT** that you change your password to a very strong one ...
+Final result of the pre-installationc step is an SD card ready to be inserted into the raspberry board.
 
-    -   **<-- PLEASE FOLLOW** this advice !!!
-
-
-**You should now have a raspberry PI, reachable via ssh, which can run the GoThings System**
-    
 <br />
 
 -------------------------------
 
 <br />
 
-# GoThings installation
+# Raspi Install
+
+You should now have a raspi board with an SD card containing a raspbian OS which will connect to your network through wifi or LAN.
+The requisite for raspi-install is to have an SSH connection to automate the use of the bootstrap process.
+
+The raspi board should be powered for a few minutes before executing this
+process, until it shows very low activity for at least 10 seconds.
+If the board is first-time powered, time needed may range from one minute to
+several minutes.  
+(my Pi Zero with a good network connection: ~ 3 minutes)   
+
+#### Quickstart
+The fast (and dirty) way to go is to download a bash script from github and execute it in any directory of your choice:  
+wget -O ./raspiinit https://github.com/fpirri/gothings-install/raw/master/raspiinit && bash raspiinit   
+Please note you need a linux system for this. Any raspi board can be used.
+
+***ADVICE***
+security of such an action is **absolutely bad**
+The secure way is to download the script, verify its actions and eventually go on only after you find it secure.
+
+The script will describe its own action while executing.    
+It will ask you several times if you like to continue. The pause may be useful to get a feeling of the script operations.   
+It is also useful during the beta-test now on course, to report errors to the developer (if you like).
+
+You can post a comment on the [GoThings homepage](https://www.gothings.org)   
+I will be grateful for your eventual suggestions to enhance the script in any way.
+
+When the script ask if you like to continue, press any single key in your
+keyboard to continue.
+If you press ^C, that is both the ctrl key and 'C', the process will STOP
+
+Script operations are detailed on this [GoThings page](https://www.gothings.org/raspberry-gothings/raspi-install/) 
+The main point to note is that it creates the directories ~/dockrepo/raspi-install/ and ~/dockrepo/sysdata/ in your user home.
+If you don't like it I suggest you use another raspberry board to control this script.
+
+
+The procedure should function on an already used sd card, i.e. the next boot 
 
 <br />
 
-#### 1- Connection
+#### 1- Raspi first boot
 Connect to your board via ssh, commands below should be gived in the home directory /home/pi
 
-#### 2- Download the 'zero' script
+#### 2- Download and launch the 'raspiinit' script
 Exec the command:
 
       wget -O /home/pi/0 https://raw.githubusercontent.com/fpirri/gothings-raspi-install/master/0
 
-The file *0* is the primary bootstrap script.  
-     
-
- 
-#### 3- exec the zero script
+#### 3- Follow the screen
 Exec the command:
 
-        source 0
 
-please note: the script runs locally, without the need to mark it as executable
+#### 4- Reboot?
 
-#### 4- Install actions
+If the script ends with no errors you may choose to powerdown
 
-Follow the procedure suggested by the zero script, one action at a time.  
-**It is advisable to exec first and second actions only once.**  
-You may execute the following sections multiple times, althought it should not be necessary.  
 
-###### 4.1- Utils
-
-First action set the board as recommended for running docker and docker-compose.  
-Locales  GB, IT and US are created.  
-Also, the archive raspi-testdirs.tar.gz is downloaded from github and expanded.
-This install a number of directories and files that allow to run a simple test and prepare the board for GoThings applications.  
-
-###### 4.2- Install DOCKER
-
-This automates the installing of docker binaries, following the standard apt procedure. 
-
-###### 4.3- Install COMPOSE
-
-This step follows this [tutorial](https://dev.to/rohansawant/installing-docker-and-docker-compose-on-the-raspberry-pi-in-5-simple-steps-3mgl) to install docker-compose.  
-This step is a time-consuming one: in my raspi zero w it spent an hour to go.
-
-###### 4.4- Test
-
-This section install a web server on your raspi and allow you to browse a few test pages.  
-It eventually confirms the whole install process and the network connection.  
-You can start browsing loooking at the test page:  
-   http://your-raspi-ip-address:8080  
-
-###### 4.5- Go
+#### 5- Go
 
 Last action dowload the  go-raspi control script from github. It also allow you to exec the menu by typing './go-raspi' in the /home/pi/ directory.   
 
@@ -248,14 +168,11 @@ Last action dowload the  go-raspi control script from github. It also allow you 
 
 <br /><hr />
 
-# Enjoy docker and GoThings !
------
-
 
 <br />
 
 # DISCLAIMER
-As commonplace in github, the project may include other work which may have different licensing terms.  
+As commonplace in github, the project include other work which may have different licensing terms.  
 The author make his best to note usability and provenience of every work included here.  
 A list of the software that inspired this work is reported in the [ACKNOWLEDGEMENT](https://github.com/fpirri/gothings-raspi-install/blob/master/ACKNOWLEDGEMENT.md) section.  
 <br/>
@@ -269,5 +186,3 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 Please consult the [LICENSE](https://github.com/fpirri/gothings-raspi-install/blob/master/LICENSE) section.
-
-
