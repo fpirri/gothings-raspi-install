@@ -1,7 +1,7 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
 #                                                                     2022-02-22
-                                                                  Version="1.09"
+                                                                  Version="1.10"
                                                                          Debug=1
 #  Installatore costruito dopo quickstart
 #
@@ -20,7 +20,7 @@
 #   wget -O ./raspiinit https://github.com/fpirri/gothings-install/raw/master/raspiinit
 #
 # download & run:
-#   wget -O ./raspiinit https://github.com/fpirri/gothings-install/raw/master/raspiinitb && bash raspiinit
+#   wget -O ./raspiinit https://github.com/fpirri/gothings-install/raw/master/raspiinit && bash raspiinit
 #
 #-------------------------------------------------------------------------------
 # development:
@@ -137,6 +137,7 @@ fi
 ################################################################################
 #                                       quickinstall.tar.gz deve essere presente
 if [[ ! -s "./quickinstall.tar.gz" ]]
+then
   echo "Download archive quickinstall.tar.gz from github ..."
   wget -O ./quickinstall.tar.gz https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
 fi
