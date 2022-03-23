@@ -90,7 +90,7 @@ continue() {
     *)
       echo
       echo "It is not 'y' or 'Y', so I exit"
-      exit
+      exit  81
       ;;
   esac
 }
@@ -131,7 +131,7 @@ then
     echo "This should not happen!"
     echo "please verify your internet connection"
     echo "Eventually, please report to the developers"
-    exit
+    exit 83
   fi
 fi
 ################################################################################
@@ -145,7 +145,7 @@ fi
 #                                                             expand in dockrepo
 #
 echo "Expand .tar.gz archive ..."
-sudo tar xpf quickinstall.tar.gz -C "${HOME}"
+tar xpf quickinstall.tar.gz -C "${HOME}"
 Result=$?
 if [ $Result -gt 0 ]
 then
@@ -176,9 +176,11 @@ then
   echo "This may happen from errors during quickstart execution"
   echo "Please verify the script output above and report all"
   echo "errors you find to the developers"
+  echo
+  exit 85
 #
 ################################################################################
-#                                                                Avvisa l'utente
+#                                                                      Avviso OK
 else
 #
   echo '
@@ -186,13 +188,13 @@ No errors?
 
 Congratulations! You have installed firstboot service into your board.
 
-At next reboot the fistboot service will install the GoThings 
+At next reboot the firstboot service will install the GoThings 
 script-server at the URL:
     http://<Your Raspi IP Address>:5000"
 Please note that any browser in your LAN can access the script server
 
-While direct control from internet is not allowed, the situation is NOT
-sufficently secure
+While direct control from public internet is not allowed, the situation 
+is NOT sufficently secure
 It is recommended you restrict the access to your personal PC only.
 
 Please follow the recommendation at:
