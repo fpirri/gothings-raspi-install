@@ -1,7 +1,7 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
 #                                                                     2022-02-22
-                                                                  Version="1.11"
+                                                                  Version="1.12"
                                                                          Debug=1
 #  Installatore costruito dopo quickstart
 #
@@ -159,7 +159,7 @@ fi
 #                                                                installa sul PC
 #
 cd ~/dockrepo/sysdata/raspi-install
-Return=$?
+Result=$?
 if [ $Result -gt 0 ]
 then
   echo "Error $Result while changing directory to ~/dockrepo/sysdata/raspi-install"
@@ -169,7 +169,7 @@ fi
 echo "exec quickstart"
 pause
 bash quickstart.sh
-Return=$?
+Result=$?
 if [ $Result -gt 0 ]
 then
   echo "Error $Result while executing raspiinit"
