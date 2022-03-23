@@ -80,7 +80,7 @@ which is the same statement issued by this script. The board response should evi
 
 
   Q-106
-  Cannot set firstboot service"
+  Cannot set firstboot service
   ERROR Q-106 with Result: <xx>
   Section: quickstart
 The script attempted a few operation to make firstboot service operational.
@@ -89,11 +89,28 @@ You shoud find above some error. Please verify.
 
 
   Q-107
-  Cannot set firstboot service"
-  ERROR Q-106 with Result: 
+  Cannot set firstboot service
+  ERROR Q-107 with Result: 
   Section: quickstart
-Errors found while performing the finel control on the board.
+Errors found while performing the final control on the board.
 You shoud find above some error. Please verify.
+
+
+
+  Q-155
+  Cannot set firstboot service"
+  ERROR Q-155 with Result: 
+  Section: quickstart
+The script could not find the board.  
+You may find above some error. Please verify.
+If there are no errors it means the board is not registered on the LAN / WiFi network.
+The probable cause could be a wrong OS configuration. Please google:
+  Find Raspberry PI address on local network
+and try to find the IP address manually.
+After a successful search you may retry this script.
+Remember: after power up the board' led shows activity for a while. 
+You should wait until led is stable for several seconds.
+For my raspi zeroW it is up to a few minutes.
 
 
 
