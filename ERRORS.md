@@ -84,7 +84,7 @@ which is the same statement issued by this script. The board response should evi
   ERROR Q-106 with Result: <xx>
   Section: quickstart
 The script attempted a few operation to make firstboot service operational.
-You shoud find above some error. Please verify.
+You should find above some error. Please verify.
 
 
 
@@ -93,12 +93,21 @@ You shoud find above some error. Please verify.
   ERROR Q-107 with Result: 
   Section: quickstart
 Errors found while performing the final control on the board.
-You shoud find above some error. Please verify.
+You should find above some error. Please verify.
+
+
+
+  Q-131
+  Expect program not installed
+  ERROR Q-131 with Result: 
+  Section: quickstart
+This script tries to install expect script automatically, but failed.
+You should try to install expect manually.
 
 
 
   Q-155
-  Cannot set firstboot service"
+  Cannot set firstboot service
   ERROR Q-155 with Result: 
   Section: quickstart
 The script could not find the board.  
@@ -111,6 +120,14 @@ After a successful search you may retry this script.
 Remember: after power up the board' led shows activity for a while. 
 You should wait until led is stable for several seconds.
 For my raspi zeroW it is up to a few minutes.
+
+
+
+  Q-156
+  User pressed ^C
+  ERROR Q-156 with Result: 
+  Section: quickstart
+The user choosed to stop processing.
 
 
 
