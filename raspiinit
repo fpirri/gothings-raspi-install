@@ -1,7 +1,7 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
 #                                                                     2022-02-22
-                                                                  Version="1.12"
+                                                                  Version="1.13"
                                                                          Debug=1
 #  Installatore costruito dopo quickstart
 #
@@ -172,10 +172,11 @@ bash quickstart.sh
 Result=$?
 if [ $Result -gt 0 ]
 then
-  echo "Error $Result while executing raspiinit"
-  echo "This may happen from errors during quickstart execution"
+  echo "Error Q-${Result} while executing raspiinit"
+  echo "This happen from errors during quickstart execution"
   echo "Please verify the script output above and report all"
   echo "errors you find to the developers"
+  echo "Hints may be found at ~/dockrepo/raspi-install/log/raspi-install.log"
   echo
   exit 85
 #
