@@ -1,7 +1,7 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
 #                                                                     2022-02-22
-                                                                  Version="1.14"
+                                                                  Version="1.15"
                                                                          Debug=1
 #  Installatore costruito dopo quickstart
 #
@@ -49,6 +49,7 @@
 #
 #-------------------------------------------------------------------------------
 # TODO:
+#   exec everything in ~/dockrepo/temp                              <-- IN CORSO
 #   script to quickstart via known IP address
 #     <-- mettere questo ed altre utilities sul repo github
 #   gestione errore in fondo a raspiinit
@@ -65,16 +66,17 @@
 #------------------------------------------------------------------------------
 #
 ##########################################################################
-#                                                           user functions
+#                                                          local functions
 #
 Red='\033[0;41;30m'
 Std='\033[0;0;39m'
-#
+LogFile="raspiinit.log"
+#------------
 redline(){
 # stampa in rosso la stringa $1
 echo -e ${Red}"$1"${Std}
 }
-#
+#------------
 pause(){
 #  ask key before continuing (^C is active)
 #    $key:  user input key
@@ -83,6 +85,59 @@ echo '--------------------------------------------------------------'
   read -rsp $'Any key to continue, ^C to STOP ' -n 1 key
 echo
 }
+#------------
+log() {
+#  $1   stringa da scrivere sul log file
+  echo "$( date '+%F_%H:%M:%S' ) | $1" >> "${LogFile}"
+}
+#------------
+echolog() {
+#  $1   stringa da scrivere sul log file & sul terminale
+  log "$1"
+  echo "$1"
+}
+#------------
+errorstop() {
+#  $1   codice di errore
+#  $2   stringa di errore
+#  $3   label chiamante (per sapere dove ...)
+  if [ $1 -gt 0 ]
+  then
+    echolog "$3 | error $1 - $2"
+    echolog "raspiinit ends with error $1"
+    pause
+    exit $1
+  else
+    echo "$3 | passed" >> "${LogFile}"
+  fi
+}
+#
+#---------
+setdir() {
+#  $1  verifica esistenza dir
+#    <-- crea dir se non esiste
+#    <-- exit 81 on error, ok se esiste gia'
+  local Result
+  if [[ -z "$1" ]]
+  then
+    errorstop "81" "setdir: empty varname"  "setdir: $1"
+  else
+    if [ ! -d "$1" ]
+    then
+      mkdir "$1"
+      Result=$?
+      if [[ $Result -eq 1 ]] # dir exists (empty?)
+      then
+        echo "dir $1 already exists!"
+      else
+        errorstop ${Result} "set dir $1 non riuscito"  "set dir $1"
+      fi
+    fi
+  fi
+}
+#
+################################################################################
+
 #
 ################################################################################
 #
@@ -107,14 +162,39 @@ Please look at the README file on github to verify the performed operations
 You can find information on Gothings software at: www.gothings.org
 '
 pause
+# set dirs
+echo '   -->
+'
+AppName="raspi-install"
+Dockrepo="$HOME/dockrepo/"
+setdir "${Dockrepo}"
+DockTemp="${Dockrepo}temp/"
+setdir "${DockTemp}"
+LogFile="${DockTemp}raspiinit.log"
+log "raspiinit ver. $Version starts"
+DockApp="${Dockrepo}${AppName}/"
+setdir "${DockApp}"
+ArchiveFile="${DockApp}quickinstall.tar.gz"
+AppSysdata="${Dockrepo}sysdata/$AppName/"
+setdir "${AppSysdata}"
+echolog "setdirs OK"
+# change working dir
+cd "${AppSysdata}"
+Result=$?
+if [ $Result -gt 0 ]
+then
+  echo "Error $Result while changing directory to ~/dockrepo/sysdata/raspi-install"
+  echo "This should not happen!"
+  echo "Eventually, please report to the developers"
+fi
 #
-if [ $Debug -eq 0 ]
+if [ $Debug -eq 0 ] # IF conditions: AGGIUSTARE!
 then
 #
 ################################################################################
 #                                          download latest manager da repository
-  echo 'Download from github ...'
-  wget -O ./quickinstall.tar.gz https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
+  echolog 'First, download quickinstall from github ...'
+  wget -O "${ArchiveFile}" https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
   Result=$?
   if [ $Result -gt 0 ]
   then
@@ -122,21 +202,22 @@ then
     echo "This should not happen!"
     echo "please verify your internet connection"
     echo "Eventually, please report to the developers"
+    pause
     exit 83
   fi
 fi
 ################################################################################
-#                                       quickinstall.tar.gz deve essere presente
-if [[ ! -s "./quickinstall.tar.gz" ]]
+#                                       quickinstall.tar.gz DEVE essere presente
+if [[ ! -s "${ArchiveFile}" ]] # IF conditions: AGGIUSTARE!
 then
-  echo "Download archive quickinstall.tar.gz from github ..."
-  wget -O ./quickinstall.tar.gz https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
+  echolog "Download archive quickinstall.tar.gz from github ..."
+  wget -O "${ArchiveFile}" https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
 fi
 ################################################################################
 #                                                             expand in dockrepo
 #
-echo "Expand .tar.gz archive ..."
-tar xpf quickinstall.tar.gz -C "${HOME}"
+echolog "Expand .tar.gz archive ..."
+tar xpf "${ArchiveFile}" -C "${HOME}"
 Result=$?
 if [ $Result -gt 0 ]
 then
@@ -149,33 +230,30 @@ fi
 ################################################################################
 #                                                                installa sul PC
 #
-cd ~/dockrepo/sysdata/raspi-install
-Result=$?
-if [ $Result -gt 0 ]
-then
-  echo "Error $Result while changing directory to ~/dockrepo/sysdata/raspi-install"
-  echo "This should not happen!"
-  echo "Eventually, please report to the developers"
-fi
-echo "exec quickstart"
+echolog "Should I exec quickstart?"
 pause
 bash quickstart.sh
 Result=$?
 if [ $Result -gt 0 ]
 then
-  # da AGGIUSTARE
-  echo "Error Q-${Result} while executing raspiinit"
-  echo "This happen from errors during quickstart execution"
+  # da RIVEDERE
+################################################################################
+#                                                                      Avviso KO
+  echolog "Error Q-${Result} while executing quickstart"
+  echo 
   echo "Please verify the script output above and report all"
   echo "errors you find to the developers"
-  echo "Hints may be found at ~/dockrepo/raspi-install/log/raspi-install.log"
   echo
-  exit 85
-#
+  echo "You may find logs in the following locations:"
+  echo "${LogFile}"
+  echo "./raspiinit.log   <-- the download location of raspiinit"
+  echo
+  log "raspiinit ends with error Q-${Result}"
 ################################################################################
 #                                                                      Avviso OK
 else
 #
+  log "raspiinit successfully ends"
   echo '
 No errors?
 
