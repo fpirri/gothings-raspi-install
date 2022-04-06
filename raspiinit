@@ -1,8 +1,8 @@
 #!/bin/bash
 #-------------------------------------------------------------------------------
 #                                                                     2022-02-22
-                                                                  Version="1.15"
-                                                                         Debug=1
+                                                                  Version="1.17"
+                                                                         Debug=0
 #  Installatore costruito dopo quickstart
 #
 #  scopo:
@@ -70,6 +70,7 @@
 #
 Red='\033[0;41;30m'
 Std='\033[0;0;39m'
+Green='\033[42m'
 LogFile="raspiinit.log"
 #------------
 redline(){
@@ -86,6 +87,17 @@ echo '--------------------------------------------------------------'
 echo
 }
 #------------
+pausegreen(){
+#
+#  ask key before continuing (^C is active)
+#    $key:  user input key
+  echo -e "${Green}--------------------------------------------------------------"
+  echo -n -e "Press any key to continue, ^C stops processing "
+  read -rs -n 1 key
+  echo -e " $Std"
+  echo
+}
+#------------
 log() {
 #  $1   stringa da scrivere sul log file
   echo "$( date '+%F_%H:%M:%S' ) | $1" >> "${LogFile}"
@@ -93,8 +105,8 @@ log() {
 #------------
 echolog() {
 #  $1   stringa da scrivere sul log file & sul terminale
-  log "$1"
   echo "$1"
+  log "$1"
 }
 #------------
 errorstop() {
@@ -105,7 +117,7 @@ errorstop() {
   then
     echolog "$3 | error $1 - $2"
     echolog "raspiinit ends with error $1"
-    pause
+    pausegreen
     exit $1
   else
     echo "$3 | passed" >> "${LogFile}"
@@ -152,16 +164,14 @@ echo 'This script will download software from github
 
 The board will be able to run initialization software at next boot, to
 allow you to use a standard browser to command the board
-
 The script creates a directory in your homedir, named "dockrepo", to contain the
 installer and future downloads of GoThings software
 
 Please look at the README file on github to verify the performed operations
   ( https://github.com/fpirri/gothings-install/ )
-
 You can find information on Gothings software at: www.gothings.org
 '
-pause
+pausegreen
 # set dirs
 echo '   -->
 '
@@ -193,7 +203,7 @@ then
 #
 ################################################################################
 #                                          download latest manager da repository
-  echolog 'First, download quickinstall from github ...'
+  echolog 'No Debug, download quickinstall from github ...'
   wget -O "${ArchiveFile}" https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
   Result=$?
   if [ $Result -gt 0 ]
@@ -202,7 +212,7 @@ then
     echo "This should not happen!"
     echo "please verify your internet connection"
     echo "Eventually, please report to the developers"
-    pause
+    pausegreen
     exit 83
   fi
 fi
@@ -210,7 +220,7 @@ fi
 #                                       quickinstall.tar.gz DEVE essere presente
 if [[ ! -s "${ArchiveFile}" ]] # IF conditions: AGGIUSTARE!
 then
-  echolog "Download archive quickinstall.tar.gz from github ..."
+  echolog "First debug call, download archive from github ..."
   wget -O "${ArchiveFile}" https://github.com/fpirri/gothings-raspi-install/raw/master/quickinstall.tar.gz
 fi
 ################################################################################
@@ -231,7 +241,7 @@ fi
 #                                                                installa sul PC
 #
 echolog "Should I exec quickstart?"
-pause
+pausegreen
 bash quickstart.sh
 Result=$?
 if [ $Result -gt 0 ]
